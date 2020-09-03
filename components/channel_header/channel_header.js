@@ -221,12 +221,12 @@ class ChannelHeader extends React.PureComponent {
     };
 
     handleQuickSwitchKeyPress = (e) => {
-        if (Utils.cmdOrCtrlPressed(e) && !e.shiftKey && Utils.isKeyPressed(e, Constants.KeyCodes.K)) {
-            if (!e.altKey) {
-                e.preventDefault();
-                this.toggleQuickSwitchModal();
-            }
-        }
+        // if (Utils.cmdOrCtrlPressed(e) && !e.shiftKey && Utils.isKeyPressed(e, Constants.KeyCodes.K)) {
+        //     if (!e.altKey) {
+        //         e.preventDefault();
+        //         this.toggleQuickSwitchModal();
+        //     }
+        // }
     }
 
     toggleQuickSwitchModal = () => {

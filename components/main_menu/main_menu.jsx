@@ -95,7 +95,7 @@ class MainMenu extends React.PureComponent {
     }
 
     handleEmitUserLoggedOutEvent = () => {
-        GlobalActions.emitUserLoggedOutEvent();
+        GlobalActions.emitUserLoggedOutEvent('/login?logout=True', true, true);
     }
 
     getFlagged = (e) => {

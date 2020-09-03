@@ -278,7 +278,7 @@ export default class SidebarCategoryList extends React.PureComponent<Props, Stat
             this.props.actions.switchToChannelById(nextChannelId);
             this.scrollToChannel(nextChannelId);
         } else if (Utils.cmdOrCtrlPressed(e) && e.shiftKey && Utils.isKeyPressed(e, Constants.KeyCodes.K)) {
-            this.props.handleOpenMoreDirectChannelsModal(e);
+            // this.props.handleOpenMoreDirectChannelsModal(e);
         }
     };
 

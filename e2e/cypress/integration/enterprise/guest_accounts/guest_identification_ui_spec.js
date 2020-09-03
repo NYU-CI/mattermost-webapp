@@ -159,7 +159,7 @@ describe('MM-18045 Verify Guest User Identification in different screens', () =>
 
     it('Verify Guest Badge in Switch Channel Dialog', () => {
         // # Click the sidebar switcher button
-        cy.get('#sidebarSwitcherButton').click();
+        // cy.get('#sidebarSwitcherButton').click();
 
         // # Type the guest user name on Channel switcher input
         cy.get('#quickSwitchInput').type(guest.username).wait(TIMEOUTS.TINY);

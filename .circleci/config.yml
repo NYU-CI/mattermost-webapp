@@ -23,7 +23,6 @@ jobs:
 
     # Build - DEV
     build-dev:
-        # working_directory: ~/mattermost/mattermost-webapp
         docker:
             - image: circleci/node:latest
         resource_class: xlarge
@@ -42,7 +41,7 @@ jobs:
                     git config --global user.email "circleci@circleci.com"
                     git config --global user.name "Circleci"
                     
-                    git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-v5.25.3
+                    git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-develop
         
                     cd mattermost-webapp
                     date >> circle_ci_triggers.txt
@@ -53,31 +52,21 @@ jobs:
         
                     cd mattermost-webapp
                     git commit -am "[skip ci] new matermost zip [circleci]"
-                    git push origin coleridge-v5.25.3
+                    git push origin coleridge-develop
             
             - *save_cache
             
             - store_artifacts:
                 path: mattermost-webapp/binaries-files/mattermost-webapp.tar.gz
             
-            # - save_cache:
-            #     key: mattermost-webapp-{{ .Branch }}-{{ .BuildNum }}
-            #     paths:
-            #         - mattermost-webapp.tar.gz
-            
             - slack/notify-on-failure:
-                only_for_branches: 'coleridge-v5.25.3'
+                only_for_branches: 'coleridge-develop'
 
     # Deploy - DEV
     deploy-dev:
-        # working_directory: ~/mattermost/mattermost-webapp
         machine: true
         steps:
             - checkout
-
-            # - restore_cache:
-            #     keys:
-            #         - mattermost-webapp-{{ .Branch }}-{{ .BuildNum }}
 
             - add_ssh_keys:
                 fingerprints:
@@ -101,113 +90,191 @@ jobs:
                 title: '[DEVELOPMENT] Job/Deploy Succesfully completed'
 
             - slack/notify-on-failure:
-                only_for_branches: 'coleridge-v5.25.3'
+                only_for_branches: 'coleridge-develop'
 
 
 # ##########################################
 # ############### STAGING ##################
 # ##########################################
 
-#     # Deploying STG with VPN
-#     deploy-stg:
-#         machine: true
-#         steps:
-#             - checkout
-
-#             - add_ssh_keys:
-#                 fingerprints:
-#                     - "f8:36:95:9f:01:7f:49:2d:22:a0:92:00:64:cf:a4:8f"    
-
-#             - run:
-#                 command: |
-#                     sudo apt-get update && sudo apt-get install -y openvpn
-#                 name: Install OpenVPN
-
-#             - run:
-#                 name: Install Dependencies
-#                 command: |
-#                     pip install ansible
+    build-stg:
+        docker:
+            - image: circleci/node:latest
+        resource_class: xlarge
+        steps:
+            - checkout
+                    
+            - *restore_cache
             
-#             - run:
-#                 command: |
-#                     # Retrieving env vars for VPN - LOGIN
-#                     echo -e "$login" > vpn.login
-#                     sed -i 's/\\//g' vpn.login
-
-#                     # Retrieving env vars for VPN - SOPHOS
-#                     echo -e "$sophos" > sophos.ovpn
-#                     sed -i 's/\\//g' sophos.ovpn
+            - run:
+                name: Build
+                command: |
+                    # Build Webapp
+                    make package
+                    #Commit ignoring circleci
                 
-#                     # Connect to VPN
-#                     sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
-#                     sleep 20
-#                     echo $(cat openvpn.log)
+                    git config --global user.email "circleci@circleci.com"
+                    git config --global user.name "Circleci"
+                    
+                    git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-staging
+        
+                    cd mattermost-webapp
+                    date >> circle_ci_triggers.txt
+                    git add circle_ci_triggers.txt
 
-#                     # Deploy HUB
-#                     ansible-playbook -i ansible/hosts ansible/deploy-stg.yaml --user=ubuntu
-#                 name: Connect to VPN and Deploy
+                    cd ..
+                    mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/
+        
+                    cd mattermost-webapp
+                    git commit -am "[skip ci] new matermost zip [circleci]"
+                    git push origin coleridge-staging
+            
+            - *save_cache
+            
+            - store_artifacts:
+                path: mattermost-webapp/binaries-files/mattermost-webapp.tar.gz
+            
+            - slack/notify-on-failure:
+                only_for_branches: 'coleridge-staging'
 
-#             - slack/notify:
-#                 color: '#42e2f4'
-#                 author_name: $CIRCLE_USERNAME
-#                 message: 'There was a commit on branch: $CIRCLE_BRANCH'
-#                 title: '[STAGING] Job/Deploy Succesfully completed'
+    # Deploy - STG
+    deploy-stg:
+        machine: true
+        steps:
+            - checkout
 
-#             - slack/notify-on-failure:
-#                 only_for_branches: 'staging'
- 
+            - add_ssh_keys:
+                fingerprints:
+                    - "14:6d:d4:16:a5:07:e6:08:a9:14:b9:72:bb:36:7d:92" 
+
+            - run:
+                command: |
+                    sudo apt-get update && sudo apt-get install -y openvpn
+                name: Install OpenVPN
+
+            - run:
+                name: Install Dependencies
+                command: |
+                    pip install ansible
+
+            - run:
+                name: Deploy
+                command: |
+                    # Retrieving env vars for VPN - LOGIN
+                    echo -e "$login" > vpn.login
+                    sed -i 's/\\//g' vpn.login
+
+                    # Retrieving env vars for VPN - SOPHOS
+                    echo -e "$sophos" > sophos.ovpn
+                    sed -i 's/\\//g' sophos.ovpn
+                
+                    # Connect to VPN
+                    sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
+                    sleep 20
+                    echo $(cat openvpn.log)
+                    # Deploy Webapp
+                    ansible-playbook -i ansible/hosts ansible/deploy-stg.yaml --user=circleci
+        
+            - slack/notify:
+                color: '#42e2f4'
+                author_name: $CIRCLE_USERNAME
+                message: 'There was a commit on branch: $CIRCLE_BRANCH'
+                title: '[STAGING] Job/Deploy Succesfully completed'
+
+            - slack/notify-on-failure:
+                only_for_branches: 'coleridge-staging'
+
+
 # ##########################################
 # ############ PRODUCTION ##################
 # ##########################################
 
-#     # Deploying PROD with VPN          
-#     deploy-prod:
-#         machine: true
-#         steps:
-#             - checkout
-
-#             - add_ssh_keys:
-#                 fingerprints:
-#                     - "f8:36:95:9f:01:7f:49:2d:22:a0:92:00:64:cf:a4:8f"    
-
-#             - run:
-#                 command: |
-#                     sudo apt-get update && sudo apt-get install -y openvpn
-#                 name: Install OpenVPN
-
-#             - run:
-#                 name: Install Dependencies
-#                 command: |
-#                     pip install ansible
+    build-prod:
+        docker:
+            - image: circleci/node:latest
+        resource_class: xlarge
+        steps:
+            - checkout
+                    
+            - *restore_cache
             
-#             - run:
-#                 command: |
-#                     # Retrieving env vars for VPN - LOGIN
-#                     echo -e "$login" > vpn.login
-#                     sed -i 's/\\//g' vpn.login
-
-#                     # Retrieving env vars for VPN - SOPHOS
-#                     echo -e "$sophos" > sophos.ovpn
-#                     sed -i 's/\\//g' sophos.ovpn
+            - run:
+                name: Build
+                command: |
+                    # Build Webapp
+                    make package
+                    #Commit ignoring circleci
                 
-#                     # Connect to VPN
-#                     sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
-#                     sleep 20
-#                     echo $(cat openvpn.log)
+                    git config --global user.email "circleci@circleci.com"
+                    git config --global user.name "Circleci"
+                    
+                    git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-master
+        
+                    cd mattermost-webapp
+                    date >> circle_ci_triggers.txt
+                    git add circle_ci_triggers.txt
 
-#                     # Deploy HUB
-#                     ansible-playbook -i ansible/hosts ansible/deploy-prod.yaml --user=ubuntu
-#                 name: Connect to VPN and Deploy
+                    cd ..
+                    mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/
+        
+                    cd mattermost-webapp
+                    git commit -am "[skip ci] new matermost zip [circleci]"
+                    git push origin coleridge-master
             
-#             - slack/notify:
-#                 color: '#42e2f4'
-#                 mentions: 'channel'
-#                 author_name: $CIRCLE_USERNAME
-#                 message: 'There was a commit on branch: $CIRCLE_BRANCH'
-#                 title: '[PRODUCTION] Job/Deploy Succesfully completed'
+            - *save_cache
+            
+            - store_artifacts:
+                path: mattermost-webapp/binaries-files/mattermost-webapp.tar.gz
+            
+            - slack/notify-on-failure:
+                only_for_branches: 'coleridge-master'
 
-#             - slack/notify-on-failure:
-#                 only_for_branches: 'master'
+    # Deploy - PROD
+    deploy-prod:
+        machine: true
+        steps:
+            - checkout
+
+            - add_ssh_keys:
+                fingerprints:
+                    - "14:6d:d4:16:a5:07:e6:08:a9:14:b9:72:bb:36:7d:92" 
+
+            - run:
+                command: |
+                    sudo apt-get update && sudo apt-get install -y openvpn
+                name: Install OpenVPN
+
+            - run:
+                name: Install Dependencies
+                command: |
+                    pip install ansible
+
+            - run:
+                name: Deploy
+                command: |
+                    # Retrieving env vars for VPN - LOGIN
+                    echo -e "$login" > vpn.login
+                    sed -i 's/\\//g' vpn.login
+
+                    # Retrieving env vars for VPN - SOPHOS
+                    echo -e "$sophos" > sophos.ovpn
+                    sed -i 's/\\//g' sophos.ovpn
+                
+                    # Connect to VPN
+                    sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
+                    sleep 20
+                    echo $(cat openvpn.log)
+                    # Deploy Webapp
+                    ansible-playbook -i ansible/hosts ansible/deploy-stg.yaml --user=circleci
+        
+            - slack/notify:
+                color: '#42e2f4'
+                author_name: $CIRCLE_USERNAME
+                message: 'There was a commit on branch: $CIRCLE_BRANCH'
+                title: '[PRODUCTION] Job/Deploy Succesfully completed'
+
+            - slack/notify-on-failure:
+                only_for_branches: 'coleridge-master'
 
 # Orchestrate or schedule a set of jobs
 workflows:
@@ -239,44 +306,66 @@ workflows:
 
 # ########### STAGING ##################
 
-#             - deploy-stg:
-#                 context: STG
-#                 filters:
-#                     branches:
-#                         only:
-#                             - staging
-#                 post-steps:
-#                     - jira/notify
+            - build-stg:
+                context: STG
+                filters:
+                    branches:
+                        only:
+                            - coleridge-staging
+                post-steps:
+                    - jira/notify
+
+            - deploy-stg:
+                context: STG
+                requires:
+                    - build-stg
+                filters:
+                    branches:
+                        only:
+                            - coleridge-staging
+                post-steps:
+                    - jira/notify
                             
 # ########### PRODUCTION ##################
 
-#             - slack/approval-notification:
-#                 color: '#ffa500'
-#                 message: '[PRODUCTION] A workflow from branch $CIRCLE_BRANCH needs approval to continue'
-#                 mentions: 'gabriel.freire,leonnardo.campos,filipe.oliveira,rafael.alves,paulo.curado,murilo.carraro,fausto.junqueira,joao.ferreira'
-#                 filters:
-#                     branches:
-#                         only:
-#                             - master
-#                 post-steps:
-#                     - jira/notify
+            - slack/approval-notification:
+                color: '#ffa500'
+                message: '[PRODUCTION] A workflow from branch $CIRCLE_BRANCH needs approval to continue'
+                mentions: 'gabriel.freire,leonnardo.campos,filipe.oliveira,rafael.alves,paulo.curado,murilo.carraro,fausto.junqueira,joao.ferreira'
+                filters:
+                    branches:
+                        only:
+                            - coleridge-master
+                post-steps:
+                    - jira/notify
 
-#             - waiting-approval:
-#                 type: approval
-#                 filters:
-#                     branches:
-#                         only:
-#                             - master
-#                 post-steps:
-#                     - jira/notify
+            - waiting-approval:
+                type: approval
+                filters:
+                    branches:
+                        only:
+                            - coleridge-master
+                post-steps:
+                    - jira/notify
                             
-#             - deploy-prod:
-#                 context: PROD
-#                 requires:
-#                     - waiting-approval
-#                 filters:
-#                     branches:
-#                         only:
-#                             - master
-#                 post-steps:
-#                     - jira/notify
+            - build-prod:
+                context: PROD
+                requires:
+                    - waiting-approval
+                filters:
+                    branches:
+                        only:
+                            - coleridge-master
+                post-steps:
+                    - jira/notify
+
+            - deploy-prod:
+                context: PROD
+                requires:
+                    - build-prod
+                filters:
+                    branches:
+                        only:
+                            - coleridge-master
+                post-steps:
+                    - jira/notify

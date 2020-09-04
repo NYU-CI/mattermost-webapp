@@ -1,30 +1,24 @@
-# - hosts: thincrust-prod
-#   tasks:
+- hosts: thincrust-prod
+  tasks:
    
-#     - name: Copying sync.cfg
-#       copy:
-#         src: ../sync.prod.cfg
-#         dest: ./mattermost-sync-scripts/sync.prod.cfg
+    - name: Create directory
+      file:
+        path: ./mattermost-webapp/
+        state: directory
+
+    - name: mattermost-webapp.tar.gz
+      copy:
+        src: ../binaries-files/mattermost-webapp.tar.gz
+        dest: ./mattermost-webapp/mattermost-webapp.tar.gz
    
-#     - name: Copying sync.py
-#       copy:
-#         src: ../sync.py
-#         dest: ./mattermost-sync-scripts/sync.py
-
-#     - name: Copying mattermost_api.py
-#       copy:
-#         src: ../mattermost_api.py
-#         dest: ./mattermost-sync-scripts/mattermost_api.py
-
-#     - name: Copying dynamo_integration.py
-#       copy:
-#         src: ../dynamo_integration.py
-#         dest: ./mattermost-sync-scripts/dynamo_integration.py
-
-#     - name: Deploy production version of mattermost-sync-scripts
-#       shell: |
-#         cd ./mattermost-sync-scripts
-#         sudo cp sync.prod.cfg /opt/mattermost-sync/sync.cfg
-#         sudo cp sync.py /opt/mattermost-sync/sync.py
-#         sudo cp mattermost_api.py /opt/mattermost-sync/mattermost_api.py
-#         sudo cp dynamo_integration.py /opt/mattermost-sync/dynamo_integration.py
+    - name: Deploy production version of mattermost-webapp
+      shell: |
+        cd ./mattermost-webapp
+        tar -xvf mattermost-webapp.tar.gz
+        sudo rm -rf /opt/gitlab/embedded/service/mattermost/client_leo
+        sudo mv /opt/gitlab/embedded/service/mattermost/client /opt/gitlab/embedded/service/mattermost/client_leo
+        sudo cp -R client/ /opt/gitlab/embedded/service/mattermost
+        rm -rf client/
+    #     sudo cp sync.py /opt/mattermost-sync/sync.py
+    #     sudo cp mattermost_api.py /opt/mattermost-sync/mattermost_api.py
+    #     sudo cp dynamo_integration.py /opt/mattermost-sync/dynamo_integration.py

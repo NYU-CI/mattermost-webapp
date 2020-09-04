@@ -3,7 +3,7 @@
    
     - name: mattermost-webapp.tar.gz
       copy:
-        src: ~/mattermost/mattermost-webapp/mattermost-webapp.tar.gz
+        src: ../mattermost-webapp.tar.gz
         dest: ./mattermost-webapp/mattermost-webapp.tar.gz
    
     # - name: Copying sync.py

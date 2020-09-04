@@ -26,7 +26,7 @@ jobs:
         working_directory: ~/mattermost/mattermost-webapp
         docker:
             - image: circleci/node:latest
-        resource_class: 2xlarge
+        resource_class: xlarge
         steps:
             - checkout
 
@@ -38,7 +38,10 @@ jobs:
             - run:
                 name: Build
                 command: |
+                    # Build Webapp
                     make package
+                    # Deploy Webapp
+                    ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=ubuntu
             - *save_cache
             
             - store_artifacts:

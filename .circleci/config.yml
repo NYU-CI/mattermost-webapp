@@ -58,7 +58,7 @@ jobs:
                 name: Build
                 command: |
                     # Deploy Webapp
-                    ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=circleci
+                    ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=ubuntu
            
             
             - store_artifacts:

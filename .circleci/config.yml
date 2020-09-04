@@ -41,8 +41,8 @@ jobs:
                     sudo apt update
                     sudo apt install nodejs
                     sudo apt install npm 
-                    sudo apt install python-pip
-                    sudo pip install ansible
+                    sudo apt install python-pip3
+                    sudo pip3 install ansible
             
             # - *restore_cache
             # - run:

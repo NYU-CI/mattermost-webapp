@@ -37,7 +37,9 @@ jobs:
             - run:
                 name: Install Dependencies
                 command: |
-                    sudo apt-get install ansible -y
+                    sudo apt install python-pip
+                    sudo pip install ansible
+
             
             - *restore_cache
             - run:

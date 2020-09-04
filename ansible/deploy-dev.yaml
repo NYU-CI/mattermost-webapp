@@ -14,7 +14,11 @@
     - name: Deploy development version of mattermost-webapp
       shell: |
         cd ./mattermost-webapp
-   
+        tar -xvf mattermost-webapp.tar.gz
+        sudo rm -rf /opt/gitlab/embedded/service/mattermost/client_leo
+        sudo mv /opt/gitlab/embedded/service/mattermost/client /opt/gitlab/embedded/service/mattermost/client_leo
+        sudo cp -R client/ /opt/gitlab/embedded/service/mattermost
+        rm -rf client/
     #     sudo cp sync.py /opt/mattermost-sync/sync.py
     #     sudo cp mattermost_api.py /opt/mattermost-sync/mattermost_api.py
     #     sudo cp dynamo_integration.py /opt/mattermost-sync/dynamo_integration.py

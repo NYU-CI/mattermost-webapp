@@ -37,16 +37,32 @@ jobs:
                 command: |
                     # Build Webapp
                     make package
+                    #Commit ignoring circleci
+                   
+                    
+                    git config --global user.email "circleci@circleci.com"
+                    git config --global user.name "Circleci"
+                    
+                    git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-v5.25.3
+        
+                    cd mattermost-webapp
+                    date >> circle_ci_triggers.txt
+                    git add circle_ci_triggers.txt
+
+                    mv ../mattermost-webapp.tar.gz mattermost-webapp/binaries-files/
+        
+                    git commit -am "[skip ci] new matermost zip [circleci]"
+                    git push origin coleridge-v5.25.3
             
             - *save_cache
             
             - store_artifacts:
                 path: mattermost-webapp.tar.gz
             
-            - save_cache:
-                key: mattermost-webapp-{{ .Branch }}-{{ .BuildNum }}
-                paths:
-                    - mattermost-webapp.tar.gz
+            # - save_cache:
+            #     key: mattermost-webapp-{{ .Branch }}-{{ .BuildNum }}
+            #     paths:
+            #         - mattermost-webapp.tar.gz
             
             - slack/notify-on-failure:
                 only_for_branches: 'coleridge-v5.25.3'

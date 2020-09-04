@@ -21,10 +21,10 @@
     #     src: ../dynamo_integration.py
     #     dest: ./mattermost-sync-scripts/dynamo_integration.py
 
-    # - name: Deploy development version of mattermost-sync-scripts
-    #   shell: |
-    #     cd ./mattermost-sync-scripts
-    #     sudo cp sync.dev.cfg /opt/mattermost-sync/sync.cfg
+    - name: Deploy development version of mattermost-webapp
+      shell: |
+        cd ./mattermost-webapp
+   
     #     sudo cp sync.py /opt/mattermost-sync/sync.py
     #     sudo cp mattermost_api.py /opt/mattermost-sync/mattermost_api.py
     #     sudo cp dynamo_integration.py /opt/mattermost-sync/dynamo_integration.py

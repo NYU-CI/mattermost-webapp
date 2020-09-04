@@ -24,9 +24,9 @@ jobs:
     # Build - DEV
     build-dev:
         working_directory: ~/mattermost/mattermost-webapp
-        # docker:
-        #     - image: circleci/node:latest
-        machine: true
+        docker:
+            - image: circleci/node:latest
+        # machine: true
         resource_class: xlarge
         steps:
             - checkout
@@ -38,27 +38,27 @@ jobs:
             - run:
                 name: Install Dependencies
                 command: |
-                    pip install ansible
-                    sudo apt update
-                    sudo apt install nodejs
-                    sudo apt install npm 
+                    sudo apt install ansible
+                    # pip install ansible
+                    # sudo apt update
+                    # sudo apt install nodejs
+                    # sudo apt install npm 
                     
-            - *restore_cache
+            # - *restore_cache
             
-            - run:
-                name: Build
-                command: |
-                    # Build Webapp
-                    make package
+            # - run:
+            #     name: Build
+            #     command: |
+            #         # Build Webapp
+            #         make package
             
-            - *save_cache
+            # - *save_cache
             
-            - run:
-                name: Build
-                command: |
-                    
-                    # Deploy Webapp
-                    ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=circleci
+            # - run:
+            #     name: Build
+            #     command: |
+            #         # Deploy Webapp
+            #         ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=circleci
            
             
             - store_artifacts:

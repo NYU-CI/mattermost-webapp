@@ -8,8 +8,8 @@
 
     - name: mattermost-webapp.tar.gz
       copy:
-        src: ../mattermost-webapp.tar.gz
-        dest: ./mattermost-webapp/mattermost-webapp.tar.gz
+        src: ../package.json
+        dest: ./mattermost-webapp/package.json
    
     # - name: Copying sync.py
     #   copy:

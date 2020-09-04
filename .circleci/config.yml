@@ -1,229 +1,219 @@
 version: 2.1
 
 orbs:
-  aws-s3: circleci/aws-s3@1.0.11
-
-executors:
-  default:
-    docker:
-      - image: mattermost/mattermost-build-webapp:oct-2-2018
-    resource_class: "xlarge"
+    aws-cli: circleci/aws-cli@1.0.0
+    slack: circleci/slack@3.4.2
+    jira: circleci/jira@1.1.7
 
 aliases:
-  - &restore_cache
-    restore_cache:
-      key: dependencies-{{ checksum "package-lock.json" }}-1
-  - &save_cache
-    save_cache:
-      key: dependencies-{{ checksum "package-lock.json" }}-1
-      paths:
-        - ~/mattermost/mattermost-webapp/node_modules
+    - &restore_cache
+        restore_cache:
+        key: dependencies-{{ checksum "package-lock.json" }}-1
+    - &save_cache
+        save_cache:
+        key: dependencies-{{ checksum "package-lock.json" }}-1
+        paths:
+            - ~/mattermost/mattermost-webapp/node_modules
 
 jobs:
-  install:
-    executor:
-      name: default
-    working_directory: ~/mattermost/mattermost-webapp
-    steps:
-      - checkout
-      - *restore_cache
-      - run: |
-          npm ci
-          cd node_modules/mattermost-redux && npm i && npm run build
-      - *save_cache
 
-  lint:
-    executor:
-      name: default
-    working_directory: ~/mattermost/mattermost-webapp
-    steps:
-      - checkout
-      - *restore_cache
-      - run: |
-          npm run check
+##########################################
+########### DEVELOPMENT ##################
+##########################################
 
-  i18n-check:
-    executor:
-      name: default
-    working_directory: ~/mattermost/mattermost-webapp
-    steps:
-      - checkout
-      - *restore_cache
-      - run: |
-          cp i18n/en.json /tmp/en.json
-          mkdir -p /tmp/fake-mobile-dir/assets/base/i18n/
-          echo '{}' > /tmp/fake-mobile-dir/assets/base/i18n/en.json
-          npm run mmjstool -- i18n extract-webapp --webapp-dir . --mobile-dir /tmp/fake-mobile-dir
-          diff /tmp/en.json i18n/en.json
+    # Build - DEV
+    build-dev:
+        working_directory: ~/mattermost/mattermost-webapp
+        docker:
+            - image: circleci/node:lastest
+        steps:
+            - checkout
 
-  type-check:
-    executor:
-      name: default
-    working_directory: ~/mattermost/mattermost-webapp
-    steps:
-      - checkout
-      - *restore_cache
-      - run: |
-          npm run check-types
+            - add_ssh_keys:
+                fingerprints:
+                    - "14:6d:d4:16:a5:07:e6:08:a9:14:b9:72:bb:36:7d:92" 
+            
+            - *restore_cache
+            - run:
+                name: Build
+                command: |
+                    make package
+            - *save_cache
+            
+            - store_artifacts:
+                path: ~/mattermost/mattermost-webapp/mattermost-webapp.tar.gz
+            
+            - slack/notify:
+                color: '#42e2f4'
+                author_name: $CIRCLE_USERNAME
+                message: 'There was a commit on branch: $CIRCLE_BRANCH'
+                title: '[DEVELOPMENT] Job/Deploy Succesfully completed'
 
-  test:
-    executor:
-      name: default
-    working_directory: ~/mattermost/mattermost-webapp
-    steps:
-      - checkout
-      - *restore_cache
-      - run: npm run test-ci
-      - store_test_results:
-          path: build/
+            - slack/notify-on-failure:
+                only_for_branches: 'coleridge-v5.25.3'
 
-  build:
-    executor:
-      name: default
-    resource_class: xlarge
-    working_directory: ~/mattermost/mattermost-webapp
-    steps:
-      - checkout
-      - *restore_cache
-      - run: |
-          node --version
-          npm version
-          make package-ci
-      - store_artifacts:
-          path: ~/mattermost/mattermost-webapp/mattermost-webapp.tar.gz
-      - persist_to_workspace:
-          root: ~/mattermost
-          paths:
-            - mattermost-webapp
+# ##########################################
+# ############### STAGING ##################
+# ##########################################
 
-  build-storybook:
-    executor:
-      name: default
-    working_directory: ~/mattermost/mattermost-webapp
-    steps:
-      - checkout
-      - *restore_cache
-      - run: npm run build-storybook
-      - store_artifacts:
-          path: ~/mattermost/mattermost-webapp/storybook-static
-      - persist_to_workspace:
-          root: ~/mattermost
-          paths:
-            - mattermost-webapp
+#     # Deploying STG with VPN
+#     deploy-stg:
+#         machine: true
+#         steps:
+#             - checkout
 
-  upload-storybook:
-    docker:
-      - image: circleci/python:3.6
-    working_directory: ~/mattermost/mattermost-webapp
-    steps:
-      - attach_workspace:
-          at: ~/mattermost/
-      - aws-s3/sync:
-          from: storybook-static
-          to: s3://alpha-storybook.mattermost.com/$(echo "${CIRCLE_BRANCH}" | sed 's/pull\//PR-/g')/
-          arguments: --cache-control no-cache
-      - aws-s3/sync:
-          from: storybook-static
-          to: s3://alpha-storybook.mattermost.com/commit/${CIRCLE_SHA1}/
-          arguments: --cache-control no-cache
+#             - add_ssh_keys:
+#                 fingerprints:
+#                     - "f8:36:95:9f:01:7f:49:2d:22:a0:92:00:64:cf:a4:8f"    
 
-  upload-s3:
-    docker:
-      - image: circleci/python:3.6
-    working_directory: ~/mattermost/mattermost-webapp
-    steps:
-      - attach_workspace:
-          at: ~/mattermost/
-      - aws-s3/copy:
-          from: mattermost-webapp.tar.gz
-          to: s3://pr-builds.mattermost.com/${CIRCLE_PROJECT_REPONAME}/$(echo "${CIRCLE_BRANCH}" | sed 's/pull\//PR-/g')/
-          arguments: --cache-control no-cache
-      - aws-s3/copy:
-          from: mattermost-webapp.tar.gz
-          to: s3://pr-builds.mattermost.com/${CIRCLE_PROJECT_REPONAME}/commit/${CIRCLE_SHA1}/
-          arguments: --cache-control no-cache
+#             - run:
+#                 command: |
+#                     sudo apt-get update && sudo apt-get install -y openvpn
+#                 name: Install OpenVPN
 
-  prepare-docker-build:
-    working_directory: ~/mattermost/mattermost-webapp
-    docker:
-      - image: circleci/python:3.6
-    steps:
-      - attach_workspace:
-          at: ~/mattermost/
-      - run:
-          command: |
-            curl -f -o server.tar.gz https://pr-builds.mattermost.com/mattermost-server/$(echo "${CIRCLE_BRANCH}" | sed 's/pull\//PR-/g')/mattermost-enterprise-linux-amd64.tar.gz || curl -f -o server.tar.gz https://releases.mattermost.com/mattermost-platform/release-5.25/mattermost-enterprise-linux-amd64.tar.gz
+#             - run:
+#                 name: Install Dependencies
+#                 command: |
+#                     pip install ansible
+            
+#             - run:
+#                 command: |
+#                     # Retrieving env vars for VPN - LOGIN
+#                     echo -e "$login" > vpn.login
+#                     sed -i 's/\\//g' vpn.login
 
-            tar xf server.tar.gz
-            rm -rf mattermost/client
-            tar xf mattermost-webapp.tar.gz
-            mv client mattermost/client
-            tar -zcf mattermost-enterprise-linux-amd64.tar.gz mattermost/
-      - store_artifacts:
-          path: ~/mattermost/mattermost-webapp/mattermost-enterprise-linux-amd64.tar.gz
-      - aws-s3/copy:
-          from: ~/mattermost/mattermost-webapp/mattermost-enterprise-linux-amd64.tar.gz
-          to: s3://pr-builds.mattermost.com/${CIRCLE_PROJECT_REPONAME}/commit/${CIRCLE_SHA1}/
-          arguments: --cache-control no-cache
+#                     # Retrieving env vars for VPN - SOPHOS
+#                     echo -e "$sophos" > sophos.ovpn
+#                     sed -i 's/\\//g' sophos.ovpn
+                
+#                     # Connect to VPN
+#                     sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
+#                     sleep 20
+#                     echo $(cat openvpn.log)
 
-  build-docker:
-    working_directory: ~/mattermost/
-    docker:
-      - image: circleci/buildpack-deps:stretch
-    steps:
-      - attach_workspace:
-          at: ~/mattermost/
-      - setup_remote_docker
-      - run:
-          command: |
-            export TAG="${CIRCLE_SHA1:0:7}"
+#                     # Deploy HUB
+#                     ansible-playbook -i ansible/hosts ansible/deploy-stg.yaml --user=ubuntu
+#                 name: Connect to VPN and Deploy
 
-            git clone https://github.com/mattermost/mattermost-server.git
+#             - slack/notify:
+#                 color: '#42e2f4'
+#                 author_name: $CIRCLE_USERNAME
+#                 message: 'There was a commit on branch: $CIRCLE_BRANCH'
+#                 title: '[STAGING] Job/Deploy Succesfully completed'
 
-            cd mattermost-server
-            export MM_PACKAGE=https://pr-builds.mattermost.com/${CIRCLE_PROJECT_REPONAME}/commit/${CIRCLE_SHA1}/mattermost-enterprise-linux-amd64.tar.gz
-            docker build --build-arg MM_PACKAGE=$MM_PACKAGE -t mattermost/mattermost-enterprise-edition:${TAG} build
-            echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
-            docker push mattermost/mattermost-enterprise-edition:${TAG}
+#             - slack/notify-on-failure:
+#                 only_for_branches: 'staging'
+ 
+# ##########################################
+# ############ PRODUCTION ##################
+# ##########################################
 
+#     # Deploying PROD with VPN          
+#     deploy-prod:
+#         machine: true
+#         steps:
+#             - checkout
+
+#             - add_ssh_keys:
+#                 fingerprints:
+#                     - "f8:36:95:9f:01:7f:49:2d:22:a0:92:00:64:cf:a4:8f"    
+
+#             - run:
+#                 command: |
+#                     sudo apt-get update && sudo apt-get install -y openvpn
+#                 name: Install OpenVPN
+
+#             - run:
+#                 name: Install Dependencies
+#                 command: |
+#                     pip install ansible
+            
+#             - run:
+#                 command: |
+#                     # Retrieving env vars for VPN - LOGIN
+#                     echo -e "$login" > vpn.login
+#                     sed -i 's/\\//g' vpn.login
+
+#                     # Retrieving env vars for VPN - SOPHOS
+#                     echo -e "$sophos" > sophos.ovpn
+#                     sed -i 's/\\//g' sophos.ovpn
+                
+#                     # Connect to VPN
+#                     sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
+#                     sleep 20
+#                     echo $(cat openvpn.log)
+
+#                     # Deploy HUB
+#                     ansible-playbook -i ansible/hosts ansible/deploy-prod.yaml --user=ubuntu
+#                 name: Connect to VPN and Deploy
+            
+#             - slack/notify:
+#                 color: '#42e2f4'
+#                 mentions: 'channel'
+#                 author_name: $CIRCLE_USERNAME
+#                 message: 'There was a commit on branch: $CIRCLE_BRANCH'
+#                 title: '[PRODUCTION] Job/Deploy Succesfully completed'
+
+#             - slack/notify-on-failure:
+#                 only_for_branches: 'master'
+
+# Orchestrate or schedule a set of jobs
 workflows:
-  version: 2
-  untagged-build:
-    jobs:
-      - install
-      - lint:
-          requires:
-            - install
-      - i18n-check:
-          requires:
-            - install
-      - type-check:
-          requires:
-            - install
-      - build:
-          requires:
-            - install
-      - upload-s3:
-          context: mattermost-ci-pr-builds-s3
-          requires:
-            - build
-      - prepare-docker-build:
-          context: mattermost-ci-pr-builds-s3
-          requires:
-            - upload-s3
-      - build-docker:
-          context: matterbuild-docker
-          requires:
-            - prepare-docker-build
-      - build-storybook:
-          requires:
-            - build
-      - upload-storybook:
-          context: mattermost-s3-storybook-alpha
-          requires:
-            - build-storybook
-      - test:
-          requires:
-            - type-check
-            - i18n-check
-            - lint
+    version: 2.1
+    workflow-mattermost:
+        jobs:        
+
+########### DEVELOPMENT ##################
+
+            - build-dev:
+                context: DEV
+                filters:
+                    branches:
+                        only:
+                            - coleridge-v5.25.3
+                post-steps:
+                    - jira/notify
+
+# ########### STAGING ##################
+
+#             - deploy-stg:
+#                 context: STG
+#                 filters:
+#                     branches:
+#                         only:
+#                             - staging
+#                 post-steps:
+#                     - jira/notify
+                            
+# ########### PRODUCTION ##################
+
+#             - slack/approval-notification:
+#                 color: '#ffa500'
+#                 message: '[PRODUCTION] A workflow from branch $CIRCLE_BRANCH needs approval to continue'
+#                 mentions: 'gabriel.freire,leonnardo.campos,filipe.oliveira,rafael.alves,paulo.curado,murilo.carraro,fausto.junqueira,joao.ferreira'
+#                 filters:
+#                     branches:
+#                         only:
+#                             - master
+#                 post-steps:
+#                     - jira/notify
+
+#             - waiting-approval:
+#                 type: approval
+#                 filters:
+#                     branches:
+#                         only:
+#                             - master
+#                 post-steps:
+#                     - jira/notify
+                            
+#             - deploy-prod:
+#                 context: PROD
+#                 requires:
+#                     - waiting-approval
+#                 filters:
+#                     branches:
+#                         only:
+#                             - master
+#                 post-steps:
+#                     - jira/notify

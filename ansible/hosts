@@ -1,0 +1,11 @@
+[thincrust-dev]
+10.10.2.14
+
+[thincrust-dev:vars]
+ansible_ssh_common_args='-o ProxyCommand="ssh -W %h:%p -q circleci@52.3.208.16"'
+
+[thincrust-stg]
+10.10.2.100
+
+[thincrust-prod]
+10.10.2.100

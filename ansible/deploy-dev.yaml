@@ -1,0 +1,30 @@
+- hosts: thincrust-dev
+  tasks:
+   
+    - name: Copying sync.cfg
+      copy:
+        src: ../sync.dev.cfg
+        dest: ./mattermost-sync-scripts/sync.dev.cfg
+   
+    - name: Copying sync.py
+      copy:
+        src: ../sync.py
+        dest: ./mattermost-sync-scripts/sync.py
+
+    - name: Copying mattermost_api.py
+      copy:
+        src: ../mattermost_api.py
+        dest: ./mattermost-sync-scripts/mattermost_api.py
+
+    - name: Copying dynamo_integration.py
+      copy:
+        src: ../dynamo_integration.py
+        dest: ./mattermost-sync-scripts/dynamo_integration.py
+
+    - name: Deploy development version of mattermost-sync-scripts
+      shell: |
+        cd ./mattermost-sync-scripts
+        sudo cp sync.dev.cfg /opt/mattermost-sync/sync.cfg
+        sudo cp sync.py /opt/mattermost-sync/sync.py
+        sudo cp mattermost_api.py /opt/mattermost-sync/mattermost_api.py
+        sudo cp dynamo_integration.py /opt/mattermost-sync/dynamo_integration.py

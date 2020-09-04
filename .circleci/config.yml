@@ -26,6 +26,7 @@ jobs:
         working_directory: ~/mattermost/mattermost-webapp
         docker:
             - image: circleci/node:latest
+        resource_class: 2xlarge
         steps:
             - checkout
 

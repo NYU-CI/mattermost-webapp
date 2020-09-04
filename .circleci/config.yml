@@ -48,9 +48,12 @@ jobs:
                     cd mattermost-webapp
                     date >> circle_ci_triggers.txt
                     git add circle_ci_triggers.txt
-
-                    mv ../mattermost-webapp.tar.gz mattermost-webapp/binaries-files/
+                    ls
+                    cd ..
+                    ls
+                    mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/
         
+                    cd mattermost-webapp
                     git commit -am "[skip ci] new matermost zip [circleci]"
                     git push origin coleridge-v5.25.3
             

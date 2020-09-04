@@ -33,6 +33,11 @@ jobs:
             - add_ssh_keys:
                 fingerprints:
                     - "14:6d:d4:16:a5:07:e6:08:a9:14:b9:72:bb:36:7d:92" 
+
+            - run:
+                name: Install Dependencies
+                command: |
+                    pip install ansible
             
             - *restore_cache
             - run:

@@ -21,4 +21,4 @@
         rm -rf client/
     #     sudo cp sync.py /opt/mattermost-sync/sync.py
     #     sudo cp mattermost_api.py /opt/mattermost-sync/mattermost_api.py
-    #     sudo cp dynamo_integration.py /opt/mattermost-sync/dynamo_integration.py
+    #     sudo cp dynamo_integration.py /opt/mattermost-sync/dynamo_integration.py 

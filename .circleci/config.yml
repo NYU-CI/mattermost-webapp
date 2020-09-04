@@ -289,7 +289,7 @@ workflows:
                 filters:
                     branches:
                         only:
-                            - coleridge-v5.25.3
+                            - coleridge-develop
                 post-steps:
                     - jira/notify
 
@@ -300,7 +300,7 @@ workflows:
                 filters:
                     branches:
                         only:
-                            - coleridge-v5.25.3
+                            - coleridge-develop
                 post-steps:
                     - jira/notify
 

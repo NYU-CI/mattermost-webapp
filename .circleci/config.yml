@@ -13,7 +13,7 @@ aliases:
         save_cache:
             key: dependencies-{{ checksum "package-lock.json" }}-1
             paths:
-                - ~/mattermost/mattermost-webapp/node_modules
+                - node_modules
 
 jobs:
 
@@ -23,7 +23,7 @@ jobs:
 
     # Build - DEV
     build-dev:
-        working_directory: ~/mattermost/mattermost-webapp
+        # working_directory: ~/mattermost/mattermost-webapp
         docker:
             - image: circleci/node:latest
         resource_class: xlarge
@@ -41,7 +41,7 @@ jobs:
             - *save_cache
             
             - store_artifacts:
-                path: ~/mattermost/mattermost-webapp/mattermost-webapp.tar.gz
+                path: mattermost-webapp.tar.gz
             
             - save_cache:
                 key: mattermost-webapp-{{ .Branch }}-{{ .BuildNum }}
@@ -53,10 +53,10 @@ jobs:
 
     # Deploy - DEV
     deploy-dev:
-        working_directory: ~/mattermost/mattermost-webapp
+        # working_directory: ~/mattermost/mattermost-webapp
         machine: true
         steps:
-            - checkout
+            # - checkout
 
             - restore_cache:
                 keys:

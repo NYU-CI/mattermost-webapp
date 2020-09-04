@@ -39,7 +39,6 @@ jobs:
                     make package
                     #Commit ignoring circleci
                    
-                    
                     git config --global user.email "circleci@circleci.com"
                     git config --global user.name "Circleci"
                     
@@ -48,9 +47,8 @@ jobs:
                     cd mattermost-webapp
                     date >> circle_ci_triggers.txt
                     git add circle_ci_triggers.txt
-                    ls
+
                     cd ..
-                    ls
                     mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/
         
                     cd mattermost-webapp
@@ -60,7 +58,7 @@ jobs:
             - *save_cache
             
             - store_artifacts:
-                path: mattermost-webapp.tar.gz
+                path: mattermost-webapp/binaries-files/mattermost-webapp.tar.gz
             
             # - save_cache:
             #     key: mattermost-webapp-{{ .Branch }}-{{ .BuildNum }}
@@ -77,9 +75,9 @@ jobs:
         steps:
             - checkout
 
-            - restore_cache:
-                keys:
-                    - mattermost-webapp-{{ .Branch }}-{{ .BuildNum }}
+            # - restore_cache:
+            #     keys:
+            #         - mattermost-webapp-{{ .Branch }}-{{ .BuildNum }}
 
             - add_ssh_keys:
                 fingerprints:

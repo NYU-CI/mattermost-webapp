@@ -1,31 +1,16 @@
 - hosts: thincrust-dev
   tasks:
    
-    - name: Create  directory
+    - name: Create directory
       file:
         path: ./mattermost-webapp/
         state: directory
 
     - name: mattermost-webapp.tar.gz
       copy:
-        src: ../mattermost-webapp.tar.gz
+        src: ../binaries-files/mattermost-webapp.tar.gz
         dest: ./mattermost-webapp/mattermost-webapp.tar.gz
    
-    # - name: Copying sync.py
-    #   copy:
-    #     src: ../sync.py
-    #     dest: ./mattermost-sync-scripts/sync.py
-
-    # - name: Copying mattermost_api.py
-    #   copy:
-    #     src: ../mattermost_api.py
-    #     dest: ./mattermost-sync-scripts/mattermost_api.py
-
-    # - name: Copying dynamo_integration.py
-    #   copy:
-    #     src: ../dynamo_integration.py
-    #     dest: ./mattermost-sync-scripts/dynamo_integration.py
-
     - name: Deploy development version of mattermost-webapp
       shell: |
         cd ./mattermost-webapp

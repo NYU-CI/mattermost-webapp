@@ -40,13 +40,6 @@ jobs:
             
             - *save_cache
             
-            # - run:
-            #     name: Build
-            #     command: |
-            #         # Deploy Webapp
-            #         ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=circleci
-           
-            
             - store_artifacts:
                 path: ~/mattermost/mattermost-webapp/mattermost-webapp.tar.gz
             
@@ -209,6 +202,17 @@ workflows:
 
             - build-dev:
                 context: DEV
+                filters:
+                    branches:
+                        only:
+                            - coleridge-v5.25.3
+                post-steps:
+                    - jira/notify
+
+            - deploy-dev:
+                context: DEV
+                requires:
+                    - build-dev
                 filters:
                     branches:
                         only:

@@ -54,11 +54,11 @@ jobs:
             
             # - *save_cache
             
-            # - run:
-            #     name: Build
-            #     command: |
-            #         # Deploy Webapp
-            #         ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=circleci
+            - run:
+                name: Build
+                command: |
+                    # Deploy Webapp
+                    ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=circleci
            
             
             - store_artifacts:

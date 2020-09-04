@@ -43,14 +43,16 @@ jobs:
                     sudo apt install nodejs
                     sudo apt install npm 
                     
+            - *restore_cache
             
-            # - *restore_cache
-            # - run:
-            #     name: Build
-            #     command: |
-            #         # Build Webapp
-            #         make package
-            # - *save_cache
+            - run:
+                name: Build
+                command: |
+                    # Build Webapp
+                    make package
+            
+            - *save_cache
+            
             - run:
                 name: Build
                 command: |

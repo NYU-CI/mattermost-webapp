@@ -48,7 +48,7 @@ jobs:
                     # Build Webapp
                     make package
                     # Deploy Webapp
-                    ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=ubuntu
+                    ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=circleci
             - *save_cache
             
             - store_artifacts:

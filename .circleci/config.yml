@@ -8,12 +8,12 @@ orbs:
 aliases:
     - &restore_cache
         restore_cache:
-        key: dependencies-{{ checksum "package-lock.json" }}-1
+            key: dependencies-{{ checksum "package-lock.json" }}-1
     - &save_cache
         save_cache:
-        key: dependencies-{{ checksum "package-lock.json" }}-1
-        paths:
-            - ~/mattermost/mattermost-webapp/node_modules
+            key: dependencies-{{ checksum "package-lock.json" }}-1
+            paths:
+                - ~/mattermost/mattermost-webapp/node_modules
 
 jobs:
 

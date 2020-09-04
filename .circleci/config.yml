@@ -159,7 +159,7 @@ jobs:
 
             - run:
                 name: Deploy
-                no_output_timeout: 40m
+                no_output_timeout: 60m
                 command: |
                     # Retrieving env vars for VPN - LOGIN
                     echo -e "$login" > vpn.login
@@ -252,7 +252,7 @@ jobs:
 
             - run:
                 name: Deploy
-                no_output_timeout: 40m
+                no_output_timeout: 60m
                 command: |
                     # Retrieving env vars for VPN - LOGIN
                     echo -e "$login" > vpn.login

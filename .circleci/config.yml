@@ -56,7 +56,7 @@ jobs:
         # working_directory: ~/mattermost/mattermost-webapp
         machine: true
         steps:
-            # - checkout
+            - checkout
 
             - restore_cache:
                 keys:

@@ -6,14 +6,15 @@
         path: ./mattermost-webapp/
         state: directory
 
-    - name: mattermost-webapp.tar.gz
-      copy:
-        src: ../binaries-files/mattermost-webapp.tar.gz
-        dest: ./mattermost-webapp/mattermost-webapp.tar.gz
+    # - name: mattermost-webapp.tar.gz
+    #   copy:
+    #     src: ../binaries-files/mattermost-webapp.tar.gz
+    #     dest: ./mattermost-webapp/mattermost-webapp.tar.gz
    
     - name: Deploy staging version of mattermost-webapp
       shell: |
         cd ./mattermost-webapp
+        aws s3 cp s3://adrf-stg-mattermost/mattermost-webapp.tar.gz ./mattermost-webapp.tar.gz
         tar -xvf mattermost-webapp.tar.gz
         sudo rm -rf /opt/gitlab/embedded/service/mattermost/client_leo
         sudo mv /opt/gitlab/embedded/service/mattermost/client /opt/gitlab/embedded/service/mattermost/client_leo

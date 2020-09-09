@@ -6,7 +6,7 @@
         path: ./mattermost-webapp/
         state: directory
  
-    - name: Deploy production version of mattermost-webapp
+    - name: Deploy production version of mattermost-webapp pord
       shell: |
         cd ./mattermost-webapp
         aws s3 cp s3://adrf-stg-mattermost/mattermost-webapp.tar.gz ./mattermost-webapp.tar.gz

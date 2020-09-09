@@ -97,8 +97,10 @@ jobs:
 # ############### STAGING ##################
 # ##########################################
 
-    copy-aws-binary:
-        machine: true
+    build-stg:
+        docker:
+            - image: circleci/node:latest
+        resource_class: xlarge
         steps:
             - checkout
 
@@ -106,21 +108,6 @@ jobs:
                 aws-access-key-id: AWS_ID
                 aws-secret-access-key: AWS_KEY
                 aws-region: AWS_REGION
-
-            - run:
-                name: Build
-                command: |
-                    # Build Webapp
-                    aws s3 cp ./binaries-files/mattermost-webapp.tar.gz s3://adrf-stg-mattermost
-             
-            - slack/notify-on-failure:
-                only_for_branches: 'coleridge-staging'
-    build-stg:
-        docker:
-            - image: circleci/node:latest
-        resource_class: xlarge
-        steps:
-            - checkout
                     
             - *restore_cache
             
@@ -141,6 +128,7 @@ jobs:
                     git add circle_ci_triggers.txt
 
                     cd ..
+                    aws s3 cp mattermost-webapp.tar.gz s3://adrf-stg-mattermost
                     mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/
         
                     cd mattermost-webapp
@@ -326,32 +314,25 @@ workflows:
 
 # ########### STAGING ##################
 
-            - copy-aws-binary:
+            - build-stg:
                 context: STG
                 filters:
                     branches:
                         only:
                             - coleridge-staging
+                post-steps:
+                    - jira/notify
 
-            # - build-stg:
-            #     context: STG
-            #     filters:
-            #         branches:
-            #             only:
-            #                 - coleridge-staging
-            #     post-steps:
-            #         - jira/notify
-
-            # - deploy-stg:
-            #     context: STG
-            #     requires:
-            #         - build-stg
-            #     filters:
-            #         branches:
-            #             only:
-            #                 - coleridge-staging
-            #     post-steps:
-            #         - jira/notify
+            - deploy-stg:
+                context: STG
+                requires:
+                    - build-stg
+                filters:
+                    branches:
+                        only:
+                            - coleridge-staging
+                post-steps:
+                    - jira/notify
                             
 # ########### PRODUCTION ##################
 

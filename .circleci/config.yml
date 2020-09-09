@@ -97,6 +97,25 @@ jobs:
 # ############### STAGING ##################
 # ##########################################
 
+    copy-aws-binary:
+        machine: true
+        steps:
+            - checkout
+
+            - aws-cli/setup:
+                aws-access-key-id: AWS_ID
+                aws-secret-access-key: AWS_KEY
+                aws-region: AWS_REGION
+
+            - run:
+                name: Build
+                command: |
+                    # Build Webapp
+                    mv ./binaries-files/mattermost-webapp.tar.gz ./binaries-files/mattermost-webapp-{{ .Branch }}-{{ .BuildNum }}.tar.gz
+                    aws s3 cp ./binaries-files/mattermost-webapp-{{ .Branch }}-{{ .BuildNum }} s3://adrf-stg-mattermost/deploy
+             
+            - slack/notify-on-failure:
+                only_for_branches: 'coleridge-staging'
     build-stg:
         docker:
             - image: circleci/node:latest
@@ -308,25 +327,32 @@ workflows:
 
 # ########### STAGING ##################
 
-            - build-stg:
+            - copy-aws-binary:
                 context: STG
                 filters:
                     branches:
                         only:
                             - coleridge-staging
-                post-steps:
-                    - jira/notify
 
-            - deploy-stg:
-                context: STG
-                requires:
-                    - build-stg
-                filters:
-                    branches:
-                        only:
-                            - coleridge-staging
-                post-steps:
-                    - jira/notify
+            # - build-stg:
+            #     context: STG
+            #     filters:
+            #         branches:
+            #             only:
+            #                 - coleridge-staging
+            #     post-steps:
+            #         - jira/notify
+
+            # - deploy-stg:
+            #     context: STG
+            #     requires:
+            #         - build-stg
+            #     filters:
+            #         branches:
+            #             only:
+            #                 - coleridge-staging
+            #     post-steps:
+            #         - jira/notify
                             
 # ########### PRODUCTION ##################
 

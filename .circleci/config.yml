@@ -202,6 +202,11 @@ jobs:
         resource_class: xlarge
         steps:
             - checkout
+
+            - aws-cli/setup:
+                aws-access-key-id: AWS_ID
+                aws-secret-access-key: AWS_KEY
+                aws-region: AWS_REGION
                     
             - *restore_cache
             
@@ -222,6 +227,7 @@ jobs:
                     git add circle_ci_triggers.txt
 
                     cd ..
+                    aws s3 cp mattermost-webapp.tar.gz s3://adrf-stg-mattermost
                     mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/
         
                     cd mattermost-webapp

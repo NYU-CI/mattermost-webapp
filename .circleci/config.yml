@@ -111,8 +111,8 @@ jobs:
                 name: Build
                 command: |
                     # Build Webapp
-                    mv ./binaries-files/mattermost-webapp.tar.gz ./binaries-files/mattermost-webapp-{{ .Branch }}-{{ .BuildNum }}.tar.gz
-                    aws s3 cp ./binaries-files/mattermost-webapp-{{ .Branch }}-{{ .BuildNum }} s3://adrf-stg-mattermost/deploy
+                    mv ./binaries-files/mattermost-webapp.tar.gz ./binaries-files/mattermost-webapp.tar.gz
+                    aws s3 cp ./binaries-files/mattermost-webapp s3://adrf-stg-mattermost/deploy
              
             - slack/notify-on-failure:
                 only_for_branches: 'coleridge-staging'

@@ -384,7 +384,7 @@ export function renderSystemMessage(post, channel, isUserCanManageMembers) {
             isEphemeral
         ) {
             const addMemberProps = post.props.add_channel_member;
-            return (
+            return (null
                 // <PostAddChannelMember
                 //     postId={addMemberProps.post_id}
                 //     userIds={addMemberProps.not_in_channel_user_ids}

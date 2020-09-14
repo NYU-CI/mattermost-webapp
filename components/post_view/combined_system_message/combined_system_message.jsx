@@ -280,14 +280,14 @@ class CombinedSystemMessage extends React.PureComponent {
         };
 
         if (numOthers > 1) {
-            return (null
-                // <LastUsers
-                //     actor={actor}
-                //     expandedLocale={postTypeMessage[postType].many_expanded}
-                //     formatOptions={options}
-                //     postType={postType}
-                //     usernames={usernames}
-                // />
+            return (
+                <LastUsers
+                    actor={actor}
+                    expandedLocale={postTypeMessage[postType].many_expanded}
+                    formatOptions={options}
+                    postType={postType}
+                    usernames={usernames}
+                />
             );
         }
 
@@ -307,21 +307,21 @@ class CombinedSystemMessage extends React.PureComponent {
 
         const formattedMessage = formatMessage(localeHolder, {firstUser, secondUser, actor});
 
-        return (null
-            // <Markdown
-            //     message={formattedMessage}
-            //     options={options}
-            // />
+        return (
+            <Markdown
+                message={formattedMessage}
+                options={options}
+            />
         );
     }
 
     renderMessage(postType, userIds, actorId) {
-        return (null
-            // <React.Fragment key={postType + actorId}>
-            //     {this.
-            //     (postType, userIds, actorId)}
-            //     <br/>
-            // </React.Fragment>
+        return (
+            <React.Fragment key={postType + actorId}>
+                {this.
+                (postType, userIds, actorId)}
+                <br/>
+            </React.Fragment>
         );
     }
 
@@ -366,10 +366,9 @@ class CombinedSystemMessage extends React.PureComponent {
         }
 
         return (
-            null
-            // <React.Fragment>
-            //     {content}
-            // </React.Fragment>
+            <React.Fragment>
+                {content}
+            </React.Fragment>
         );
     }
 }

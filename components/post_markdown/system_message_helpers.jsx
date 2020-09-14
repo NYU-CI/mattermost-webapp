@@ -372,6 +372,10 @@ const systemMessageRenderers = {
 };
 
 export function renderSystemMessage(post, channel, isUserCanManageMembers) {
+    if (post.type === Posts.POST_TYPES.ADD_TO_CHANNEL || post.type === Posts.POST_TYPES.REMOVE_FROM_CHANNEL ||
+        post.type === Posts.POST_TYPES.ADD_TO_TEAM || post.type === Posts.POST_TYPES.REMOVE_FROM_TEAM )
+        return null;
+
     if (post.props && post.props.add_channel_member) {
         const isEphemeral = Utils.isPostEphemeral(post);
 
@@ -380,30 +384,30 @@ export function renderSystemMessage(post, channel, isUserCanManageMembers) {
             isEphemeral
         ) {
             const addMemberProps = post.props.add_channel_member;
-            return (null
-                // <PostAddChannelMember
-                //     postId={addMemberProps.post_id}
-                //     userIds={addMemberProps.not_in_channel_user_ids}
-                //     noGroupsUsernames={addMemberProps.not_in_groups_usernames}
-                //     usernames={addMemberProps.not_in_channel_usernames}
-                // />
+            return (
+                <PostAddChannelMember
+                    postId={addMemberProps.post_id}
+                    userIds={addMemberProps.not_in_channel_user_ids}
+                    noGroupsUsernames={addMemberProps.not_in_groups_usernames}
+                    usernames={addMemberProps.not_in_channel_usernames}
+                />
             );
         }
 
         return null;
     } else if (systemMessageRenderers[post.type]) {
-        return null;//systemMessageRenderers[post.type](post);
+        return systemMessageRenderers[post.type](post);
     } else if (post.type === Posts.POST_TYPES.EPHEMERAL_ADD_TO_CHANNEL) {
-        return null;renderAddToChannelMessage(post);
+        return renderAddToChannelMessage(post);
     } else if (post.type === Posts.POST_TYPES.COMBINED_USER_ACTIVITY) {
         const {allUserIds, allUsernames, messageData} = post.props.user_activity;
 
-        return (null
-            // <CombinedSystemMessage
-            //     allUserIds={allUserIds}
-            //     allUsernames={allUsernames}
-            //     messageData={messageData}
-            // />
+        return (
+            <CombinedSystemMessage
+                allUserIds={allUserIds}
+                allUsernames={allUsernames}
+                messageData={messageData}
+            />
         );
     }
 

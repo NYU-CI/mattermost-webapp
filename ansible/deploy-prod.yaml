@@ -6,9 +6,9 @@
         path: ./mattermost-webapp/
         state: directory
 
-    - name: mattermost-webapp.tar.gz
+    - name: mattermost-webapp-prod.tar.gz
       copy:
-        src: ../binaries-files/mattermost-webapp.tar.gz
+        src: ../binaries-files/mattermost-webapp-prod.tar.gz
         dest: ./mattermost-webapp/mattermost-webapp.tar.gz
    
     - name: Deploy production version of mattermost-webapp

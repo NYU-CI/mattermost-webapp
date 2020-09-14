@@ -48,7 +48,7 @@ jobs:
                     git add circle_ci_triggers.txt
 
                     cd ..
-                    mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/
+                    mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/mattermost-webapp-dev.tar.gz
         
                     cd mattermost-webapp
                     git commit -am "[skip ci] new matermost zip [circleci]"
@@ -123,7 +123,7 @@ jobs:
                     git add circle_ci_triggers.txt
 
                     cd ..
-                    mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/
+                    mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/mattermost-webapp-stg.tar.gz
         
                     cd mattermost-webapp
                     git commit -am "[skip ci] new matermost zip [circleci]"
@@ -215,7 +215,7 @@ jobs:
                     git add circle_ci_triggers.txt
 
                     cd ..
-                    mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/
+                    mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/mattermost-webapp-prod.tar.gz
         
                     cd mattermost-webapp
                     git commit -am "[skip ci] new matermost zip [circleci]"

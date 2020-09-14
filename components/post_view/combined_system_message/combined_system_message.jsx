@@ -307,11 +307,11 @@ class CombinedSystemMessage extends React.PureComponent {
 
         const formattedMessage = formatMessage(localeHolder, {firstUser, secondUser, actor});
 
-        return (
-            <Markdown
-                message={formattedMessage}
-                options={options}
-            />
+        return (null
+            // <Markdown
+            //     message={formattedMessage}
+            //     options={options}
+            // />
         );
     }
 

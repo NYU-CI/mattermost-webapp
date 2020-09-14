@@ -392,18 +392,18 @@ export function renderSystemMessage(post, channel, isUserCanManageMembers) {
 
         return null;
     } else if (systemMessageRenderers[post.type]) {
-        return systemMessageRenderers[post.type](post);
+        return null;//systemMessageRenderers[post.type](post);
     } else if (post.type === Posts.POST_TYPES.EPHEMERAL_ADD_TO_CHANNEL) {
-        return renderAddToChannelMessage(post);
+        return null;renderAddToChannelMessage(post);
     } else if (post.type === Posts.POST_TYPES.COMBINED_USER_ACTIVITY) {
         const {allUserIds, allUsernames, messageData} = post.props.user_activity;
 
-        return (
-            <CombinedSystemMessage
-                allUserIds={allUserIds}
-                allUsernames={allUsernames}
-                messageData={messageData}
-            />
+        return (null
+            // <CombinedSystemMessage
+            //     allUserIds={allUserIds}
+            //     allUsernames={allUsernames}
+            //     messageData={messageData}
+            // />
         );
     }
 

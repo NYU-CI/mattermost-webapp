@@ -385,12 +385,12 @@ export function renderSystemMessage(post, channel, isUserCanManageMembers) {
         ) {
             const addMemberProps = post.props.add_channel_member;
             return (
-                <PostAddChannelMember
-                    postId={addMemberProps.post_id}
-                    userIds={addMemberProps.not_in_channel_user_ids}
-                    noGroupsUsernames={addMemberProps.not_in_groups_usernames}
-                    usernames={addMemberProps.not_in_channel_usernames}
-                />
+                // <PostAddChannelMember
+                //     postId={addMemberProps.post_id}
+                //     userIds={addMemberProps.not_in_channel_user_ids}
+                //     noGroupsUsernames={addMemberProps.not_in_groups_usernames}
+                //     usernames={addMemberProps.not_in_channel_usernames}
+                // />
             );
         }
 
@@ -402,12 +402,12 @@ export function renderSystemMessage(post, channel, isUserCanManageMembers) {
     } else if (post.type === Posts.POST_TYPES.COMBINED_USER_ACTIVITY) {
         const {allUserIds, allUsernames, messageData} = post.props.user_activity;
 
-        return (
-            <CombinedSystemMessage
-                allUserIds={allUserIds}
-                allUsernames={allUsernames}
-                messageData={messageData}
-            />
+        return (null
+            // <CombinedSystemMessage
+            //     allUserIds={allUserIds}
+            //     allUsernames={allUsernames}
+            //     messageData={messageData}
+            // />
         );
     }
 

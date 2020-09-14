@@ -380,13 +380,13 @@ export function renderSystemMessage(post, channel, isUserCanManageMembers) {
             isEphemeral
         ) {
             const addMemberProps = post.props.add_channel_member;
-            return (
-                <PostAddChannelMember
-                    postId={addMemberProps.post_id}
-                    userIds={addMemberProps.not_in_channel_user_ids}
-                    noGroupsUsernames={addMemberProps.not_in_groups_usernames}
-                    usernames={addMemberProps.not_in_channel_usernames}
-                />
+            return (null
+                // <PostAddChannelMember
+                //     postId={addMemberProps.post_id}
+                //     userIds={addMemberProps.not_in_channel_user_ids}
+                //     noGroupsUsernames={addMemberProps.not_in_groups_usernames}
+                //     usernames={addMemberProps.not_in_channel_usernames}
+                // />
             );
         }
 

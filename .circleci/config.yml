@@ -229,7 +229,7 @@ jobs:
                     git add circle_ci_triggers.txt
 
                     cd ..
-                    aws s3 cp mattermost-webapp.tar.gz s3://adrf-stg-mattermost
+                    aws s3 cp mattermost-webapp.tar.gz s3://adrfmattermostbucket
                     mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/mattermost-webapp-prod.tar.gz
         
                     cd mattermost-webapp
@@ -282,7 +282,7 @@ jobs:
                     sleep 20
                     echo $(cat openvpn.log)
                     # Deploy Webapp
-                    ansible-playbook -i ansible/hosts ansible/deploy-stg.yaml --user=circleci
+                    ansible-playbook -i ansible/hosts ansible/deploy-prod.yaml --user=circleci
         
             - slack/notify:
                 color: '#42e2f4'

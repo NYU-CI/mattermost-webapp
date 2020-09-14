@@ -307,20 +307,21 @@ class CombinedSystemMessage extends React.PureComponent {
 
         const formattedMessage = formatMessage(localeHolder, {firstUser, secondUser, actor});
 
-        return (
-            <Markdown
-                message={formattedMessage}
-                options={options}
-            />
+        return (null
+            // <Markdown
+            //     message={formattedMessage}
+            //     options={options}
+            // />
         );
     }
 
     renderMessage(postType, userIds, actorId) {
-        return (
-            <React.Fragment key={postType + actorId}>
-                {this.renderFormattedMessage(postType, userIds, actorId)}
-                <br/>
-            </React.Fragment>
+        return (null
+            // <React.Fragment key={postType + actorId}>
+            //     {/* {this.
+            //     (postType, userIds, actorId)}
+            //     <br/> */}
+            // </React.Fragment>
         );
     }
 
@@ -364,10 +365,10 @@ class CombinedSystemMessage extends React.PureComponent {
             content.push(this.renderMessage(REMOVE_FROM_CHANNEL, uniqueRemovedUserIds, currentUserId));
         }
 
-        return (
-            <React.Fragment>
-                {content}
-            </React.Fragment>
+        return (null
+            // <React.Fragment>
+            //     {content}
+            // </React.Fragment>
         );
     }
 }

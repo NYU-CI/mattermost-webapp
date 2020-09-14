@@ -9,11 +9,12 @@
     - name: mattermost-webapp-prod.tar.gz
       copy:
         src: ../binaries-files/mattermost-webapp-prod.tar.gz
-        dest: ./mattermost-webapp/mattermost-webapp.tar.gz
+        dest: ./mattermost-webapp/mattermost-webapp-prod.tar.gz
    
     - name: Deploy production version of mattermost-webapp
       shell: |
         cd ./mattermost-webapp
+        mv mattermost-webapp-prod.tar.gzmattermost-webapp.tar.gz
         tar -xvf mattermost-webapp.tar.gz
         sudo rm -rf /opt/gitlab/embedded/service/mattermost/client_leo
         sudo mv /opt/gitlab/embedded/service/mattermost/client /opt/gitlab/embedded/service/mattermost/client_leo

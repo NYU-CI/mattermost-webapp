@@ -51,6 +51,7 @@ jobs:
                     mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/mattermost-webapp-dev.tar.gz
         
                     cd mattermost-webapp
+                    git add .
                     git commit -am "[skip ci] new matermost zip [circleci]"
                     git push origin coleridge-develop
             
@@ -126,6 +127,7 @@ jobs:
                     mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/mattermost-webapp-stg.tar.gz
         
                     cd mattermost-webapp
+                    git add .
                     git commit -am "[skip ci] new matermost zip [circleci]"
                     git push origin coleridge-staging
             
@@ -218,6 +220,7 @@ jobs:
                     mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/mattermost-webapp-prod.tar.gz
         
                     cd mattermost-webapp
+                    git add .
                     git commit -am "[skip ci] new matermost zip [circleci]"
                     git push origin coleridge-master
             

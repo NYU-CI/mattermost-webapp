@@ -280,14 +280,14 @@ class CombinedSystemMessage extends React.PureComponent {
         };
 
         if (numOthers > 1) {
-            return (
-                <LastUsers
-                    actor={actor}
-                    expandedLocale={postTypeMessage[postType].many_expanded}
-                    formatOptions={options}
-                    postType={postType}
-                    usernames={usernames}
-                />
+            return (null
+                // <LastUsers
+                //     actor={actor}
+                //     expandedLocale={postTypeMessage[postType].many_expanded}
+                //     formatOptions={options}
+                //     postType={postType}
+                //     usernames={usernames}
+                // />
             );
         }
 
@@ -316,11 +316,12 @@ class CombinedSystemMessage extends React.PureComponent {
     }
 
     renderMessage(postType, userIds, actorId) {
-        return (
-            <React.Fragment key={postType + actorId}>
-                {this.renderFormattedMessage(postType, userIds, actorId)}
-                <br/>
-            </React.Fragment>
+        return (null
+            // <React.Fragment key={postType + actorId}>
+            //     {this.
+            //     (postType, userIds, actorId)}
+            //     <br/>
+            // </React.Fragment>
         );
     }
 

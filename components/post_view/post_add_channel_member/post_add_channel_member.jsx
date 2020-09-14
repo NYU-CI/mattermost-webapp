@@ -222,7 +222,7 @@ export default class PostAddChannelMember extends React.PureComponent {
                     </a>
                     <FormattedMessage
                         id={'post_body.check_for_out_of_channel_mentions.message_last'}
-                        defaultMessage={'? They will have access to all message history. '}
+                        defaultMessage={'? They will have access to all message history.'}
                     />
                 </p>
             );

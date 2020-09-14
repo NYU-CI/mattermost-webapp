@@ -97,7 +97,7 @@ function renderAddGuestToChannelMessage(post) {
         //         username,
         //         addedUsername,
         //     }}
-        />
+        // />
     );
 }
 

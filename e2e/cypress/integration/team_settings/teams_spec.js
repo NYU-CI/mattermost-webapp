@@ -146,9 +146,9 @@ describe('Teams Suite', () => {
                 should('be.visible').
                 and('have.text', 'System');
             cy.wrap($el).get('.post-message__text-container').
-                should('be.visible');
-                // and('contain', `@${sysadmin.username} joined the team.`).
-                // and('contain', `You were added to the team by @${sysadmin.username}.`);
+                should('be.visible').
+                and('contain', `@${sysadmin.username} joined the team.`).
+                and('contain', `You were added to the team by @${sysadmin.username}.`);
         });
 
         cy.get('#sidebarItem_off-topic').should('be.visible').click({force: true});
@@ -157,9 +157,9 @@ describe('Teams Suite', () => {
                 should('be.visible').
                 and('have.text', 'System');
             cy.wrap($el).get('.post-message__text-container').
-                should('be.visible');
-                // and('contain', `@${sysadmin.username} joined the channel.`).
-                // and('contain', `You were added to the channel by @${sysadmin.username}.`);
+                should('be.visible').
+                and('contain', `@${sysadmin.username} joined the channel.`).
+                and('contain', `You were added to the channel by @${sysadmin.username}.`);
         });
 
         // # Remove user from team

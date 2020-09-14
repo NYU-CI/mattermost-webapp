@@ -365,11 +365,11 @@ class CombinedSystemMessage extends React.PureComponent {
             content.push(this.renderMessage(REMOVE_FROM_CHANNEL, uniqueRemovedUserIds, currentUserId));
         }
 
-        // {content}
         return (
-            <React.Fragment>
-              
-            </React.Fragment>
+            null
+            // <React.Fragment>
+            //     {content}
+            // </React.Fragment>
         );
     }
 }

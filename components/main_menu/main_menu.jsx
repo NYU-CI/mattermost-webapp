@@ -273,14 +273,6 @@ class MainMenu extends React.PureComponent {
                         text={formatMessage({id: 'navbar_dropdown.join', defaultMessage: 'Join Another Team'})}
                         icon={this.props.mobile && <i className='fa fa-plus-square'/>}
                     />
-                    <Menu.ItemToggleModalRedux
-                        id='leaveTeam'
-                        show={!teamIsGroupConstrained && this.props.experimentalPrimaryTeam !== this.props.teamName}
-                        modalId={ModalIdentifiers.LEAVE_TEAM}
-                        dialogType={LeaveTeamModal}
-                        text={formatMessage({id: 'navbar_dropdown.leave', defaultMessage: 'Leave Team'})}
-                        icon={this.props.mobile && <LeaveTeamIcon/>}
-                    />
                 </Menu.Group>
                 <Menu.Group>
                     {pluginItems}

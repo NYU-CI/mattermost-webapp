@@ -14,9 +14,11 @@
     - name: Deploy development version of mattermost-webapp
       shell: |
         cd ./mattermost-webapp
-        mv mattermost-webapp-dev.tar.gzmattermost-webapp.tar.gz
+        mv mattermost-webapp-dev.tar.gz mattermost-webapp.tar.gz
         tar -xvf mattermost-webapp.tar.gz
         sudo rm -rf /opt/gitlab/embedded/service/mattermost/client_old
         sudo mv /opt/gitlab/embedded/service/mattermost/client /opt/gitlab/embedded/service/mattermost/client_old
         sudo cp -R client/ /opt/gitlab/embedded/service/mattermost
+        sudo chown -R root:root /opt/gitlab/embedded/service/mattermost/client
+        sudo chmod -R 755 /opt/gitlab/embedded/service/mattermost/client/
         rm -rf client/

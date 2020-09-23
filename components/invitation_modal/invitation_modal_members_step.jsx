@@ -200,7 +200,7 @@ class InvitationModalMembersStep extends React.Component {
                     </div>
 
                 </div>
-                <div
+                {/* <div
                     className='search-and-add'
                     data-testid='searchAdd'
                 >
@@ -253,7 +253,7 @@ class InvitationModalMembersStep extends React.Component {
                             defaultMessage='Invite Members'
                         />
                     </button>
-                </div>
+                </div> */}
             </div>
         );
     }

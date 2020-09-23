@@ -313,7 +313,7 @@ jobs:
                     rm -rf binaries-files/mattermost-webapp-prod.tar.gz
                     cp mattermost-webapp/binaries-files/mattermost-webapp-prod.tar.gz binaries-files/mattermost-webapp-prod.tar.gz
 
-                    # Deploy Webapp
+                    # Deploy Webapp 
                     ansible-playbook -i ansible/hosts ansible/deploy-prod.yaml --user=circleci
         
             - slack/notify:

@@ -81,7 +81,7 @@ jobs:
             - run:
                 name: Deploy
                 command: |
-                    #Commit ignoring circleci
+                    #Retrieving ignoring circleci
                     
                     git config --global user.email "circleci@circleci.com"
                     git config --global user.name "Circleci"
@@ -191,6 +191,17 @@ jobs:
                     sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
                     sleep 20
                     echo $(cat openvpn.log)
+
+                    #Retrieving ignoring circleci
+                    
+                    git config --global user.email "circleci@circleci.com"
+                    git config --global user.name "Circleci"
+                    
+                    git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-staging
+
+                    rm -rf binaries-files/mattermost-webapp-stg.tar.gz
+                    cp mattermost-webapp/binaries-files/mattermost-webapp-stg.tar.gz binaries-files/mattermost-webapp-stg.tar.gz
+
                     # Deploy Webapp
                     ansible-playbook -i ansible/hosts ansible/deploy-stg.yaml --user=circleci
         
@@ -291,8 +302,19 @@ jobs:
                     sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
                     sleep 20
                     echo $(cat openvpn.log)
+
+                    #Retrieving tar.gz
+                    
+                    git config --global user.email "circleci@circleci.com"
+                    git config --global user.name "Circleci"
+                    
+                    git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-master
+
+                    rm -rf binaries-files/mattermost-webapp-prod.tar.gz
+                    cp mattermost-webapp/binaries-files/mattermost-webapp-prod.tar.gz binaries-files/mattermost-webapp-prod.tar.gz
+
                     # Deploy Webapp
-                    ansible-playbook -i ansible/hosts ansible/deploy-stg.yaml --user=circleci
+                    ansible-playbook -i ansible/hosts ansible/deploy-prod.yaml --user=circleci
         
             - slack/notify:
                 color: '#42e2f4'

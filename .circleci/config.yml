@@ -104,6 +104,11 @@ jobs:
         resource_class: xlarge
         steps:
             - checkout
+
+            - aws-cli/setup:
+                aws-access-key-id: AWS_ID
+                aws-secret-access-key: AWS_KEY
+                aws-region: AWS_REGION
                     
             - *restore_cache
             
@@ -124,6 +129,7 @@ jobs:
                     git add circle_ci_triggers.txt
 
                     cd ..
+                    aws s3 cp mattermost-webapp.tar.gz s3://adrf-stg-mattermost
                     mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/mattermost-webapp-stg.tar.gz
         
                     cd mattermost-webapp
@@ -134,7 +140,7 @@ jobs:
             - *save_cache
             
             - store_artifacts:
-                path: mattermost-webapp/binaries-files/mattermost-webapp.tar.gz
+                path: mattermost-webapp/binaries-files/mattermost-webapp-stg.tar.gz
             
             - slack/notify-on-failure:
                 only_for_branches: 'coleridge-staging'
@@ -161,6 +167,7 @@ jobs:
 
             - run:
                 name: Deploy
+                no_output_timeout: 60m
                 command: |
                     # Retrieving env vars for VPN - LOGIN
                     echo -e "$login" > vpn.login
@@ -197,6 +204,11 @@ jobs:
         resource_class: xlarge
         steps:
             - checkout
+
+            - aws-cli/setup:
+                aws-access-key-id: AWS_ID
+                aws-secret-access-key: AWS_KEY
+                aws-region: AWS_REGION
                     
             - *restore_cache
             
@@ -217,6 +229,7 @@ jobs:
                     git add circle_ci_triggers.txt
 
                     cd ..
+                    aws s3 cp mattermost-webapp.tar.gz s3://adrf-stg-mattermost
                     mv mattermost-webapp.tar.gz ./mattermost-webapp/binaries-files/mattermost-webapp-prod.tar.gz
         
                     cd mattermost-webapp
@@ -227,7 +240,7 @@ jobs:
             - *save_cache
             
             - store_artifacts:
-                path: mattermost-webapp/binaries-files/mattermost-webapp.tar.gz
+                path: mattermost-webapp/binaries-files/mattermost-webapp-prod.tar.gz
             
             - slack/notify-on-failure:
                 only_for_branches: 'coleridge-master'
@@ -254,6 +267,7 @@ jobs:
 
             - run:
                 name: Deploy
+                no_output_timeout: 60m
                 command: |
                     # Retrieving env vars for VPN - LOGIN
                     echo -e "$login" > vpn.login

@@ -241,11 +241,11 @@ export default class PostAddChannelMember extends React.PureComponent {
             );
         }
 
-        return (null
-            // <>
-            //     {outOfChannelMessage}
-            //     {outOfGroupsMessage}
-            // </>
+        return (
+            <>
+                {outOfChannelMessage}
+                {outOfGroupsMessage}
+            </>
         );
     }
 }

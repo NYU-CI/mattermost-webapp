@@ -73,15 +73,15 @@ function renderAddToChannelMessage(post) {
     const username = renderUsername(post.props.username);
     const addedUsername = renderUsername(post.props.addedUsername);
 
-    return (null
-        // <FormattedMessage
-        //     id='api.channel.add_member.added'
-        //     defaultMessage='{addedUsername} added to the channel by {username}.'
-        //     values={{
-        //         username,
-        //         addedUsername,
-        //     }}
-        // />
+    return (
+        <FormattedMessage
+            id='api.channel.add_member.added'
+            defaultMessage='{addedUsername} added to the channel by {username}.'
+            values={{
+                username,
+                addedUsername,
+            }}
+        />
     );
 }
 
@@ -89,15 +89,15 @@ function renderAddGuestToChannelMessage(post) {
     const username = renderUsername(post.props.username);
     const addedUsername = renderUsername(post.props.addedUsername);
 
-    return (null
-        // <FormattedMessage
-        //     id='api.channel.add_guest.added'
-        //     defaultMessage='{addedUsername} added to the channel as a guest by {username}.'
-        //     values={{
-        //         username,
-        //         addedUsername,
-        //     }}
-        // />
+    return (
+        <FormattedMessage
+            id='api.channel.add_guest.added'
+            defaultMessage='{addedUsername} added to the channel as a guest by {username}.'
+            values={{
+                username,
+                addedUsername,
+            }}
+        />
     );
 }
 
@@ -143,15 +143,15 @@ function renderAddToTeamMessage(post) {
     const username = renderUsername(post.props.username);
     const addedUsername = renderUsername(post.props.addedUsername);
 
-    return (null
-        // <FormattedMessage
-        //     id='api.team.add_member.added'
-        //     defaultMessage='{addedUsername} added to the team by {username}.'
-        //     values={{
-        //         username,
-        //         addedUsername,
-        //     }}
-        // />
+    return (
+        <FormattedMessage
+            id='api.team.add_member.added'
+            defaultMessage='{addedUsername} added to the team by {username}.'
+            values={{
+                username,
+                addedUsername,
+            }}
+        />
     );
 }
 
@@ -384,13 +384,13 @@ export function renderSystemMessage(post, channel, isUserCanManageMembers) {
             isEphemeral
         ) {
             const addMemberProps = post.props.add_channel_member;
-            return (null
-                // <PostAddChannelMember
-                //     postId={addMemberProps.post_id}
-                //     userIds={addMemberProps.not_in_channel_user_ids}
-                //     noGroupsUsernames={addMemberProps.not_in_groups_usernames}
-                //     usernames={addMemberProps.not_in_channel_usernames}
-                // />
+            return (
+                <PostAddChannelMember
+                    postId={addMemberProps.post_id}
+                    userIds={addMemberProps.not_in_channel_user_ids}
+                    noGroupsUsernames={addMemberProps.not_in_groups_usernames}
+                    usernames={addMemberProps.not_in_channel_usernames}
+                />
             );
         }
 
@@ -402,12 +402,12 @@ export function renderSystemMessage(post, channel, isUserCanManageMembers) {
     } else if (post.type === Posts.POST_TYPES.COMBINED_USER_ACTIVITY) {
         const {allUserIds, allUsernames, messageData} = post.props.user_activity;
 
-        return (null
-            // <CombinedSystemMessage
-            //     allUserIds={allUserIds}
-            //     allUsernames={allUsernames}
-            //     messageData={messageData}
-            // />
+        return (
+            <CombinedSystemMessage
+                allUserIds={allUserIds}
+                allUsernames={allUsernames}
+                messageData={messageData}
+            />
         );
     }
 

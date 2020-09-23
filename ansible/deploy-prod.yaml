@@ -5,21 +5,13 @@
       file:
         path: ./mattermost-webapp/
         state: directory
-
-    - name: mattermost-webapp-prod.tar.gz
-      copy:
-        src: ../binaries-files/mattermost-webapp-prod.tar.gz
-        dest: ./mattermost-webapp/mattermost-webapp-prod.tar.gz
-   
-    - name: Deploy production version of mattermost-webapp
+ 
+    - name: Deploy production version of mattermost-webapp pord
       shell: |
         cd ./mattermost-webapp
-        mv mattermost-webapp-prod.tar.gzmattermost-webapp.tar.gz
+        aws s3 cp s3://adrf-stg-mattermost/mattermost-webapp.tar.gz ./mattermost-webapp.tar.gz
         tar -xvf mattermost-webapp.tar.gz
-        sudo rm -rf /opt/gitlab/embedded/service/mattermost/client_leo
-        sudo mv /opt/gitlab/embedded/service/mattermost/client /opt/gitlab/embedded/service/mattermost/client_leo
+        sudo rm -rf /opt/gitlab/embedded/service/mattermost/client_old
+        sudo mv /opt/gitlab/embedded/service/mattermost/client /opt/gitlab/embedded/service/mattermost/client_old
         sudo cp -R client/ /opt/gitlab/embedded/service/mattermost
         rm -rf client/
-    #     sudo cp sync.py /opt/mattermost-sync/sync.py
-    #     sudo cp mattermost_api.py /opt/mattermost-sync/mattermost_api.py
-    #     sudo cp dynamo_integration.py /opt/mattermost-sync/dynamo_integration.py 

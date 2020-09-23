@@ -58,7 +58,7 @@ jobs:
             - *save_cache
             
             - store_artifacts:
-                path: mattermost-webapp/binaries-files/mattermost-webapp.tar.gz
+                path: mattermost-webapp/binaries-files/mattermost-webapp-dev.tar.gz
             
             - slack/notify-on-failure:
                 only_for_branches: 'coleridge-develop'

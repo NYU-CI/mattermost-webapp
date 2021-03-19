@@ -302,7 +302,7 @@ class InvitationModalMembersStep extends React.PureComponent {
                         />
                     </div>
                 </div>
-                <div
+            {/* <div
                     className='search-and-add'
                     data-testid='searchAdd'
                 >
@@ -368,7 +368,7 @@ class InvitationModalMembersStep extends React.PureComponent {
                             defaultMessage='Invite Members'
                         />
                     </button>
-                </div>
+                </div> */}
             </div>
         );
     }

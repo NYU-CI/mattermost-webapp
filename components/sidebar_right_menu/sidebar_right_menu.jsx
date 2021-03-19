@@ -28,7 +28,7 @@ export default class SidebarRightMenu extends React.PureComponent {
     };
 
     handleEmitUserLoggedOutEvent = () => {
-        GlobalActions.emitUserLoggedOutEvent();
+        GlobalActions.emitUserLoggedOutEvent('/login?logout=True', true, true);
     }
 
     render() {

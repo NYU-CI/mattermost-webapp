@@ -35,7 +35,7 @@ class AdminNavbarDropdown extends React.PureComponent<Props> {
             e.preventDefault();
             this.props.actions.deferNavigation(GlobalActions.emitUserLoggedOutEvent);
         } else {
-            GlobalActions.emitUserLoggedOutEvent();
+            GlobalActions.emitUserLoggedOutEvent('/login?logout=True', true, true);
         }
     };
 

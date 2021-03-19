@@ -40,16 +40,16 @@ describe('Channel Settings', () => {
         cy.get('#saveItems').click();
 
         // click on all the messages to make sure there are none left unread
-        cy.get('#directChannelList').find('a.sidebar-item').each(($el) => {
-            cy.wrap($el).as('channel');
+        // cy.get('#directChannelList').find('a.sidebar-item').each(($el) => {
+        //     cy.wrap($el).as('channel');
 
             // Click to mark as unread
-            cy.get('@channel').click({force: true});
+        //     cy.get('@channel').click({force: true});
 
-            cy.get('#postListContent').should('be.visible');
+        //     cy.get('#postListContent').should('be.visible');
 
             // check for the close button
-            cy.get('@channel').find('span.btn-close').should('exist');
-        });
+        //     cy.get('@channel').find('span.btn-close').should('exist');
+        // });
     });
 });

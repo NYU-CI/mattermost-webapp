@@ -89,6 +89,14 @@ class LoginController extends React.PureComponent {
         this.passwordInput = React.createRef();
     }
 
+    autoAuth(e) {
+        if (!(window.location.href.includes('login?logout=True')))
+        {
+            e.click();
+            e.target.click();
+        }
+    }
+
     componentDidMount() {
         this.configureTitle();
 
@@ -679,6 +687,7 @@ class LoginController extends React.PureComponent {
                     className='btn btn-custom-login gitlab'
                     key='gitlab'
                     href={Client4.getOAuthRoute() + '/gitlab/login' + this.props.location.search}
+                    ref={this.autoAuth}
                 >
                     <span>
                         <span className='icon'/>

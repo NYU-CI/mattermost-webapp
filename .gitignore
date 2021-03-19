@@ -5,6 +5,7 @@ node_modules
 *.swp
 .idea
 *.tar.gz
+!binaries-files/*
 tests/reports
 .DS_Store
 mattermost-webapp.iml

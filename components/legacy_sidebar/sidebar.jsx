@@ -401,7 +401,7 @@ class LegacySidebar extends React.PureComponent {
 
             this.isSwitchingChannel = false;
         } else if (Utils.cmdOrCtrlPressed(e) && e.shiftKey && Utils.isKeyPressed(e, Constants.KeyCodes.K)) {
-            this.handleOpenMoreDirectChannelsModal(e);
+            // this.handleOpenMoreDirectChannelsModal(e);
         }
     };
 

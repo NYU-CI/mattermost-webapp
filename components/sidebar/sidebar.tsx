@@ -113,11 +113,11 @@ export default class Sidebar extends React.PureComponent<Props, State> {
 
     handleOpenMoreDirectChannelsModal = (e: Event) => {
         e.preventDefault();
-        if (this.state.showDirectChannelsModal) {
-            this.hideMoreDirectChannelsModal();
-        } else {
-            this.showMoreDirectChannelsModal();
-        }
+        // if (this.state.showDirectChannelsModal) {
+        //     this.hideMoreDirectChannelsModal();
+        // } else {
+        //     this.showMoreDirectChannelsModal();
+        // }
     }
 
     onDragStart = () => {

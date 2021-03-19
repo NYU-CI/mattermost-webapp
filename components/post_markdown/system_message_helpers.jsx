@@ -374,6 +374,10 @@ const systemMessageRenderers = {
 };
 
 export function renderSystemMessage(post, channel, isUserCanManageMembers) {
+    if (post.type === Posts.POST_TYPES.ADD_TO_CHANNEL || post.type === Posts.POST_TYPES.REMOVE_FROM_CHANNEL ||
+        post.type === Posts.POST_TYPES.ADD_TO_TEAM || post.type === Posts.POST_TYPES.REMOVE_FROM_TEAM )
+        return null;
+
     if (post.props && post.props.add_channel_member) {
         const isEphemeral = Utils.isPostEphemeral(post);
 

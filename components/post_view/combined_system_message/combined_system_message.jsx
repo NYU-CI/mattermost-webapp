@@ -316,11 +316,11 @@ class CombinedSystemMessage extends React.PureComponent {
     }
 
     renderMessage(postType, userIds, actorId) {
-        return (
-            <React.Fragment key={postType + actorId}>
-                {this.renderFormattedMessage(postType, userIds, actorId)}
-                <br/>
-            </React.Fragment>
+        return (null
+            // <React.Fragment key={postType + actorId}>
+            //     {this.renderFormattedMessage(postType, userIds, actorId)}
+            //     <br/>
+            // </React.Fragment>
         );
     }
 

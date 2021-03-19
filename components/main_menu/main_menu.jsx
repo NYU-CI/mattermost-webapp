@@ -110,7 +110,7 @@ class MainMenu extends React.PureComponent {
     }
 
     handleEmitUserLoggedOutEvent = () => {
-        GlobalActions.emitUserLoggedOutEvent();
+        GlobalActions.emitUserLoggedOutEvent('/login?logout=True', true, true);
     }
 
     getFlagged = (e) => {
@@ -231,7 +231,7 @@ class MainMenu extends React.PureComponent {
                         icon={this.props.mobile && <i className='fa fa-cog'/>}
                     />
                 </Menu.Group>
-                <Menu.Group>
+            {/* <Menu.Group>
                     <TeamPermissionGate
                         teamId={this.props.teamId}
                         permissions={[Permissions.MANAGE_TEAM]}
@@ -251,7 +251,7 @@ class MainMenu extends React.PureComponent {
                     >
                         {this.shouldShowUpgradeModal() ? upgradeCloudModal : invitePeopleModal}
                     </TeamPermissionGate>
-                </Menu.Group>
+                </Menu.Group> */}
                 <Menu.Group>
                     <TeamPermissionGate
                         teamId={this.props.teamId}
@@ -307,7 +307,7 @@ class MainMenu extends React.PureComponent {
                         />
                     </TeamPermissionGate>
                 </Menu.Group>
-                <Menu.Group>
+            {/* <Menu.Group>
                     <SystemPermissionGate permissions={[Permissions.CREATE_TEAM]}>
                         <Menu.ItemLink
                             id='createTeam'
@@ -331,7 +331,7 @@ class MainMenu extends React.PureComponent {
                         text={formatMessage({id: 'navbar_dropdown.leave', defaultMessage: 'Leave Team'})}
                         icon={this.props.mobile && <LeaveTeamIcon/>}
                     />
-                </Menu.Group>
+                </Menu.Group> */}
                 <Menu.Group>
                     {pluginItems}
                 </Menu.Group>

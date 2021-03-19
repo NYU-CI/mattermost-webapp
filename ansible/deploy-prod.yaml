@@ -1,0 +1,19 @@
+- hosts: thincrust-prod
+  tasks:
+   
+    - name: Create directory
+      file:
+        path: ./mattermost-webapp/
+        state: directory
+ 
+    - name: Deploy production version of mattermost-webapp pord
+      shell: |
+        cd ./mattermost-webapp
+        aws s3 cp s3://adrfmattermostbucket/mattermost-webapp.tar.gz ./mattermost-webapp.tar.gz
+        tar -xvf mattermost-webapp.tar.gz
+        sudo rm -rf /opt/gitlab/embedded/service/mattermost/client_old
+        sudo mv /opt/gitlab/embedded/service/mattermost/client /opt/gitlab/embedded/service/mattermost/client_old
+        sudo cp -R client/ /opt/gitlab/embedded/service/mattermost
+        sudo chown -R root:root /opt/gitlab/embedded/service/mattermost/client
+        sudo chmod -R 755 /opt/gitlab/embedded/service/mattermost/client/
+        rm -rf client

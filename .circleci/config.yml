@@ -65,7 +65,8 @@ jobs:
 
     # Deploy - DEV
     deploy-dev:
-        machine: true
+        machine: 
+            image: ubuntu-2004:202101-01
         steps:
             - checkout
 
@@ -154,7 +155,8 @@ jobs:
 
     # Deploy - STG
     deploy-stg:
-        machine: true
+        machine: 
+            image: ubuntu-2004:202101-01
         steps:
             - checkout
 
@@ -260,7 +262,8 @@ jobs:
 
     # Deploy - PROD
     deploy-prod:
-        machine: true
+        machine: 
+            image: ubuntu-2004:202101-01
         steps:
             - checkout
 

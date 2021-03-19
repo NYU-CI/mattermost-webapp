@@ -19,7 +19,7 @@ import {getPost} from 'mattermost-redux/selectors/entities/posts';
 import {getUserTimezone} from 'mattermost-redux/selectors/entities/timezone';
 import {getUserCurrentTimezone} from 'mattermost-redux/utils/timezone_utils';
 
-import {trackEvent} from 'actions/diagnostics_actions.jsx';
+import {trackEvent} from 'actions/telemetry_actions.jsx';
 import {getSearchTerms, getRhsState, getPluggableId} from 'selectors/rhs';
 import {ActionTypes, RHSStates} from 'utils/constants';
 import * as Utils from 'utils/utils';
@@ -111,11 +111,15 @@ export function performSearch(terms, isMentionSearch) {
     };
 }
 
-export function showSearchResults() {
+export function showSearchResults(isMentionSearch = false) {
     return (dispatch, getState) => {
         const searchTerms = getSearchTerms(getState());
 
-        dispatch(updateRhsState(RHSStates.SEARCH));
+        if (isMentionSearch) {
+            dispatch(updateRhsState(RHSStates.MENTION));
+        } else {
+            dispatch(updateRhsState(RHSStates.SEARCH));
+        }
         dispatch(updateSearchResultsTerms(searchTerms));
 
         return dispatch(performSearch(searchTerms));

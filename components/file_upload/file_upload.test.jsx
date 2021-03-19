@@ -13,7 +13,7 @@ import FileUpload from 'components/file_upload/file_upload.jsx';
 const generatedIdRegex = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/;
 
 jest.mock('utils/file_utils', () => {
-    const original = require.requireActual('utils/file_utils');
+    const original = jest.requireActual('utils/file_utils');
     return {
         ...original,
         canDownloadFiles: jest.fn(() => true),
@@ -21,7 +21,7 @@ jest.mock('utils/file_utils', () => {
 });
 
 jest.mock('utils/utils', () => {
-    const original = require.requireActual('utils/utils');
+    const original = jest.requireActual('utils/utils');
     return {
         ...original,
         clearFileInput: jest.fn(),
@@ -82,7 +82,7 @@ describe('components/FileUpload', () => {
 
     test('should match snapshot', () => {
         const wrapper = shallowWithIntl(
-            <FileUpload {...baseProps}/>
+            <FileUpload {...baseProps}/>,
         );
 
         expect(wrapper).toMatchSnapshot();
@@ -90,7 +90,7 @@ describe('components/FileUpload', () => {
 
     test('should call onClick when fileInput is clicked', () => {
         const wrapper = shallowWithIntl(
-            <FileUpload {...baseProps}/>
+            <FileUpload {...baseProps}/>,
         );
 
         wrapper.find('input').simulate('click');
@@ -99,7 +99,7 @@ describe('components/FileUpload', () => {
 
     test('should prevent event default and progogation on call of onTouchEnd on fileInput', () => {
         const wrapper = shallowWithIntl(
-            <FileUpload {...baseProps}/>
+            <FileUpload {...baseProps}/>,
         );
         const instance = wrapper.instance();
         instance.handleLocalFileUploaded = jest.fn();
@@ -119,7 +119,7 @@ describe('components/FileUpload', () => {
 
     test('should prevent event default and progogation on call of onClick on fileInput', () => {
         const wrapper = shallowWithIntl(
-            <FileUpload {...baseProps}/>
+            <FileUpload {...baseProps}/>,
         );
         const instance = wrapper.instance();
         instance.handleLocalFileUploaded = jest.fn();
@@ -142,7 +142,7 @@ describe('components/FileUpload', () => {
             <FileUpload
                 {...baseProps}
                 fileCount={4}
-            />
+            />,
         );
 
         const evt = {preventDefault: jest.fn()};
@@ -172,7 +172,7 @@ describe('components/FileUpload', () => {
         };
 
         const wrapper = shallowWithIntl(
-            <FileUpload {...baseProps}/>
+            <FileUpload {...baseProps}/>,
         );
 
         wrapper.instance().fileUploadSuccess(data, 'channel_id', 'root_id');
@@ -190,7 +190,7 @@ describe('components/FileUpload', () => {
         };
 
         const wrapper = shallowWithIntl(
-            <FileUpload {...baseProps}/>
+            <FileUpload {...baseProps}/>,
         );
 
         wrapper.instance().fileUploadFail(params.err, params.clientId, params.channelId, params.rootId);
@@ -206,6 +206,7 @@ describe('components/FileUpload', () => {
         const expectedFileName = 'Image Pasted at 2000-2-1 01-01';
 
         const event = new Event('paste');
+        event.preventDefault = jest.fn();
         const getAsFile = jest.fn().mockReturnValue(new File(['test'], 'test'));
         const file = {getAsFile, kind: 'file', name: 'test'};
         event.clipboardData = {items: [file], types: ['image/png']};
@@ -213,7 +214,7 @@ describe('components/FileUpload', () => {
         const wrapper = shallowWithIntl(
             <FileUpload
                 {...baseProps}
-            />
+            />,
         );
         jest.spyOn(wrapper.instance(), 'containsEventTarget').mockReturnValue(true);
         const spy = jest.spyOn(wrapper.instance(), 'checkPluginHooksAndUploadFiles');
@@ -222,16 +223,36 @@ describe('components/FileUpload', () => {
             global.File = undefined;
         }
         document.dispatchEvent(event);
+        expect(event.preventDefault).toHaveBeenCalled();
         expect(spy).toHaveBeenCalledWith([expect.objectContaining({name: expectedFileName})]);
         expect(spy.mock.calls[0][0][0]).toBeInstanceOf(Blob); // first call, first arg, first item in array
         expect(baseProps.onFileUploadChange).toHaveBeenCalled();
+    });
+
+    test('should not prevent paste event default if no file in clipboard', () => {
+        const event = new Event('paste');
+        event.preventDefault = jest.fn();
+        const getAsString = jest.fn();
+        event.clipboardData = {items: [{getAsString, kind: 'string', type: 'text/plain'}], types: ['text/plain']};
+
+        const wrapper = shallowWithIntl(
+            <FileUpload
+                {...baseProps}
+            />,
+        );
+        const spy = jest.spyOn(wrapper.instance(), 'containsEventTarget').mockReturnValue(true);
+
+        document.dispatchEvent(event);
+
+        expect(spy).toHaveBeenCalled();
+        expect(event.preventDefault).not.toHaveBeenCalled();
     });
 
     test('should have props.functions when uploadFiles is called', () => {
         const files = [{name: 'file1.pdf'}, {name: 'file2.jpg'}];
 
         const wrapper = shallowWithIntl(
-            <FileUpload {...baseProps}/>
+            <FileUpload {...baseProps}/>,
         );
 
         wrapper.instance().checkPluginHooksAndUploadFiles(files);
@@ -254,7 +275,7 @@ describe('components/FileUpload', () => {
         const files = [{name: 'file1.pdf'}, {name: 'file2.jpg'}];
 
         const wrapper = shallowWithIntl(
-            <FileUpload {...props}/>
+            <FileUpload {...props}/>,
         );
 
         wrapper.instance().checkPluginHooksAndUploadFiles(files);
@@ -273,7 +294,7 @@ describe('components/FileUpload', () => {
         const files = [{name: 'file1.pdf'}, {name: 'file2.jpg'}];
 
         const wrapper = shallowWithIntl(
-            <FileUpload {...props}/>
+            <FileUpload {...props}/>,
         );
 
         wrapper.instance().checkPluginHooksAndUploadFiles(files);
@@ -290,7 +311,7 @@ describe('components/FileUpload', () => {
         const files = [{name: 'file1.pdf', size: MaxFileSize + 1}];
 
         const wrapper = shallowWithIntl(
-            <FileUpload {...baseProps}/>
+            <FileUpload {...baseProps}/>,
         );
 
         wrapper.instance().checkPluginHooksAndUploadFiles(files);
@@ -305,7 +326,7 @@ describe('components/FileUpload', () => {
 
     test('should functions when handleChange is called', () => {
         const wrapper = shallowWithIntl(
-            <FileUpload {...baseProps}/>
+            <FileUpload {...baseProps}/>,
         );
 
         const e = {target: {files: [{name: 'file1.pdf'}]}};
@@ -325,7 +346,7 @@ describe('components/FileUpload', () => {
 
     test('should functions when handleDrop is called', () => {
         const wrapper = shallowWithIntl(
-            <FileUpload {...baseProps}/>
+            <FileUpload {...baseProps}/>,
         );
 
         const e = {dataTransfer: {files: [{name: 'file1.pdf'}]}};
@@ -351,7 +372,7 @@ describe('components/FileUpload', () => {
         const files = [{name: 'file1.pdf'}, {name: 'file2.jpg'}];
 
         const wrapper = shallowWithIntl(
-            <FileUpload {...props}/>
+            <FileUpload {...props}/>,
         );
 
         wrapper.instance().checkPluginHooksAndUploadFiles(files);
@@ -372,7 +393,7 @@ describe('components/FileUpload', () => {
         const files = [{name: 'file1.pdf'}, {name: 'file2.jpg'}];
 
         const wrapper = shallowWithIntl(
-            <FileUpload {...props}/>
+            <FileUpload {...props}/>,
         );
 
         wrapper.instance().checkPluginHooksAndUploadFiles(files);

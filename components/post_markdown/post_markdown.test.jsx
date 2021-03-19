@@ -15,6 +15,7 @@ describe('components/PostMarkdown', () => {
         message: 'message',
         post: {},
         mentionKeys: ['a', 'b', 'c'],
+        channelId: 'channel-id',
     };
 
     test('should not error when rendering without a post', () => {
@@ -26,7 +27,7 @@ describe('components/PostMarkdown', () => {
 
     test('should render properly with an empty post', () => {
         const wrapper = shallow(
-            <PostMarkdown {...baseProps}/>
+            <PostMarkdown {...baseProps}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -46,7 +47,7 @@ describe('components/PostMarkdown', () => {
             },
         };
         const wrapper = shallow(
-            <PostMarkdown {...props}/>
+            <PostMarkdown {...props}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -61,7 +62,7 @@ describe('components/PostMarkdown', () => {
             post: {},
         };
         const wrapper = shallow(
-            <PostMarkdown {...props}/>
+            <PostMarkdown {...props}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -78,7 +79,7 @@ describe('components/PostMarkdown', () => {
             },
         };
         const wrapper = shallow(
-            <PostMarkdown {...props}/>
+            <PostMarkdown {...props}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -91,7 +92,7 @@ describe('components/PostMarkdown', () => {
             },
         };
         const wrapper = shallow(
-            <PostMarkdown {...props}/>
+            <PostMarkdown {...props}/>,
         );
         expect(wrapper.find(Markdown).prop('postId')).toEqual(props.post.id);
         expect(wrapper).toMatchSnapshot();
@@ -116,7 +117,7 @@ describe('components/PostMarkdown', () => {
             },
         };
         const wrapper = shallow(
-            <PostMarkdown {...props}/>
+            <PostMarkdown {...props}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -149,7 +150,7 @@ describe('components/PostMarkdown', () => {
             ],
         };
         const wrapper = shallow(
-            <PostMarkdown {...props}/>
+            <PostMarkdown {...props}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -182,7 +183,7 @@ describe('components/PostMarkdown', () => {
             ],
         };
         const wrapper = shallow(
-            <PostMarkdown {...props}/>
+            <PostMarkdown {...props}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });

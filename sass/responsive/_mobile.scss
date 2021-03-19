@@ -20,6 +20,16 @@
 
     .post-right__container {
         height: 100%;
+
+        .post {
+            &.post--thread {
+                .post-pre-header__icons-container {
+                    padding-right: 12px; // If the padding of post__img changes, this needs to be adjusted accordingly
+                    width: 60px; // If the width of post__img changes, this needs to be adjusted accordingly
+                    margin-left: 0px; // if left margin of post__content changes, this needs to be adjusted accordingly
+                }
+            }
+        }
     }
 
     .line-switch__toggle {
@@ -210,7 +220,7 @@
         .dropdown-menu {
             >li {
                 >div {
-                    border-top-color: var(--center-channel-color-08) !important;
+                    border-top-color: rgba(var(--center-channel-color-rgb), 0.08) !important;
 
                     .SubMenu__icon {
                         padding: 0 5px 0 8px !important;
@@ -237,7 +247,7 @@
     }
 
     .app__body {
-        .post {
+        .post, .SidebarMenu, .AddChannelDropdown {
             .Menu {
                 @include border-radius(0);
                 border: 0px;
@@ -574,7 +584,7 @@
         }
 
         .post-add-reaction {
-            .post-reaction {
+            .Reaction {
                 opacity: 1;
                 visibility: visible;
             }
@@ -655,12 +665,16 @@
             }
         }
 
-        &.same--root {
-            &.same--user {
-                .flag-icon__container {
-                    left: auto;
-                    position: relative;
-                    top: 1px;
+        .post-pre-header {
+            .post-pre-header__icons-container {
+                padding-right: 8px; // If the padding of post__img changes, this needs to be adjusted accordingly
+                width: 40px; // If the width of post__img changes, this needs to be adjusted accordingly
+                margin-left: 0px;
+
+                .icon--post-pre-header {
+                    &:nth-of-type(even) {
+                        margin-left: 8px;
+                    }
                 }
             }
         }
@@ -816,7 +830,7 @@
         }
 
         .post__img {
-            width: 40px;
+            width: 40px; // if this changes, the width of post-pre-header__icons-container needs to be adjusted accordingly
 
             img {
                 height: 32px;
@@ -1235,6 +1249,11 @@
                     height: calc(100% - 48px - #{$announcement-bar-height});
                     top: calc(48px + #{$announcement-bar-height});
                 }
+
+                body.announcement-banner-tall--fixed & {
+                    height: calc(100% - 48px - 40px);
+                    top: calc(48px + 40px);
+                }
             }
 
             .Menu__content {
@@ -1409,6 +1428,10 @@
             font-size: 17px;
             font-weight: bold;
         }
+
+        .Menu .MenuItem.MenuItem--with-icon .MenuItem__help-text {
+            padding-left: 0;
+        }
     }
 
     .sidebar--left {
@@ -1423,10 +1446,6 @@
 
         &.move--right {
             @include translate3d(0, 0, 0);
-        }
-
-        .nav-pills__unread-indicator {
-            width: 260px;
         }
 
         .team__header {
@@ -1524,10 +1543,6 @@
             @include translate3d(0, 0, 0);
         }
 
-        .nav-pills__unread-indicator {
-            width: 260px;
-        }
-
         .team__header {
             @include clearfix;
             pointer-events: none;
@@ -1549,6 +1564,10 @@
 
         .search__form {
             display: block;
+        }
+
+        .SidebarContainer_filterAddChannel {
+            width: 100%;
         }
 
         .SidebarChannelGroup {
@@ -1578,9 +1597,21 @@
                 .SidebarChannel {
                     height: 45px;
 
-                    a,
-                    button {
+                    .SidebarLink {
                         height: 45px;
+                        align-items: center;
+
+                        &::before {
+                            height: 45px;
+                        }
+
+                        .badge + .SidebarMenu {
+                            display: none !important;
+                        }
+
+                        &:hover .SidebarMenu {
+                            display: block !important;
+                        }
                     }
 
                     &.has-close {
@@ -1593,6 +1624,10 @@
                             height: 30px;
                             line-height: 30px;
                         }
+                    }
+
+                    .SidebarMenu_menuButton {
+                        margin-top: 1px;
                     }
                 }
 
@@ -1610,6 +1645,14 @@
                         background: transparent;
                     }
                 }
+            }
+        }
+
+        .SidebarMenu, .AddChannelDropdown {
+            display: block !important;
+
+            .Menu {
+                top: 0 !important;
             }
         }
     }
@@ -1828,10 +1871,9 @@
         .MenuWrapper {
             .Menu {
                 .dropdown-menu {
-                    max-height: none;
-                    max-width: none;
-                    right: 0;
-                    left: inherit;
+                    right: 20%;
+                    top: 35%;
+                    left: unset;
                 }
             }
         }
@@ -1840,6 +1882,7 @@
     .signup-team-all {
         max-height: calc(75vh - (118px + 187px));
     }
+
 }
 
 @media screen and (max-width: 640px) {
@@ -1877,6 +1920,12 @@
         &.announcement-bar--fixed {
             .modal {
                 padding-top: $announcement-bar-height;
+            }
+        }
+
+        &.announcement-banner-tall--fixed {
+            .modal {
+                padding-top: 40px;
             }
         }
 
@@ -2173,10 +2222,6 @@
     #SidebarContainer {
         @include translate3d(-260px, 0, 0);
         width: 260px;
-
-        .nav-pills__unread-indicator {
-            width: 230px;
-        }
     }
 
     .inner-wrap {
@@ -2287,14 +2332,9 @@
     }
 
     .multi-teams {
-
         .sidebar--left,
         #SidebarContainer {
             width: 220px;
-
-            .nav-pills__unread-indicator {
-                width: 190px;
-            }
         }
     }
 
@@ -2309,6 +2349,7 @@
     }
 
     .tutorial-steps__container {
+        background: v(center-channel-bg);
         left: 0;
         position: fixed;
         top: 0;

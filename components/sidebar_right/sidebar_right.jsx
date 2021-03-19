@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 
-import {trackEvent} from 'actions/diagnostics_actions.jsx';
+import {trackEvent} from 'actions/telemetry_actions.jsx';
 import Constants from 'utils/constants';
 import * as Utils from 'utils/utils.jsx';
 
@@ -161,6 +161,7 @@ export default class SidebarRight extends React.PureComponent {
             previousRhsState,
             searchVisible,
             isPluginView,
+            isExpanded,
         } = this.props;
 
         let content = null;
@@ -199,7 +200,7 @@ export default class SidebarRight extends React.PureComponent {
                         channelDisplayName={channelDisplayName}
                         isOpened={this.state.isOpened}
                         updateSearchTerms={this.handleUpdateSearchTerms}
-
+                        isSideBarExpanded={isExpanded}
                     />
                 </div>
             );

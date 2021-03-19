@@ -64,7 +64,7 @@ describe('components/admin_console/group_settings/group_details/GroupTeamsAndCha
             <GroupTeamsAndChannels
                 {...defaultProps}
                 loading={true}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -74,7 +74,7 @@ describe('components/admin_console/group_settings/group_details/GroupTeamsAndCha
             <GroupTeamsAndChannels
                 {...defaultProps}
                 loading={false}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -86,7 +86,7 @@ describe('components/admin_console/group_settings/group_details/GroupTeamsAndCha
                 teams={[]}
                 channels={[]}
                 loading={true}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -98,7 +98,7 @@ describe('components/admin_console/group_settings/group_details/GroupTeamsAndCha
                 teams={[]}
                 channels={[]}
                 loading={false}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });

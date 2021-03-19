@@ -31,13 +31,15 @@ export default class AudioVideoPreview extends React.PureComponent {
         this.state = {
             canPlay: true,
         };
+        this.videoRef = React.createRef();
+        this.sourceRef = React.createRef();
     }
 
     componentDidMount() {
         this.handleFileInfoChanged(this.props.fileInfo);
 
-        if (this.refs.source) {
-            $(ReactDOM.findDOMNode(this.refs.source)).one('error', this.handleLoadError);
+        if (this.sourceRef.current) {
+            $(ReactDOM.findDOMNode(this.sourceRef.current)).one('error', this.handleLoadError);
         }
     }
 
@@ -46,13 +48,13 @@ export default class AudioVideoPreview extends React.PureComponent {
             this.handleFileInfoChanged(this.props.fileInfo);
         }
 
-        if (this.refs.source) {
-            $(ReactDOM.findDOMNode(this.refs.source)).one('error', this.handleLoadError);
+        if (this.sourceRef.current) {
+            $(ReactDOM.findDOMNode(this.sourceRef.current)).one('error', this.handleLoadError);
         }
     }
 
     handleFileInfoChanged = (fileInfo) => {
-        let video = ReactDOM.findDOMNode(this.refs.video);
+        let video = ReactDOM.findDOMNode(this.videoRef.current);
         if (!video) {
             video = document.createElement('video');
         }
@@ -71,8 +73,8 @@ export default class AudioVideoPreview extends React.PureComponent {
     }
 
     stop = () => {
-        if (this.refs.video) {
-            const video = ReactDOM.findDOMNode(this.refs.video);
+        if (this.videoRef.current) {
+            const video = ReactDOM.findDOMNode(this.videoRef.current);
             video.pause();
             video.currentTime = 0;
         }
@@ -99,14 +101,14 @@ export default class AudioVideoPreview extends React.PureComponent {
         return (
             <video
                 key={this.props.fileInfo.id}
-                ref='video'
+                ref={this.videoRef}
                 data-setup='{}'
                 controls='controls'
                 width={width}
                 height={height}
             >
                 <source
-                    ref='source'
+                    ref={this.sourceRef}
                     src={this.props.fileUrl}
                 />
             </video>

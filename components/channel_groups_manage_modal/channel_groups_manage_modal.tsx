@@ -6,14 +6,13 @@ import {FormattedMessage, injectIntl, IntlShape} from 'react-intl';
 
 import Groups from 'mattermost-redux/constants/groups';
 
-import {Group, SyncableType} from 'mattermost-redux/types/groups';
+import {Group} from 'mattermost-redux/types/groups';
 
 import {Channel} from 'mattermost-redux/types/channels';
 
 import AddGroupsToChannelModal from 'components/add_groups_to_channel_modal';
 
 import {ModalIdentifiers} from 'utils/constants';
-import {intlShape} from 'utils/react_intl';
 
 import ListModal, {DEFAULT_NUM_PER_PAGE} from 'components/list_modal.jsx';
 
@@ -32,7 +31,7 @@ type Props = {
     actions: {
         getGroupsAssociatedToChannel: (channelId: string, searchTerm: string, pageNumber: number, DEFAULT_NUM_PER_PAGE: number) => any;
         unlinkGroupSyncable: (itemId: string, channelId: string, groupsSyncableTypeChannel: string) => any;
-        patchGroupSyncable: (itemId: string, channelId: string, groupsSyncableTypeChannel: string, params: {schemeAdmin: boolean}) => any;
+        patchGroupSyncable: (itemId: string, channelId: string, groupsSyncableTypeChannel: string, params: {scheme_admin: boolean}) => any;
         getMyChannelMember: (channelId: string) => any;
         closeModal: (modalIdentifiersManageChannelGroups: string) => any;
         openModal: (params: {modalId: string; dialogType: any}) => any;
@@ -64,7 +63,7 @@ class ChannelGroupsManageModal extends React.PureComponent<Props> {
     };
 
     public setChannelMemberStatus = async (item: Group, listModal: any, isChannelAdmin: boolean) => {
-        this.props.actions.patchGroupSyncable(item.id, this.props.channel.id, Groups.SYNCABLE_TYPE_CHANNEL, {schemeAdmin: isChannelAdmin}).then(async () => {
+        this.props.actions.patchGroupSyncable(item.id, this.props.channel.id, Groups.SYNCABLE_TYPE_CHANNEL, {scheme_admin: isChannelAdmin}).then(async () => {
             listModal.setState({loading: true});
             const {items, totalCount} = await listModal.props.loadItems(listModal.setState.page, listModal.state.searchTerm);
             await this.props.actions.getMyChannelMember(this.props.channel.id);

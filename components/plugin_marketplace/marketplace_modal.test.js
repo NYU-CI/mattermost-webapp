@@ -4,7 +4,17 @@
 import React from 'react';
 import {shallow} from 'enzyme';
 
+import {trackEvent} from 'actions/telemetry_actions.jsx';
+
 import {AllPlugins, InstalledPlugins, MarketplaceModal} from './marketplace_modal';
+
+jest.mock('actions/telemetry_actions.jsx', () => {
+    const original = jest.requireActual('actions/telemetry_actions.jsx');
+    return {
+        ...original,
+        trackEvent: jest.fn(),
+    };
+});
 
 describe('components/marketplace/', () => {
     const samplePlugin = {
@@ -36,21 +46,21 @@ describe('components/marketplace/', () => {
     describe('AllPlugins', () => {
         it('should render with no plugins', () => {
             const wrapper = shallow(
-                <AllPlugins plugins={[]}/>
+                <AllPlugins plugins={[]}/>,
             );
             expect(wrapper).toMatchSnapshot();
         });
 
         it('should render with one plugin', () => {
             const wrapper = shallow(
-                <AllPlugins plugins={[samplePlugin]}/>
+                <AllPlugins plugins={[samplePlugin]}/>,
             );
             expect(wrapper).toMatchSnapshot();
         });
 
         it('should render with plugins', () => {
             const wrapper = shallow(
-                <AllPlugins plugins={[samplePlugin, sampleInstalledPlugin]}/>
+                <AllPlugins plugins={[samplePlugin, sampleInstalledPlugin]}/>,
             );
             expect(wrapper).toMatchSnapshot();
         });
@@ -59,21 +69,21 @@ describe('components/marketplace/', () => {
     describe('InstalledPlugins', () => {
         it('should render with no plugins', () => {
             const wrapper = shallow(
-                <InstalledPlugins installedPlugins={[]}/>
+                <InstalledPlugins installedPlugins={[]}/>,
             );
             expect(wrapper).toMatchSnapshot();
         });
 
         it('should render with one plugin', () => {
             const wrapper = shallow(
-                <InstalledPlugins installedPlugins={[sampleInstalledPlugin]}/>
+                <InstalledPlugins installedPlugins={[sampleInstalledPlugin]}/>,
             );
             expect(wrapper).toMatchSnapshot();
         });
 
         it('should render with multiple plugins', () => {
             const wrapper = shallow(
-                <InstalledPlugins installedPlugins={[sampleInstalledPlugin, sampleInstalledPlugin]}/>
+                <InstalledPlugins installedPlugins={[sampleInstalledPlugin, sampleInstalledPlugin]}/>,
             );
             expect(wrapper).toMatchSnapshot();
         });
@@ -95,7 +105,7 @@ describe('components/marketplace/', () => {
 
         test('should render with no plugins installed', () => {
             const wrapper = shallow(
-                <MarketplaceModal {...baseProps}/>
+                <MarketplaceModal {...baseProps}/>,
             );
             expect(wrapper).toMatchSnapshot();
         });
@@ -113,7 +123,7 @@ describe('components/marketplace/', () => {
             };
 
             const wrapper = shallow(
-                <MarketplaceModal {...props}/>
+                <MarketplaceModal {...props}/>,
             );
 
             expect(wrapper).toMatchSnapshot();
@@ -133,12 +143,24 @@ describe('components/marketplace/', () => {
 
         test('should render with error banner', () => {
             const wrapper = shallow(
-                <MarketplaceModal {...baseProps}/>
+                <MarketplaceModal {...baseProps}/>,
             );
 
             wrapper.setState({serverError: {message: 'Error test'}});
 
             expect(wrapper).toMatchSnapshot();
+        });
+
+        test('Should call for track event when searching', () => {
+            const wrapper = shallow(
+                <MarketplaceModal {...baseProps}/>,
+            );
+
+            wrapper.setState({filter: 'nps'});
+            wrapper.instance().doSearch();
+
+            expect(trackEvent).toHaveBeenCalledWith('plugins', 'ui_marketplace_opened');
+            expect(trackEvent).toHaveBeenCalledWith('plugins', 'ui_marketplace_search', {filter: 'nps'});
         });
     });
 });

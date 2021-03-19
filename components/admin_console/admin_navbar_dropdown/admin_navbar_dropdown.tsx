@@ -7,7 +7,7 @@ import {FormattedMessage, injectIntl, IntlShape} from 'react-intl';
 import {Team} from 'mattermost-redux/types/teams';
 
 import * as GlobalActions from 'actions/global_actions.jsx';
-import {trackEvent} from 'actions/diagnostics_actions.jsx';
+import {trackEvent} from 'actions/telemetry_actions.jsx';
 
 import {filterAndSortTeamsByDisplayName} from 'utils/team_utils.jsx';
 import {ModalIdentifiers} from 'utils/constants';
@@ -29,7 +29,7 @@ type Props = {
     };
 };
 
-class AdminNavbarDropdown extends React.Component<Props, {}> {
+class AdminNavbarDropdown extends React.PureComponent<Props> {
     private handleLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (this.props.navigationBlocked) {
             e.preventDefault();
@@ -54,7 +54,7 @@ class AdminNavbarDropdown extends React.Component<Props, {}> {
                         key={'team_' + team.name}
                         to={'/' + team.name}
                         text={formatMessage({id: 'navbar_dropdown.switchTo', defaultMessage: 'Switch to '}) + ' ' + team.display_name}
-                    />
+                    />,
                 );
             }
         } else {
@@ -67,15 +67,12 @@ class AdminNavbarDropdown extends React.Component<Props, {}> {
                             defaultMessage='Select Team Icon'
                         >
                             {(title) => {
-                                if (typeof title === 'string') {
-                                    return (
-                                        <i
-                                            className='fa fa-exchange'
-                                            title={title}
-                                        />
-                                    );
-                                }
-                                return title;
+                                return (
+                                    <i
+                                        className='fa fa-exchange'
+                                        title={title as string}
+                                    />
+                                );
                             }}
                         </FormattedMessage>
                     }

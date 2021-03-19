@@ -24,7 +24,7 @@ import {
 import {matchEmoticons} from 'utils/emoticons';
 import * as UserAgent from 'utils/user_agent';
 
-import {completePostReceive} from './post_utils';
+import {completePostReceive} from './new_post';
 
 export function handleNewPost(post, msg) {
     return async (dispatch, getState) => {
@@ -41,7 +41,7 @@ export function handleNewPost(post, msg) {
             await dispatch(getMyChannelMember(post.channel_id));
         }
 
-        dispatch(completePostReceive(post, websocketMessageProps));
+        dispatch(completePostReceive(post, websocketMessageProps, myChannelMemberDoesntExist));
 
         if (msg && msg.data) {
             const currentUserId = getCurrentUserId(state);
@@ -296,6 +296,6 @@ export function resetEmbedVisibility() {
 export function emitShortcutReactToLastPostFrom(emittedFrom) {
     return {
         type: ActionTypes.EMITTED_SHORTCUT_REACT_TO_LAST_POST,
-        payload: emittedFrom
+        payload: emittedFrom,
     };
 }

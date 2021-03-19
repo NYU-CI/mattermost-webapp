@@ -77,7 +77,6 @@ jobs:
                 name: Install Dependencies
                 command: |
                     pip install ansible
-
             - run:
                 name: Deploy
                 command: |
@@ -87,10 +86,8 @@ jobs:
                     git config --global user.name "Circleci"
                     
                     git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-develop
-
                     rm -rf binaries-files/mattermost-webapp-dev.tar.gz
                     cp mattermost-webapp/binaries-files/mattermost-webapp-dev.tar.gz binaries-files/mattermost-webapp-dev.tar.gz
-
                     # Deploy Webapp
                     ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=circleci
         
@@ -174,7 +171,6 @@ jobs:
                 name: Install Dependencies
                 command: |
                     pip install ansible
-
             - run:
                 name: Deploy
                 no_output_timeout: 60m
@@ -182,7 +178,6 @@ jobs:
                     # Retrieving env vars for VPN - LOGIN
                     echo -e "$login" > vpn.login
                     sed -i 's/\\//g' vpn.login
-
                     # Retrieving env vars for VPN - SOPHOS
                     echo -e "$sophos" > sophos.ovpn
                     sed -i 's/\\//g' sophos.ovpn
@@ -191,17 +186,14 @@ jobs:
                     sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
                     sleep 20
                     echo $(cat openvpn.log)
-
                     #Retrieving ignoring circleci
                     
                     git config --global user.email "circleci@circleci.com"
                     git config --global user.name "Circleci"
                     
                     git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-staging
-
                     rm -rf binaries-files/mattermost-webapp-stg.tar.gz
                     cp mattermost-webapp/binaries-files/mattermost-webapp-stg.tar.gz binaries-files/mattermost-webapp-stg.tar.gz
-
                     # Deploy Webapp
                     ansible-playbook -i ansible/hosts ansible/deploy-stg.yaml --user=circleci
         
@@ -285,7 +277,6 @@ jobs:
                 name: Install Dependencies
                 command: |
                     pip install ansible
-
             - run:
                 name: Deploy
                 no_output_timeout: 60m
@@ -293,7 +284,6 @@ jobs:
                     # Retrieving env vars for VPN - LOGIN
                     echo -e "$login" > vpn.login
                     sed -i 's/\\//g' vpn.login
-
                     # Retrieving env vars for VPN - SOPHOS
                     echo -e "$sophos" > sophos.ovpn
                     sed -i 's/\\//g' sophos.ovpn
@@ -302,17 +292,14 @@ jobs:
                     sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
                     sleep 20
                     echo $(cat openvpn.log)
-
                     #Retrieving tar.gz
                     
                     git config --global user.email "circleci@circleci.com"
                     git config --global user.name "Circleci"
                     
                     git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-master
-
                     rm -rf binaries-files/mattermost-webapp-prod.tar.gz
                     cp mattermost-webapp/binaries-files/mattermost-webapp-prod.tar.gz binaries-files/mattermost-webapp-prod.tar.gz
-
                     # Deploy Webapp 
                     ansible-playbook -i ansible/hosts ansible/deploy-prod.yaml --user=circleci
         

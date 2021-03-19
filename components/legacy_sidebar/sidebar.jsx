@@ -1,5 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import $ from 'jquery';
 import React from 'react';
@@ -7,11 +8,12 @@ import ReactDOM from 'react-dom';
 import {FormattedMessage, injectIntl} from 'react-intl';
 import {PropTypes} from 'prop-types';
 import classNames from 'classnames';
+import throttle from 'lodash/throttle';
 
 import Scrollbars from 'react-custom-scrollbars';
 import {SpringSystem, MathUtil} from 'rebound';
 
-import {trackEvent} from 'actions/diagnostics_actions.jsx';
+import {trackEvent} from 'actions/telemetry_actions.jsx';
 import {redirectUserToDefaultTeam} from 'actions/global_actions';
 import * as ChannelUtils from 'utils/channel_utils.jsx';
 import {Constants, ModalIdentifiers, SidebarChannelGroups} from 'utils/constants';
@@ -19,11 +21,12 @@ import {intlShape} from 'utils/react_intl';
 import * as Utils from 'utils/utils.jsx';
 import {t} from 'utils/i18n';
 
+import DataPrefetch from 'components/data_prefetch';
 import MoreChannels from 'components/more_channels';
 import MoreDirectChannels from 'components/more_direct_channels';
 import QuickSwitchModal from 'components/quick_switch_modal';
 import NewChannelFlow from 'components/new_channel_flow';
-import UnreadChannelIndicator from 'components/unread_channel_indicator';
+import UnreadChannelIndicator from 'components/sidebar/unread_channel_indicator';
 import Pluggable from 'plugins/pluggable';
 
 import SidebarHeader from './header';
@@ -66,12 +69,6 @@ const scrollMarginWithUnread = 60;
 
 class LegacySidebar extends React.PureComponent {
     static propTypes = {
-
-        /**
-         * Global config object
-         */
-        config: PropTypes.object.isRequired,
-
         isOpen: PropTypes.bool.isRequired,
 
         /**
@@ -147,6 +144,11 @@ class LegacySidebar extends React.PureComponent {
          */
         viewArchivedChannels: PropTypes.bool,
 
+        /**
+         * Setting that enables prefetching data for channels
+         */
+        isDataPrefechEnabled: PropTypes.bool,
+
         actions: PropTypes.shape({
             close: PropTypes.func.isRequired,
             switchToChannelById: PropTypes.func.isRequired,
@@ -170,10 +172,8 @@ class LegacySidebar extends React.PureComponent {
         this.closedDirectChannel = false;
 
         this.state = {
-            newChannelModalType: '',
             orderedChannelIds: props.orderedChannelIds,
             showDirectChannelsModal: false,
-            showMoreChannelsModal: false,
             showMorePublicChannelsModal: false,
             morePublicChannelsModalType: 'public',
         };
@@ -276,9 +276,9 @@ class LegacySidebar extends React.PureComponent {
         }
     }
 
-    onScroll = () => {
+    onScroll = throttle(() => {
         this.updateUnreadIndicators();
-    }
+    }, 100);
 
     handleScrollAnimationUpdate = (spring) => {
         const {scrollbar} = this.refs;
@@ -428,7 +428,7 @@ class LegacySidebar extends React.PureComponent {
                 this.props.currentChannel.id,
                 allChannelIds,
                 this.props.unreadChannelIds,
-                direction
+                direction,
             );
 
             if (nextIndex !== -1) {
@@ -473,12 +473,12 @@ class LegacySidebar extends React.PureComponent {
     }
 
     showMoreChannelsModal = (type) => {
-        this.setState({showMoreChannelsModal: true, morePublicChannelsModalType: type});
+        this.props.actions.openModal({
+            modalId: ModalIdentifiers.MORE_CHANNELS,
+            dialogType: MoreChannels,
+            dialogProps: {morePublicChannelsModalType: type},
+        });
         trackEvent('ui', 'ui_channels_more_public');
-    }
-
-    hideMoreChannelsModal = () => {
-        this.setState({showMoreChannelsModal: false});
     }
 
     showNewPublicChannelModal = () => {
@@ -492,11 +492,11 @@ class LegacySidebar extends React.PureComponent {
     }
 
     showNewChannelModal = (type) => {
-        this.setState({newChannelModalType: type});
-    }
-
-    hideNewChannelModal = () => {
-        this.setState({newChannelModalType: ''});
+        this.props.actions.openModal({
+            modalId: ModalIdentifiers.NEW_CHANNEL_FLOW,
+            dialogType: NewChannelFlow,
+            dialogProps: {channelType: type},
+        });
     }
 
     showMoreDirectChannelsModal = () => {
@@ -614,11 +614,24 @@ class LegacySidebar extends React.PureComponent {
     };
 
     render() {
-        const {channelSwitcherOption} = this.props;
+        const {
+            channelSwitcherOption,
+            currentTeam,
+            currentUser,
+            isOpen,
+            isDataPrefechEnabled,
+        } = this.props;
+
+        const {
+            showDirectChannelsModal,
+            showTopUnread,
+            showBottomUnread,
+        } = this.state;
+
         const ariaLabel = Utils.localizeMessage('accessibility.sections.lhsList', 'channel sidebar region');
 
         // Check if we have all info needed to render
-        if (this.props.currentTeam == null || this.props.currentUser == null) {
+        if (currentTeam == null || currentUser == null) {
             return (<div/>);
         }
 
@@ -626,45 +639,26 @@ class LegacySidebar extends React.PureComponent {
         this.firstUnreadChannel = null;
         this.lastUnreadChannel = null;
 
-        let showChannelModal = false;
-        if (this.state.newChannelModalType !== '') {
-            showChannelModal = true;
-        }
-
         const above = (
             <FormattedMessage
                 id='sidebar.unreads'
-                defaultMessage='More Unreads'
+                defaultMessage='More unreads'
             />
         );
 
         const below = (
             <FormattedMessage
                 id='sidebar.unreads'
-                defaultMessage='More Unreads'
+                defaultMessage='More unreads'
             />
         );
 
         let moreDirectChannelsModal;
-        if (this.state.showDirectChannelsModal) {
+        if (showDirectChannelsModal) {
             moreDirectChannelsModal = (
                 <MoreDirectChannels
                     onModalDismissed={this.hideMoreDirectChannelsModal}
                     isExistingChannel={false}
-                />
-            );
-        }
-
-        let moreChannelsModal;
-        if (this.state.showMoreChannelsModal) {
-            moreChannelsModal = (
-                <MoreChannels
-                    onModalDismissed={this.hideMoreChannelsModal}
-                    handleNewChannel={() => {
-                        this.hideMoreChannelsModal();
-                        this.showNewChannelModal(Constants.OPEN_CHANNEL);
-                    }}
-                    morePublicChannelsModalType={this.state.morePublicChannelsModalType}
                 />
             );
         }
@@ -717,22 +711,15 @@ class LegacySidebar extends React.PureComponent {
 
         return (
             <div
-                className={classNames('sidebar--left', {'move--right': this.props.isOpen && Utils.isMobile()})}
+                className={classNames('sidebar--left', {'move--right': isOpen && Utils.isMobile()})}
                 id='sidebar-left'
                 key='sidebar-left'
                 role='navigation'
                 aria-labelledby='sidebar-left'
             >
-                <NewChannelFlow
-                    show={showChannelModal}
-                    canCreatePublicChannel={this.props.canCreatePublicChannel}
-                    canCreatePrivateChannel={this.props.canCreatePrivateChannel}
-                    channelType={this.state.newChannelModalType}
-                    onModalDismissed={this.hideNewChannelModal}
-                />
+                {isDataPrefechEnabled && <DataPrefetch/>}
                 {morePublicDirectChannelsModal}
                 {moreDirectChannelsModal}
-                {moreChannelsModal}
 
                 <SidebarHeader/>
 
@@ -750,14 +737,14 @@ class LegacySidebar extends React.PureComponent {
                 >
                     <UnreadChannelIndicator
                         name='Top'
-                        show={this.state.showTopUnread}
+                        show={showTopUnread}
                         onClick={this.scrollToFirstUnreadChannel}
                         extraClass='nav-pills__unread-indicator-top'
                         content={above}
                     />
                     <UnreadChannelIndicator
                         name='Bottom'
-                        show={this.state.showBottomUnread}
+                        show={showBottomUnread}
                         onClick={this.scrollToLastUnreadChannel}
                         extraClass='nav-pills__unread-indicator-bottom'
                         content={below}
@@ -772,3 +759,4 @@ class LegacySidebar extends React.PureComponent {
 }
 
 export default injectIntl(LegacySidebar);
+/* eslint-enable react/no-string-refs */

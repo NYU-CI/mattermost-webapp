@@ -29,7 +29,7 @@ function mapStateToProps(state, ownProps) {
     const enableEmojiPicker = config.EnableEmojiPicker === 'true';
     const enablePostUsernameOverride = config.EnablePostUsernameOverride === 'true';
     const teamId = ownProps.teamId || getCurrentTeamId(state);
-    const channel = getChannel(state, ownProps.post.channel_id) || {};
+    const channel = getChannel(state, ownProps.post.channel_id);
     const emojiMap = getEmojiMap(state);
     const shortcutReactToLastPostEmittedFrom = getShortcutReactToLastPostEmittedFrom(state);
 
@@ -54,9 +54,9 @@ function mapDispatchToProps(dispatch) {
     return {
         actions: bindActionCreators({
             markPostAsUnread,
-            emitShortcutReactToLastPostFrom
+            emitShortcutReactToLastPostFrom,
         }, dispatch),
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(RhsRootPost);
+export default connect(mapStateToProps, mapDispatchToProps, null, {forwardRef: true})(RhsRootPost);

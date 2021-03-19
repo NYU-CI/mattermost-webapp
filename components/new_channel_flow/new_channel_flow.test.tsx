@@ -28,25 +28,24 @@ describe('components/NewChannelFlow', () => {
                 return Promise.resolve({data});
             }),
             switchToChannel: jest.fn(),
+            closeModal: jest.fn(),
         },
-        show: true,
         channelType: Constants.OPEN_CHANNEL as ChannelType,
         canCreatePublicChannel: true,
         canCreatePrivateChannel: true,
-        onModalDismissed: jest.fn(),
         currentTeamId: 'garbage',
     };
 
     test('should match snapshot, with base props', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
 
     test('should match state when channelDataChanged is called', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
         const data = {displayName: 'name', purpose: 'purpose', header: 'header'};
         wrapper.instance().channelDataChanged(data);
@@ -58,7 +57,7 @@ describe('components/NewChannelFlow', () => {
 
     test('should match state when urlChangeDismissed is called', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
         wrapper.instance().urlChangeDismissed();
 
@@ -67,7 +66,7 @@ describe('components/NewChannelFlow', () => {
 
     test('should match state when urlChangeSubmitted is called', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
         const newUrl = 'example.com';
         wrapper.instance().urlChangeSubmitted(newUrl);
@@ -80,7 +79,7 @@ describe('components/NewChannelFlow', () => {
 
     test('should match state when urlChangeRequested is called', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
 
         wrapper.instance().urlChangeRequested({preventDefault: jest.fn()} as unknown as React.MouseEvent);
@@ -89,7 +88,7 @@ describe('components/NewChannelFlow', () => {
 
     test('should match state when typeSwitched is called, with state switched from OPEN_CHANNEL', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
 
         wrapper.setState({channelType: Constants.OPEN_CHANNEL, serverError: 'server error'});
@@ -105,7 +104,7 @@ describe('components/NewChannelFlow', () => {
 
     test('should match state when typeSwitched is called, with state switched from PRIVATE_CHANNEL', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
 
         wrapper.setState({channelType: Constants.PRIVATE_CHANNEL});
@@ -115,7 +114,7 @@ describe('components/NewChannelFlow', () => {
 
     test('should match state when onModalExited is called', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
 
         wrapper.instance().typeSwitched(Constants.PRIVATE_CHANNEL as ChannelType);
@@ -124,7 +123,7 @@ describe('components/NewChannelFlow', () => {
 
     test('should match state when onSubmit is called with invalid channelDisplayName', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
 
         wrapper.instance().onSubmit();
@@ -133,7 +132,7 @@ describe('components/NewChannelFlow', () => {
 
     test('should call createChannel when onSubmit is called with valid channelDisplayName and valid channelName', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
 
         wrapper.setState({
@@ -144,9 +143,9 @@ describe('components/NewChannelFlow', () => {
         expect(wrapper.instance().props.actions.createChannel).toHaveBeenCalledTimes(1);
     });
 
-    test('call onModalDismissed after successfully creating channel', (done) => {
+    test('call closeModal after successfully creating channel', (done) => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
 
         wrapper.instance().channelDataChanged({
@@ -157,15 +156,15 @@ describe('components/NewChannelFlow', () => {
         wrapper.instance().onSubmit();
         expect(wrapper.instance().props.actions.createChannel).toHaveBeenCalledTimes(1);
         process.nextTick(() => {
-            expect(baseProps.onModalDismissed).toHaveBeenCalledTimes(1);
+            expect(baseProps.actions.closeModal).toHaveBeenCalledTimes(1);
             expect(wrapper.instance().props.actions.switchToChannel).toHaveBeenCalledTimes(1);
             done();
         });
     });
 
-    test('don\'t call onModalDismissed after failing to create channel', () => {
+    test('don\'t call closeModal after failing to create channel', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
 
         wrapper.instance().channelDataChanged({
@@ -174,7 +173,7 @@ describe('components/NewChannelFlow', () => {
             purpose: '',
         });
         wrapper.instance().onSubmit();
-        expect(baseProps.onModalDismissed).toHaveBeenCalledTimes(0);
+        expect(baseProps.actions.closeModal).toHaveBeenCalledTimes(0);
 
         wrapper.instance().channelDataChanged({
             displayName: 't',
@@ -189,12 +188,12 @@ describe('components/NewChannelFlow', () => {
             purpose: '',
         });
         wrapper.instance().onSubmit();
-        expect(baseProps.onModalDismissed).toHaveBeenCalledTimes(0);
+        expect(baseProps.actions.closeModal).toHaveBeenCalledTimes(0);
     });
 
     test('show URL modal when trying to submit non-Latin display name', () => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
 
         wrapper.instance().channelDataChanged({
@@ -210,9 +209,9 @@ describe('components/NewChannelFlow', () => {
         expect(wrapper.state('flowState')).toEqual(SHOW_EDIT_URL_THEN_COMPLETE);
     });
 
-    test('call onModalDismissed after successfully creating channel from URL modal', (done) => {
+    test('call closeModal after successfully creating channel from URL modal', (done) => {
         const wrapper: ShallowWrapper<any, any, NewChannelFlow> = shallow(
-            <NewChannelFlow {...baseProps}/>
+            <NewChannelFlow {...baseProps}/>,
         );
 
         wrapper.instance().channelDataChanged({
@@ -228,7 +227,7 @@ describe('components/NewChannelFlow', () => {
         wrapper.instance().urlChangeSubmitted('test');
         expect(wrapper.instance().props.actions.createChannel).toHaveBeenCalledTimes(1);
         process.nextTick(() => {
-            expect(baseProps.onModalDismissed).toHaveBeenCalledTimes(1);
+            expect(baseProps.actions.closeModal).toHaveBeenCalledTimes(1);
             done();
         });
     });
@@ -238,13 +237,12 @@ describe('components/NewChannelFlow', () => {
             actions: {
                 createChannel: jest.fn(),
                 switchToChannel: jest.fn(),
+                closeModal: jest.fn(),
             },
             currentTeamId: '',
-            onModalDismissed: jest.fn(),
-            show: false,
             channelType: Constants.OPEN_CHANNEL as ChannelType,
             canCreatePublicChannel: true,
-            canCreatePrivateChannel: true
+            canCreatePrivateChannel: true,
         };
 
         assert.equal(getChannelTypeFromProps(props), Constants.OPEN_CHANNEL);
@@ -267,36 +265,5 @@ describe('components/NewChannelFlow', () => {
 
         props.canCreatePublicChannel = true;
         assert.equal(getChannelTypeFromProps(props), Constants.OPEN_CHANNEL);
-    });
-
-    test('should reset the state when being shown', () => {
-        const wrapper = shallow(
-            <NewChannelFlow
-                {...baseProps}
-                show={false}
-            />
-        );
-
-        wrapper.setState({
-            serverError: 'an error',
-            channelType: 'a type',
-            flowState: SHOW_EDIT_URL,
-            channelDisplayName: 'a display name',
-            channelName: 'a name',
-            channelPurpose: 'a purpose',
-            channelHeader: 'a header',
-            nameModified: true,
-        });
-
-        wrapper.setProps({show: true});
-
-        expect(wrapper.state('serverError')).toEqual('');
-        expect(wrapper.state('channelType')).toEqual(Constants.OPEN_CHANNEL);
-        expect(wrapper.state('flowState')).toEqual(SHOW_NEW_CHANNEL);
-        expect(wrapper.state('channelDisplayName')).toEqual('');
-        expect(wrapper.state('channelName')).toEqual('');
-        expect(wrapper.state('channelPurpose')).toEqual('');
-        expect(wrapper.state('channelHeader')).toEqual('');
-        expect(wrapper.state('nameModified')).toEqual(false);
     });
 });

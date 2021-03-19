@@ -7,7 +7,7 @@ import {Modal} from 'react-bootstrap';
 import {FormattedMessage} from 'react-intl';
 import {Client4} from 'mattermost-redux/client';
 
-import {filterProfilesMatchingTerm} from 'mattermost-redux/utils/user_utils';
+import {filterProfilesStartingWithTerm} from 'mattermost-redux/utils/user_utils';
 
 import {displayEntireNameForUser, localizeMessage, isGuest} from 'utils/utils.jsx';
 import ProfilePicture from 'components/profile_picture';
@@ -21,7 +21,7 @@ import Constants from 'utils/constants';
 const USERS_PER_PAGE = 50;
 const MAX_SELECTABLE_VALUES = 20;
 
-export default class ChannelInviteModal extends React.Component {
+export default class ChannelInviteModal extends React.PureComponent {
     static propTypes = {
         profilesNotInCurrentChannel: PropTypes.array.isRequired,
         profilesNotInCurrentTeam: PropTypes.array.isRequired,
@@ -64,6 +64,8 @@ export default class ChannelInviteModal extends React.Component {
             saving: false,
             loadingUsers: true,
         };
+
+        this.selectedItemRef = React.createRef();
     }
 
     addValue = (value) => {
@@ -172,7 +174,7 @@ export default class ChannelInviteModal extends React.Component {
                 await this.props.actions.searchProfiles(term, options);
                 this.setUsersLoadingState(false);
             },
-            Constants.SEARCH_TIMEOUT_MILLISECONDS
+            Constants.SEARCH_TIMEOUT_MILLISECONDS,
         );
     };
 
@@ -192,7 +194,7 @@ export default class ChannelInviteModal extends React.Component {
         return (
             <div
                 key={option.id}
-                ref={isSelected ? 'selected' : option.id}
+                ref={isSelected ? this.selectedItemRef : option.id}
                 className={'more-modal__row clickable ' + rowSelected}
                 onClick={() => onAdd(option)}
                 onMouseMove={() => onMouseMove(option)}
@@ -200,6 +202,7 @@ export default class ChannelInviteModal extends React.Component {
                 <ProfilePicture
                     src={Client4.getProfilePictureUrl(option.id, option.last_picture_update)}
                     size='md'
+                    username={option.username}
                 />
                 <div className='more-modal__details'>
                     <div className='more-modal__name'>
@@ -246,7 +249,7 @@ export default class ChannelInviteModal extends React.Component {
         const buttonSubmitText = localizeMessage('multiselect.add', 'Add');
         const buttonSubmitLoadingText = localizeMessage('multiselect.adding', 'Adding...');
 
-        let users = filterProfilesMatchingTerm(this.props.profilesNotInCurrentChannel, this.state.term).filter((user) => {
+        let users = filterProfilesStartingWithTerm(this.props.profilesNotInCurrentChannel, this.state.term).filter((user) => {
             return user.delete_at === 0 && !this.props.profilesNotInCurrentTeam.includes(user) && !this.props.excludeUsers[user.id];
         });
 
@@ -260,6 +263,7 @@ export default class ChannelInviteModal extends React.Component {
                 key='addUsersToChannelKey'
                 options={users}
                 optionRenderer={this.renderOption}
+                selectedItemRef={this.selectedItemRef}
                 values={this.state.values}
                 valueRenderer={this.renderValue}
                 ariaLabelRenderer={this.renderAriaLabel}

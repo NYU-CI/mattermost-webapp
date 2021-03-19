@@ -24,7 +24,7 @@ jobs:
     # Build - DEV
     build-dev:
         docker:
-            - image: circleci/node:latest
+            - image: circleci/node:20.04
         resource_class: xlarge
         steps:
             - checkout

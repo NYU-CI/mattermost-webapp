@@ -9,8 +9,6 @@ import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
 import {requestTrialLicense, upgradeToE0Status, upgradeToE0, restartServer, ping} from 'actions/admin_actions';
 
-import {requestTrialLicense} from 'actions/admin_actions';
-
 import LicenseSettings from './license_settings.jsx';
 
 function mapStateToProps(state) {

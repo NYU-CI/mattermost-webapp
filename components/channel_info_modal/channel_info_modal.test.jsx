@@ -51,6 +51,7 @@ describe('components/ChannelInfoModal', () => {
 
     it('should call onHide callback when modal is hidden', () => {
         const onHide = jest.fn();
+
         const wrapper = mountWithIntl(
             <ChannelInfoModal
                 channel={{name: 'testchannel', displayName: 'testchannel', header: '', purpose: ''}}
@@ -59,7 +60,6 @@ describe('components/ChannelInfoModal', () => {
                 onHide={onHide}
             />,
         );
-
         wrapper.find(Modal).first().props().onExited();
         expect(onHide).toHaveBeenCalled();
     });

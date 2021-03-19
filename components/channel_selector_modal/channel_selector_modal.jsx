@@ -15,7 +15,7 @@ import FormattedMarkdownMessage from 'components/formatted_markdown_message.jsx'
 
 const CHANNELS_PER_PAGE = 50;
 
-export default class ChannelSelectorModal extends React.Component {
+export default class ChannelSelectorModal extends React.PureComponent {
     static propTypes = {
         searchTerm: PropTypes.string.isRequired,
         onModalDismissed: PropTypes.func,
@@ -24,7 +24,7 @@ export default class ChannelSelectorModal extends React.Component {
         actions: PropTypes.shape({
             loadChannels: PropTypes.func.isRequired,
             setModalSearchTerm: PropTypes.func.isRequired,
-            searchChannels: PropTypes.func.isRequired,
+            searchAllChannels: PropTypes.func.isRequired,
         }).isRequired,
     }
 
@@ -40,6 +40,8 @@ export default class ChannelSelectorModal extends React.Component {
             loadingChannels: true,
             channels: [],
         };
+
+        this.selectedItemRef = React.createRef();
     }
 
     componentDidMount() {
@@ -63,11 +65,11 @@ export default class ChannelSelectorModal extends React.Component {
                 this.searchTimeoutId = setTimeout(
                     async () => {
                         this.setChannelsLoadingState(true);
-                        const response = await this.props.actions.searchChannels(searchTerm, this.props.groupID, false);
+                        const response = await this.props.actions.searchAllChannels(searchTerm, {not_associated_to_group: this.props.groupID});
                         this.setState({channels: response.data});
                         this.setChannelsLoadingState(false);
                     },
-                    Constants.SEARCH_TIMEOUT_MILLISECONDS
+                    Constants.SEARCH_TIMEOUT_MILLISECONDS,
                 );
             }
         }
@@ -140,7 +142,7 @@ export default class ChannelSelectorModal extends React.Component {
         this.props.actions.setModalSearchTerm(term);
     }
 
-    renderOption(option, isSelected, onAdd, onMouseMove) {
+    renderOption = (option, isSelected, onAdd, onMouseMove) => {
         let rowSelected = '';
         if (isSelected) {
             rowSelected = 'more-modal__row--selected';
@@ -149,7 +151,7 @@ export default class ChannelSelectorModal extends React.Component {
         return (
             <div
                 key={option.id}
-                ref={isSelected ? 'selected' : option.id}
+                ref={isSelected ? this.selectedItemRef : option.id}
                 className={'more-modal__row clickable ' + rowSelected}
                 onClick={() => onAdd(option)}
                 onMouseMove={() => onMouseMove(option)}
@@ -212,6 +214,7 @@ export default class ChannelSelectorModal extends React.Component {
                         key='addChannelsToSchemeKey'
                         options={this.state.channels}
                         optionRenderer={this.renderOption}
+                        selectedItemRef={this.selectedItemRef}
                         values={this.state.values}
                         valueRenderer={this.renderValue}
                         perPage={CHANNELS_PER_PAGE}

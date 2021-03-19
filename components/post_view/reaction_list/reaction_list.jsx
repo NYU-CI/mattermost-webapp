@@ -1,5 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -56,10 +57,11 @@ export default class ReactionList extends React.PureComponent {
         this.state = {
             showEmojiPicker: false,
         };
+        this.addReactionButtonRef = React.createRef();
     }
 
     getTarget = () => {
-        return this.refs.addReactionButton;
+        return this.addReactionButtonRef.current;
     }
 
     handleEmojiClick = (emoji) => {
@@ -152,13 +154,13 @@ export default class ReactionList extends React.PureComponent {
                         >
                             <button
                                 aria-label={localizeMessage('reaction.add.ariaLabel', 'Add a reaction')}
-                                className='style--none post-reaction'
+                                className='Reaction'
                                 onClick={this.toggleEmojiPicker}
                             >
                                 <span
                                     id={`addReaction-${this.props.post.id}`}
-                                    className='post-reaction__add'
-                                    ref='addReactionButton'
+                                    className='Reaction__add'
+                                    ref={this.addReactionButtonRef}
                                 >
                                     <AddReactionIcon/>
                                 </span>
@@ -187,3 +189,4 @@ export default class ReactionList extends React.PureComponent {
         );
     }
 }
+/* eslint-enable react/no-string-refs */

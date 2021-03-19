@@ -31,7 +31,7 @@ export default class DotMenu extends React.PureComponent {
     static propTypes = {
         post: PropTypes.object.isRequired,
         teamId: PropTypes.string,
-        location: PropTypes.oneOf([Locations.CENTER, Locations.RHS_ROOT, Locations.RHS_COMMENT, Locations.SEARCH]).isRequired,
+        location: PropTypes.oneOf([Locations.CENTER, Locations.RHS_ROOT, Locations.RHS_COMMENT, Locations.SEARCH]), // TechDebt: Made non-mandatory while converting to typescript
         commentCount: PropTypes.number,
         isFlagged: PropTypes.bool,
         handleCommentClick: PropTypes.func,
@@ -40,16 +40,16 @@ export default class DotMenu extends React.PureComponent {
         isMenuOpen: PropTypes.bool,
         isReadOnly: PropTypes.bool,
         pluginMenuItems: PropTypes.arrayOf(PropTypes.object),
-        isLicensed: PropTypes.bool.isRequired,
-        postEditTimeLimit: PropTypes.string.isRequired,
+        isLicensed: PropTypes.bool, // TechDebt: Made non-mandatory while converting to typescript
+        postEditTimeLimit: PropTypes.string, // TechDebt: Made non-mandatory while converting to typescript
         enableEmojiPicker: PropTypes.bool.isRequired,
-        channelIsArchived: PropTypes.bool.isRequired,
-        currentTeamUrl: PropTypes.string.isRequired,
+        channelIsArchived: PropTypes.bool, // TechDebt: Made non-mandatory while converting to typescript
+        currentTeamUrl: PropTypes.string, // TechDebt: Made non-mandatory while converting to typescript
 
         /*
          * Components for overriding provided by plugins
          */
-        components: PropTypes.object.isRequired,
+        components: PropTypes.object, // TechDebt: Made non-mandatory while converting to typescript
 
         actions: PropTypes.shape({
 
@@ -87,10 +87,10 @@ export default class DotMenu extends React.PureComponent {
              * Function to set the unread mark at given post
              */
             markPostAsUnread: PropTypes.func.isRequired,
-        }).isRequired,
+        }), // TechDebt: Made non-mandatory while converting to typescript
 
-        canEdit: PropTypes.bool.isRequired,
-        canDelete: PropTypes.bool.isRequired,
+        canEdit: PropTypes.bool, // TechDebt: Made non-mandatory while converting to typescript
+        canDelete: PropTypes.bool, // TechDebt: Made non-mandatory while converting to typescript
     }
 
     static defaultProps = {
@@ -170,20 +170,7 @@ export default class DotMenu extends React.PureComponent {
     }
 
     copyLink = () => {
-        const postUrl = `${this.props.currentTeamUrl}/pl/${this.props.post.id}`;
-
-        const clipboard = navigator.clipboard;
-        if (clipboard) {
-            clipboard.writeText(postUrl);
-        } else {
-            const hiddenInput = document.createElement('textarea');
-            hiddenInput.value = postUrl;
-            document.body.appendChild(hiddenInput);
-            hiddenInput.focus();
-            hiddenInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(hiddenInput);
-        }
+        Utils.copyToClipboard(`${this.props.currentTeamUrl}/pl/${this.props.post.id}`);
     }
 
     handlePinMenuItemActivated = () => {
@@ -364,12 +351,12 @@ export default class DotMenu extends React.PureComponent {
                     />
                     <Menu.ItemAction
                         show={isMobile && !isSystemMessage && this.props.isFlagged}
-                        text={Utils.localizeMessage('rhs_root.mobile.unflag', 'Unflag')}
+                        text={Utils.localizeMessage('rhs_root.mobile.unflag', 'Remove from Saved')}
                         onClick={this.handleFlagMenuItemActivated}
                     />
                     <Menu.ItemAction
                         show={isMobile && !isSystemMessage && !this.props.isFlagged}
-                        text={Utils.localizeMessage('rhs_root.mobile.flag', 'Flag')}
+                        text={Utils.localizeMessage('rhs_root.mobile.flag', 'Save')}
                         onClick={this.handleFlagMenuItemActivated}
                     />
                     <Menu.ItemAction

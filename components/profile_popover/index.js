@@ -36,10 +36,9 @@ function mapStateToProps(state, ownProps) {
     }
 
     const selectedPost = getSelectedPost(state);
-    const currentChannel = getCurrentChannel(state);
-
     let channelId;
     if (selectedPost.exists === false) {
+        const currentChannel = getCurrentChannel(state) || {};
         channelId = currentChannel.id;
     } else {
         channelId = selectedPost.channel_id;
@@ -63,7 +62,7 @@ function mapStateToProps(state, ownProps) {
         status: getStatusForUserId(state, userId),
         teamUrl: getCurrentRelativeTeamUrl(state),
         user: getUser(state, userId),
-        modals: state.views.modals.modalState
+        modals: state.views.modals.modalState,
     };
 }
 

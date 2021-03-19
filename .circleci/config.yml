@@ -24,7 +24,7 @@ jobs:
     # Build - DEV
     build-dev:
         docker:
-            - image: circleci/node:latest
+            - image: cimg/node:lts
         resource_class: xlarge
         steps:
             - checkout
@@ -65,19 +65,19 @@ jobs:
 
     # Deploy - DEV
     deploy-dev:
-        machine: true
+        machine: 
+            image: ubuntu-2004:202101-01
         steps:
             - checkout
 
             - add_ssh_keys:
                 fingerprints:
-                    - "14:6d:d4:16:a5:07:e6:08:a9:14:b9:72:bb:36:7d:92" 
+                    - "f8:36:95:9f:01:7f:49:2d:22:a0:92:00:64:cf:a4:8f" 
 
             - run:
                 name: Install Dependencies
                 command: |
                     pip install ansible
-
             - run:
                 name: Deploy
                 command: |
@@ -87,10 +87,8 @@ jobs:
                     git config --global user.name "Circleci"
                     
                     git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-develop
-
                     rm -rf binaries-files/mattermost-webapp-dev.tar.gz
                     cp mattermost-webapp/binaries-files/mattermost-webapp-dev.tar.gz binaries-files/mattermost-webapp-dev.tar.gz
-
                     # Deploy Webapp
                     ansible-playbook -i ansible/hosts ansible/deploy-dev.yaml --user=circleci
         
@@ -110,7 +108,7 @@ jobs:
 
     build-stg:
         docker:
-            - image: circleci/node:latest
+            - image: cimg/node:lts
         resource_class: xlarge
         steps:
             - checkout
@@ -157,13 +155,14 @@ jobs:
 
     # Deploy - STG
     deploy-stg:
-        machine: true
+        machine: 
+            image: ubuntu-2004:202101-01
         steps:
             - checkout
 
             - add_ssh_keys:
                 fingerprints:
-                    - "14:6d:d4:16:a5:07:e6:08:a9:14:b9:72:bb:36:7d:92" 
+                    - "f8:36:95:9f:01:7f:49:2d:22:a0:92:00:64:cf:a4:8f" 
 
             - run:
                 command: |
@@ -174,7 +173,6 @@ jobs:
                 name: Install Dependencies
                 command: |
                     pip install ansible
-
             - run:
                 name: Deploy
                 no_output_timeout: 60m
@@ -182,7 +180,6 @@ jobs:
                     # Retrieving env vars for VPN - LOGIN
                     echo -e "$login" > vpn.login
                     sed -i 's/\\//g' vpn.login
-
                     # Retrieving env vars for VPN - SOPHOS
                     echo -e "$sophos" > sophos.ovpn
                     sed -i 's/\\//g' sophos.ovpn
@@ -191,17 +188,14 @@ jobs:
                     sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
                     sleep 20
                     echo $(cat openvpn.log)
-
                     #Retrieving ignoring circleci
                     
                     git config --global user.email "circleci@circleci.com"
                     git config --global user.name "Circleci"
                     
                     git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-staging
-
                     rm -rf binaries-files/mattermost-webapp-stg.tar.gz
                     cp mattermost-webapp/binaries-files/mattermost-webapp-stg.tar.gz binaries-files/mattermost-webapp-stg.tar.gz
-
                     # Deploy Webapp
                     ansible-playbook -i ansible/hosts ansible/deploy-stg.yaml --user=circleci
         
@@ -221,7 +215,7 @@ jobs:
 
     build-prod:
         docker:
-            - image: circleci/node:latest
+            - image: cimg/node:lts
         resource_class: xlarge
         steps:
             - checkout
@@ -268,13 +262,14 @@ jobs:
 
     # Deploy - PROD
     deploy-prod:
-        machine: true
+        machine: 
+            image: ubuntu-2004:202101-01
         steps:
             - checkout
 
             - add_ssh_keys:
                 fingerprints:
-                    - "14:6d:d4:16:a5:07:e6:08:a9:14:b9:72:bb:36:7d:92" 
+                    - "f8:36:95:9f:01:7f:49:2d:22:a0:92:00:64:cf:a4:8f" 
 
             - run:
                 command: |
@@ -285,7 +280,6 @@ jobs:
                 name: Install Dependencies
                 command: |
                     pip install ansible
-
             - run:
                 name: Deploy
                 no_output_timeout: 60m
@@ -293,7 +287,6 @@ jobs:
                     # Retrieving env vars for VPN - LOGIN
                     echo -e "$login" > vpn.login
                     sed -i 's/\\//g' vpn.login
-
                     # Retrieving env vars for VPN - SOPHOS
                     echo -e "$sophos" > sophos.ovpn
                     sed -i 's/\\//g' sophos.ovpn
@@ -302,17 +295,14 @@ jobs:
                     sudo openvpn --config sophos.ovpn --auth-user-pass vpn.login > openvpn.log 2>&1 &
                     sleep 20
                     echo $(cat openvpn.log)
-
                     #Retrieving tar.gz
                     
                     git config --global user.email "circleci@circleci.com"
                     git config --global user.name "Circleci"
                     
                     git clone git@github.com:NYU-CI/mattermost-webapp.git -b coleridge-master
-
                     rm -rf binaries-files/mattermost-webapp-prod.tar.gz
                     cp mattermost-webapp/binaries-files/mattermost-webapp-prod.tar.gz binaries-files/mattermost-webapp-prod.tar.gz
-
                     # Deploy Webapp 
                     ansible-playbook -i ansible/hosts ansible/deploy-prod.yaml --user=circleci
         

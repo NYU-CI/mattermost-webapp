@@ -1,5 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -16,7 +17,7 @@ import Popover from 'components/widgets/popover';
 
 import PopoverListMembersItem from 'components/popover_list_members/popover_list_members_item';
 
-export default class PopoverListMembers extends React.Component {
+export default class PopoverListMembers extends React.PureComponent {
     static propTypes = {
         channel: PropTypes.object.isRequired,
         statuses: PropTypes.object.isRequired,
@@ -80,7 +81,7 @@ export default class PopoverListMembers extends React.Component {
         const modalData = {
             modalId: ModalIdentifiers.CHANNEL_MEMBERS,
             dialogProps: this.props,
-            dialogType: ChannelMembersModal
+            dialogType: ChannelMembersModal,
         };
 
         this.props.actions.openModal(modalData);
@@ -88,7 +89,7 @@ export default class PopoverListMembers extends React.Component {
 
     handleGetProfilesInChannel = (e) => {
         this.setState({popoverTarget: e.target, showPopover: !this.state.showPopover});
-        this.props.actions.loadProfilesAndStatusesInChannel(this.props.channel.id, 0, undefined, 'status'); // eslint-disable-line no-undefined
+        this.props.actions.loadProfilesAndStatusesInChannel(this.props.channel.id, 0, undefined, 'status', {active: true});
     };
 
     getTargetPopover = () => {
@@ -172,17 +173,18 @@ export default class PopoverListMembers extends React.Component {
 
         return (
             <div id='channelMember'>
-                <button
-                    id='member_popover'
-                    aria-label={ariaLabel}
-                    className={'member-popover__trigger channel-header__icon channel-header__icon--wide ' + (this.state.showPopover ? 'channel-header__icon--active' : '')}
-                    ref='member_popover_target'
-                    onClick={this.handleGetProfilesInChannel}
+                <OverlayTrigger
+                    delayShow={Constants.OVERLAY_TIME_DELAY}
+                    placement='bottom'
+                    disabled={this.state.showPopover}
+                    overlay={channelMembersTooltip}
                 >
-                    <OverlayTrigger
-                        delayShow={Constants.OVERLAY_TIME_DELAY}
-                        placement='bottom'
-                        overlay={this.state.showPopover ? <></> : channelMembersTooltip}
+                    <button
+                        id='member_popover'
+                        aria-label={ariaLabel}
+                        className={'member-popover__trigger channel-header__icon channel-header__icon--wide ' + (this.state.showPopover ? 'channel-header__icon--active' : '')}
+                        ref='member_popover_target'
+                        onClick={this.handleGetProfilesInChannel}
                     >
                         <div className='d-flex align-items-center'>
                             <MemberIcon
@@ -197,8 +199,8 @@ export default class PopoverListMembers extends React.Component {
                                 {countText}
                             </span>
                         </div>
-                    </OverlayTrigger>
-                </button>
+                    </button>
+                </OverlayTrigger>
                 <Overlay
                     rootClose={true}
                     onHide={this.closePopover}
@@ -238,3 +240,4 @@ export default class PopoverListMembers extends React.Component {
         );
     }
 }
+/* eslint-enable react/no-string-refs */

@@ -13,8 +13,16 @@
 
 describe('Channel Settings', () => {
     before(() => {
-        // # Go to Main Channel View with "user-1"
-        cy.toMainChannelView('user-1');
+        cy.apiInitSetup().then(({team, user}) => {
+            cy.apiCreateChannel(team.id, 'channel', 'Private Channel', 'P').then(({channel}) => {
+                cy.apiAddUserToChannel(channel.id, user.id);
+            });
+
+            cy.apiLogin(user);
+
+            // # Visit town-square channel
+            cy.visit(`/${team.name}/channels/town-square`);
+        });
     });
 
     it('C15052 All channel types have appropriate close button', () => {
@@ -31,16 +39,16 @@ describe('Channel Settings', () => {
         cy.get('.more-modal__row.clickable').first().click();
         cy.get('#saveItems').click();
 
-        // // click on all the messages to make sure there are none left unread
+        // click on all the messages to make sure there are none left unread
         // cy.get('#directChannelList').find('a.sidebar-item').each(($el) => {
         //     cy.wrap($el).as('channel');
 
-        //     // Click to mark as unread
+            // Click to mark as unread
         //     cy.get('@channel').click({force: true});
 
         //     cy.get('#postListContent').should('be.visible');
 
-        //     // check for the close button
+            // check for the close button
         //     cy.get('@channel').find('span.btn-close').should('exist');
         // });
     });

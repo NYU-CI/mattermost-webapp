@@ -20,14 +20,14 @@ function mapStateToProps(state: GlobalState) {
         state,
         Preferences.CATEGORY_SIDEBAR_SETTINGS,
         'close_unused_direct_messages',
-        'after_seven_days'
+        'after_seven_days',
     );
 
     const channelSwitcherOption = getPreference(
         state,
         Preferences.CATEGORY_SIDEBAR_SETTINGS,
         'channel_switcher_section',
-        'true'
+        'true',
     );
 
     const channelSidebarOrganizationOption = getNewSidebarPreference(state);
@@ -41,7 +41,7 @@ function mapStateToProps(state: GlobalState) {
         channelSwitcherOption,
         channelSidebarOrganizationOption: String(channelSidebarOrganizationOption),
         showChannelOrganization: config.ExperimentalChannelOrganization === 'true',
-        showChannelSidebarOrganization: config.ExperimentalChannelSidebarOrganization !== 'disabled',
+        showChannelSidebarOrganization: config.ExperimentalChannelSidebarOrganization !== 'disabled' && config.ExperimentalChannelSidebarOrganization !== 'always_on',
         showUnusedOption: config.CloseUnusedDirectMessages === 'true',
         user: getCurrentUser(state),
     };

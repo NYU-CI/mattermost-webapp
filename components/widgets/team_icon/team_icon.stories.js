@@ -10,7 +10,7 @@ import TeamIcon from './team_icon';
 const hoverKnob = () => boolean('With Hover', false);
 const sizeKnob = () => select('Size', ['sm', 'md', 'lg']);
 
-storiesOf('Team Icon', module).
+storiesOf('Widgets/Team Icon', module).
     addDecorator(withKnobs).
     add(
         'initials',
@@ -22,7 +22,7 @@ storiesOf('Team Icon', module).
                     size={sizeKnob()}
                 />
             );
-        }
+        },
     ).add(
         'logo',
         () => {
@@ -34,5 +34,5 @@ storiesOf('Team Icon', module).
                     size={sizeKnob()}
                 />
             );
-        }
+        },
     );

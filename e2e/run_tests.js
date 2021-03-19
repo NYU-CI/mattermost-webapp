@@ -1,21 +1,24 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-/* eslint-disable no-await-in-loop, no-console, no-process-exit */
+/* eslint-disable no-await-in-loop, no-console */
 
 /*
- * This command, which normally use in CI, runs Cypress test in full or partial depending on test metadata
- * and environment capabilities, collects test reports and publishes into Mattermost channel via Webhook.
+ * This command, which normally use in CI, runs Cypress test in full or partial
+ * depending on test metadata and environment capabilities.
  *
  * Usage: [ENVIRONMENT] node run_tests.js [options]
  *
  * Options:
  *   --stage=[stage]
  *      Selects spec files with matching stage. It can be of multiple values separated by comma.
- *      E.g. "--stage='@prod,@smoke'" will select files with either @prod or @smoke.
+ *      E.g. "--stage='@prod,@dev'" will select files with either @prod or @dev.
  *   --group=[group]
  *      Selects spec files with matching group. It can be of multiple values separated by comma.
  *      E.g. "--group='@channel,@messaging'" will select files with either @channel or @messaging.
+ *   --exclude-group=[group]
+ *      Exclude spec files with matching group. It can be of multiple values separated by comma.
+ *      E.g. "--exclude-group='@enterprise'" will select files except @enterprise.
  *   --invert
  *      Selected files are those not matching any of the specified stage or group.
  *
@@ -25,8 +28,6 @@
  *   HEADLESS=[boolean]     : Headless by default (true) or false to run on headed mode.
  *   BRANCH=[branch]        : Branch identifier from CI
  *   BUILD_ID=[build_id]    : Build identifier from CI
- *   TYPE=[type]            : Test type, e.g. "DAILY", "PR", RELEASE
- *   WEBHOOK_URL=[url]      : Webhook URL where to send test report
  *
  * Example:
  * 1. "node run_tests.js"
@@ -37,28 +38,23 @@
  *      - will run all non-production tests
  * 4. "BROWSER='chrome' HEADLESS='false' node run_tests.js --stage='@prod' --group='@channel,@messaging'"
  *      - will run spec files matching stage and group values in Chrome (headed)
+ * 5. "CYPRESS_runWithEELicense=true node run_tests.js --stage='@prod'"
+ *      - will run all production tests
+ *      - typical test run for Enterprise Edition, given license file can be found in `cypress/fixtures` folder
+ * 6. "node run_tests.js --stage='@prod' --exclude-group='@enterprise'"
+ *      - will run all production tests except @enterprise group
+ *      - typical test run for Team Edition
  */
 
 const os = require('os');
-
+const chai = require('chai');
 const chalk = require('chalk');
 const cypress = require('cypress');
-const fse = require('fs-extra');
-const {merge} = require('mochawesome-merge');
-const generator = require('mochawesome-report-generator');
 const argv = require('yargs').argv;
 
 const {getTestFiles, getSkippedFiles} = require('./utils/file');
-const {
-    generateDiagnosticReport,
-    generateShortSummary,
-    generateTestReport,
-    getServerInfo,
-    sendReport,
-    writeJsonToFile
-} = require('./utils/report');
-const {saveArtifacts} = require('./utils/save_artifacts');
-const {saveDashboard} = require('./utils/dashboard');
+const {writeJsonToFile} = require('./utils/report');
+const {MOCHAWESOME_REPORT_DIR, RESULTS_DIR} = require('./utils/constants');
 
 require('dotenv').config();
 
@@ -67,18 +63,12 @@ async function runTests() {
         BRANCH,
         BROWSER,
         BUILD_ID,
-        CYPRESS_baseUrl, // eslint-disable-line camelcase
-        DASHBOARD_ENABLE,
-        DIAGNOSTIC_WEBHOOK_URL,
         HEADLESS,
-        TYPE,
-        WEBHOOK_URL,
+        ENABLE_VISUAL_TEST,
+        APPLITOOLS_API_KEY,
+        APPLITOOLS_BATCH_NAME,
+        FAILURE_MESSAGE,
     } = process.env;
-
-    const bucketFolder = Date.now();
-
-    await fse.remove('results');
-    await fse.remove('screenshots');
 
     const browser = BROWSER || 'chrome';
     const headless = typeof HEADLESS === 'undefined' ? true : HEADLESS === 'true';
@@ -91,26 +81,24 @@ async function runTests() {
         return;
     }
 
-    const mochawesomeReportDir = 'results/mochawesome-report';
-    const {invert, group, stage} = argv;
-    let failedTests = 0;
-
+    let hasFailed = false;
     for (let i = 0; i < finalTestFiles.length; i++) {
+        printMessage(finalTestFiles, i);
+
         const testFile = finalTestFiles[i];
-        const testStage = stage ? `Stage: "${stage}" ` : '';
-        const testGroup = group ? `Group: "${group}" ` : '';
 
-        // Log which files were being tested
-        console.log(chalk.magenta.bold(`${invert ? 'All Except --> ' : ''}${testStage}${stage && group ? '| ' : ''}${testGroup}`));
-        console.log(chalk.magenta(`(Testing ${i + 1} of ${finalTestFiles.length})  - `, testFile));
-
-        const {totalFailed} = await cypress.run({
+        const result = await cypress.run({
             browser,
             headless,
             spec: testFile,
             config: {
-                screenshotsFolder: `${mochawesomeReportDir}/screenshots`,
+                screenshotsFolder: `${MOCHAWESOME_REPORT_DIR}/screenshots`,
                 trashAssetsBeforeRuns: false,
+            },
+            env: {
+                enableVisualTest: ENABLE_VISUAL_TEST,
+                enableApplitools: Boolean(APPLITOOLS_API_KEY),
+                batchName: APPLITOOLS_BATCH_NAME,
             },
             reporter: 'cypress-multi-reporters',
             reporterOptions:
@@ -121,68 +109,59 @@ async function runTests() {
                         toConsole: false,
                     },
                     mochawesomeReporterOptions: {
-                        reportDir: mochawesomeReportDir,
+                        reportDir: MOCHAWESOME_REPORT_DIR,
                         reportFilename: `json/${testFile}`,
                         quiet: true,
                         overwrite: false,
                         html: false,
                         json: true,
                         testMeta: {
-                            testType: TYPE,
                             platform,
                             browser,
                             headless,
                             branch: BRANCH,
                             buildId: BUILD_ID,
-                            bucketFolder,
                         },
                     },
                 },
         });
 
-        failedTests += totalFailed;
+        // Write test environment details once only
+        if (i === 0) {
+            const environment = {
+                cypressVersion: result.cypressVersion,
+                browserName: result.browserName,
+                browserVersion: result.browserVersion,
+                headless,
+                osName: result.osName,
+                osVersion: result.osVersion,
+                nodeVersion: process.version,
+            };
+
+            writeJsonToFile(environment, 'environment.json', RESULTS_DIR);
+        }
+
+        if (!hasFailed && result.totalFailed > 0) {
+            hasFailed = true;
+        }
     }
 
-    // Merge all json reports into one single json report
-    const jsonReport = await merge({files: [`${mochawesomeReportDir}/**/*.json`]});
-    writeJsonToFile(jsonReport, 'all.json', mochawesomeReportDir);
+    chai.expect(hasFailed, FAILURE_MESSAGE).to.be.false;
+}
 
-    // Generate the html report file
-    await generator.create(jsonReport, {reportDir: mochawesomeReportDir});
+function printMessage(testFiles, index) {
+    const {invert, excludeGroup, group, stage} = argv;
 
-    // Generate short summary, write to file and then send report via webhook
-    const summary = generateShortSummary(jsonReport);
-    console.log(summary);
-    writeJsonToFile(summary, 'summary.json', mochawesomeReportDir);
+    const testFile = testFiles[index];
+    const testStage = stage ? `Stage: "${stage}" ` : '';
+    const withGroup = group || excludeGroup;
+    const groupMessage = group ? `"${group}"` : 'All';
+    const excludeGroupMessage = excludeGroup ? `except "${excludeGroup}"` : '';
+    const testGroup = withGroup ? `Group: ${groupMessage} ${excludeGroupMessage}` : '';
 
-    const result = await saveArtifacts(`../${mochawesomeReportDir}`, bucketFolder);
-    if (result && result.success) {
-        console.log('Successfully uploaded artifacts to S3.');
-        console.log(`https://${process.env.AWS_S3_BUCKET}.s3.amazonaws.com/${bucketFolder}/mochawesome.html`);
-    }
-
-    // Send test report to "QA: UI Test Automation" channel via webhook
-    if (TYPE && WEBHOOK_URL) {
-        const data = generateTestReport(summary, result && result.success, bucketFolder);
-        await sendReport('summary report to Community channel', WEBHOOK_URL, data);
-    }
-
-    // Send diagnostic report via webhook
-    // Send on "DAILY" type only
-    if (TYPE === 'DAILY' && DIAGNOSTIC_WEBHOOK_URL) {
-        const baseUrl = CYPRESS_baseUrl || 'http://localhost:8065'; // eslint-disable-line camelcase
-        const serverInfo = await getServerInfo(baseUrl);
-        const data = generateDiagnosticReport(summary, serverInfo);
-        await sendReport('test info for diagnostic analysis', DIAGNOSTIC_WEBHOOK_URL, data);
-    }
-
-    // Save data to automation dashboard
-    if (DASHBOARD_ENABLE === 'true') {
-        await saveDashboard(jsonReport, BRANCH);
-    }
-
-    // exit with the number of failed tests
-    process.exit(failedTests);
+    // Log which files were being tested
+    console.log(chalk.magenta.bold(`${invert ? 'All Except --> ' : ''}${testStage}${stage && withGroup ? '| ' : ''}${testGroup}`));
+    console.log(chalk.magenta(`(Testing ${index + 1} of ${testFiles.length})  - `, testFile));
 }
 
 runTests();

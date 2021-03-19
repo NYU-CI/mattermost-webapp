@@ -41,7 +41,7 @@ function mapStateToProps(state) {
     }
 
     const sidebarPrefs = getSidebarPreferences(state);
-    const lastUnreadChannel = state.views.channel.keepChannelIdAsUnread;
+    const lastUnreadChannel = state.views.channel.lastUnreadChannel;
     const unreadChannelIds = getSortedUnreadChannelIds(state, lastUnreadChannel);
     const orderedChannelIds = getOrderedChannelIds(
         state,
@@ -56,11 +56,10 @@ function mapStateToProps(state) {
         state,
         Preferences.CATEGORY_SIDEBAR_SETTINGS,
         'channel_switcher_section',
-        'true'
+        'true',
     );
 
     return {
-        config,
         unreadChannelIds,
         orderedChannelIds,
         channelSwitcherOption,
@@ -72,7 +71,8 @@ function mapStateToProps(state) {
         canCreatePrivateChannel,
         isOpen: getIsLhsOpen(state),
         unreads: getUnreads(state),
-        viewArchivedChannels: (getConfig(state).ExperimentalViewArchivedChannels === 'true')
+        viewArchivedChannels: config.ExperimentalViewArchivedChannels === 'true',
+        isDataPrefechEnabled: config.ExperimentalDataPrefetch === 'true',
     };
 }
 

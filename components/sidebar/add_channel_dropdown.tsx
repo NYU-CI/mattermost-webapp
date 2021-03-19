@@ -15,6 +15,7 @@ type Props = {
     canJoinPublicChannel: boolean;
     showMoreChannelsModal: () => void;
     showNewChannelModal: () => void;
+    showCreateCategoryModal: () => void;
 };
 
 type State = {
@@ -50,10 +51,20 @@ class AddChannelDropdown extends React.PureComponent<Props, State> {
         }
 
         return (
-            <Menu.Group>
-                {joinPublicChannel}
-                {createChannel}
-            </Menu.Group>
+            <React.Fragment>
+                <Menu.Group>
+                    {joinPublicChannel}
+                    {createChannel}
+                </Menu.Group>
+                <Menu.Group>
+                    <Menu.ItemAction
+                        id='createCategory'
+                        onClick={this.props.showCreateCategoryModal}
+                        icon={<i className='icon-folder-plus-outline'/>}
+                        text={intl.formatMessage({id: 'sidebar_left.add_channel_dropdown.createCategory', defaultMessage: 'Create New Category'})}
+                    />
+                </Menu.Group>
+            </React.Fragment>
         );
     }
 
@@ -78,18 +89,18 @@ class AddChannelDropdown extends React.PureComponent<Props, State> {
 
         return (
             <MenuWrapper className='AddChannelDropdown'>
-                <button
-                    className='AddChannelDropdown_dropdownButton'
-                    aria-label={intl.formatMessage({id: 'sidebar_left.add_channel_dropdown.dropdownAriaLabel', defaultMessage: 'Add Channel Dropdown'})}
+                <OverlayTrigger
+                    delayShow={500}
+                    placement='top'
+                    overlay={tooltip}
                 >
-                    <OverlayTrigger
-                        delayShow={500}
-                        placement='top'
-                        overlay={tooltip}
+                    <button
+                        className='AddChannelDropdown_dropdownButton'
+                        aria-label={intl.formatMessage({id: 'sidebar_left.add_channel_dropdown.dropdownAriaLabel', defaultMessage: 'Add Channel Dropdown'})}
                     >
                         <i className='icon-plus'/>
-                    </OverlayTrigger>
-                </button>
+                    </button>
+                </OverlayTrigger>
                 <Menu
                     id='AddChannelDropdown'
                     ariaLabel={intl.formatMessage({id: 'sidebar_left.add_channel_dropdown.dropdownAriaLabel', defaultMessage: 'Add Channel Dropdown'})}

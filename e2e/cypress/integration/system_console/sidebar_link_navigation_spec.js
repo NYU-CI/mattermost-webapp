@@ -12,7 +12,7 @@
 
 import * as TIMEOUTS from '../../fixtures/timeouts';
 
-describe('System Console', () => {
+describe('System Console - Non-Enterprise', () => {
     const testCases = [
         {
             header: 'Edition and License',
@@ -183,10 +183,6 @@ describe('System Console', () => {
     ];
 
     before(() => {
-        // * Login as sysadmin and check if server has license
-        cy.apiLogin('sysadmin');
-        cy.requireLicense();
-
         const newSettings = {
             TeamSettings: {SiteName: 'Mattermost'},
         };
@@ -195,7 +191,7 @@ describe('System Console', () => {
         // # Go to system admin then verify admin console URL and header
         cy.visit('/admin_console/about/license');
         cy.url().should('include', '/admin_console/about/license');
-        cy.get('.admin-console', {timeout: TIMEOUTS.LARGE}).should('be.visible').within(() => {
+        cy.get('.admin-console', {timeout: TIMEOUTS.HALF_MIN}).should('be.visible').within(() => {
             cy.get('.admin-console__header').should('be.visible').and('have.text', 'Edition and License');
         });
     });

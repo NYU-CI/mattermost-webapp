@@ -269,6 +269,7 @@
             .emoticon {
                 position: relative;
                 top: -1px;
+                overflow: hidden;
             }
         }
 
@@ -296,8 +297,7 @@
 
         .header-description__text {
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            display: block;
 
             ul {
                 &:first-child {
@@ -713,15 +713,6 @@
             position: absolute;
             right: -400px;
             top: 14px;
-        }
-
-        .icon__flag {
-            svg {
-                height: 19px;
-                position: relative;
-                top: 2px;
-                width: 19px;
-            }
         }
 
         > a {

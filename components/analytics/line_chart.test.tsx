@@ -9,10 +9,11 @@ describe('components/analytics/line_chart.tsx', () => {
     test('should match snapshot, on loading', () => {
         const wrapper = shallow(
             <LineChart
+                id='test'
                 title='Test'
                 height={400}
                 width={600}
-            />
+            />,
         );
 
         expect(wrapper).toMatchSnapshot();
@@ -26,11 +27,12 @@ describe('components/analytics/line_chart.tsx', () => {
 
         const wrapper = shallow(
             <LineChart
+                id='test'
                 title='Test'
                 height={400}
                 width={600}
                 data={data}
-            />
+            />,
         );
 
         expect(wrapper).toMatchSnapshot();
@@ -46,11 +48,12 @@ describe('components/analytics/line_chart.tsx', () => {
 
         const wrapper = shallow(
             <LineChart
+                id='test'
                 title='Test'
                 height={400}
                 width={600}
                 data={data}
-            />
+            />,
         );
 
         expect(wrapper).toMatchSnapshot();

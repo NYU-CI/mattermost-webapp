@@ -1,9 +1,9 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {FormattedMessage} from 'react-intl';
 import Chart, {ChartOptions} from 'chart.js';
 
@@ -14,9 +14,11 @@ type Props = {
     width: number;
     height: number;
     data?: any;
+    id: string;
 }
 
 export default class LineChart extends React.PureComponent<Props> {
+    private canvasRef = React.createRef<HTMLCanvasElement>()
     public static propTypes = {
 
         /*
@@ -80,12 +82,11 @@ export default class LineChart extends React.PureComponent<Props> {
     }
 
     public initChart = (update?: boolean): void => {
-        if (!this.refs.canvas) {
+        if (!this.canvasRef.current) {
             return;
         }
 
-        const el = ReactDOM.findDOMNode(this.refs.canvas) as HTMLCanvasElement;
-        const ctx = el.getContext('2d') as CanvasRenderingContext2D;
+        const ctx = this.canvasRef.current.getContext('2d') as CanvasRenderingContext2D;
         const dataCopy: any = JSON.parse(JSON.stringify(this.props.data));
         this.chart = new Chart(ctx, {type: 'line', data: dataCopy, options: this.chartOptions || {}});
 
@@ -115,9 +116,11 @@ export default class LineChart extends React.PureComponent<Props> {
         } else {
             content = (
                 <canvas
-                    ref='canvas'
+                    data-testid={this.props.id}
+                    ref={this.canvasRef}
                     width={this.props.width}
                     height={this.props.height}
+                    data-labels={this.props.data.labels}
                 />
             );
         }
@@ -136,3 +139,4 @@ export default class LineChart extends React.PureComponent<Props> {
         );
     }
 }
+/* eslint-enable react/no-string-refs */

@@ -9,18 +9,18 @@ import {text, withKnobs} from '@storybook/addon-knobs';
 import BasicSeparator from './basic-separator';
 import NotificationSeparator from './notification-separator';
 
-storiesOf('Separator', module).
+storiesOf('Widgets/Separator', module).
     addDecorator(withKnobs).
     add(
         'basic separator without text',
         () => {
             return (<BasicSeparator/>);
-        }
+        },
     ).add(
         'basic separator with text',
         () => {
             return (<BasicSeparator>{text('Text', 'Some text')}</BasicSeparator>);
-        }
+        },
     ).add(
         'notification separator with text',
         () => {
@@ -29,5 +29,5 @@ storiesOf('Separator', module).
                     {text('Text', 'Some text')}
                 </NotificationSeparator>
             );
-        }
+        },
     );

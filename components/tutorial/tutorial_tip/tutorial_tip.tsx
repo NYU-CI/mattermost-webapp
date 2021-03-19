@@ -5,7 +5,7 @@ import React from 'react';
 import {Overlay} from 'react-bootstrap';
 import {FormattedMessage} from 'react-intl';
 
-import {trackEvent} from 'actions/diagnostics_actions.jsx';
+import {trackEvent} from 'actions/telemetry_actions.jsx';
 import Constants from 'utils/constants';
 import tutorialGif from 'images/tutorialTip.gif';
 import tutorialGifWhite from 'images/tutorialTipWhite.gif';
@@ -26,7 +26,7 @@ type Props = {
     screens: Array<JSX.Element>;
     placement: string;
     overlayClass: string;
-    diagnosticsTag?: string;
+    telemetryTag?: string;
     actions: {
         closeRhsMenu: () => void;
         savePreferences: (currentUserId: string, preferences: Array<Preference>) => void;
@@ -38,7 +38,7 @@ type State = {
     show: boolean;
 }
 
-export default class TutorialTip extends React.Component<Props, State> {
+export default class TutorialTip extends React.PureComponent<Props, State> {
     public targetRef: React.RefObject<HTMLImageElement>;
 
     public static defaultProps: Partial<Props> = {
@@ -50,7 +50,7 @@ export default class TutorialTip extends React.Component<Props, State> {
 
         this.state = {
             currentScreen: 0,
-            show: false
+            show: false,
         };
 
         this.targetRef = React.createRef();
@@ -70,8 +70,8 @@ export default class TutorialTip extends React.Component<Props, State> {
             return;
         }
 
-        if (this.props.diagnosticsTag) {
-            let tag = this.props.diagnosticsTag;
+        if (this.props.telemetryTag) {
+            let tag = this.props.telemetryTag;
 
             if (this.props.screens.length > 1) {
                 tag += '_' + (this.state.currentScreen + 1).toString();
@@ -105,8 +105,8 @@ export default class TutorialTip extends React.Component<Props, State> {
     public skipTutorial = (e: React.MouseEvent<HTMLAnchorElement>): void => {
         e.preventDefault();
 
-        if (this.props.diagnosticsTag) {
-            let tag = this.props.diagnosticsTag;
+        if (this.props.telemetryTag) {
+            let tag = this.props.telemetryTag;
             if (this.props.screens.length > 1) {
                 tag += '_' + this.state.currentScreen;
             }
@@ -164,7 +164,7 @@ export default class TutorialTip extends React.Component<Props, State> {
                         className={className}
                         data-screen={i}
                         onClick={(e) => this.handleCircleClick(e, i)}
-                    />
+                    />,
                 );
             }
         }

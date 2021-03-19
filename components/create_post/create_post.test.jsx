@@ -6,6 +6,7 @@ import {Posts} from 'mattermost-redux/constants';
 
 import {shallowWithIntl} from 'tests/helpers/intl-test-helper';
 import {testComponentForLineBreak} from 'tests/helpers/line_break_helpers';
+import {testComponentForMarkdownHotkeys, makeSelectionEvent} from 'tests/helpers/markdown_hotkey_helpers.js';
 import * as GlobalActions from 'actions/global_actions.jsx';
 import EmojiMap from 'utils/emoji_map';
 
@@ -14,18 +15,13 @@ import * as Utils from 'utils/utils.jsx';
 
 import CreatePost from 'components/create_post/create_post.jsx';
 import FileUpload from 'components/file_upload';
+import Textbox from 'components/textbox';
 
 jest.mock('actions/global_actions.jsx', () => ({
     emitLocalUserTypingEvent: jest.fn(),
     emitUserPostedEvent: jest.fn(),
     showChannelNameUpdateModal: jest.fn(),
     toggleShortcutsModal: jest.fn(),
-}));
-
-jest.mock('react-dom', () => ({
-    findDOMNode: () => ({
-        blur: jest.fn(),
-    }),
 }));
 
 jest.mock('actions/post_actions.jsx', () => ({
@@ -36,7 +32,6 @@ jest.mock('actions/post_actions.jsx', () => ({
     }),
 }));
 
-const KeyCodes = Constants.KeyCodes;
 const currentTeamIdProp = 'r7rws4y7ppgszym3pdd5kaibfa';
 const currentUserIdProp = 'zaktnt8bpbgu8mb6ez9k64r7sa';
 const showTutorialTipProp = false;
@@ -256,7 +251,7 @@ describe('components/create_post', () => {
                 focus: jest.fn(),
             };
         };
-        wrapper.instance().refs = {textbox: {getWrappedInstance: () => ({getInputBox: jest.fn(mockImpl), focus: jest.fn(), blur: jest.fn()})}};
+        wrapper.instance().textboxRef.current = {getInputBox: jest.fn(mockImpl), focus: jest.fn(), blur: jest.fn()};
 
         wrapper.find('.emoji-picker__container').simulate('click');
         expect(wrapper.state('showEmojiPicker')).toBe(true);
@@ -293,22 +288,22 @@ describe('components/create_post', () => {
                     ...actionsProp,
                     setDraft,
                 },
-            })
+            }),
         );
 
         const postTextbox = wrapper.find('#post_textbox');
         postTextbox.simulate('change', {target: {value: 'change'}});
         expect(setDraft).not.toHaveBeenCalled();
-        jest.runAllTimers();
+        jest.runOnlyPendingTimers();
         expect(setDraft).toHaveBeenCalledWith(StoragePrefixes.DRAFT + currentChannelProp.id, draft);
     });
 
     it('onKeyPress textbox should call emitLocalUserTypingEvent', () => {
         const wrapper = shallowWithIntl(createPost());
-        wrapper.instance().refs = {textbox: {getWrappedInstance: () => ({blur: jest.fn()})}};
+        wrapper.instance().textboxRef.current = {blur: jest.fn()};
 
         const postTextbox = wrapper.find('#post_textbox');
-        postTextbox.simulate('KeyPress', {key: KeyCodes.ENTER[0], preventDefault: jest.fn(), persist: jest.fn()});
+        postTextbox.simulate('KeyPress', {key: Constants.KeyCodes.ENTER[0], preventDefault: jest.fn(), persist: jest.fn()});
         expect(GlobalActions.emitLocalUserTypingEvent).toHaveBeenCalledWith(currentChannelProp.id, '');
     });
 
@@ -340,15 +335,15 @@ describe('components/create_post', () => {
             groupsWithAllowReference: new Map([
                 ['@developers', {
                     id: 'developers',
-                    name: 'developers'
-                }]
+                    name: 'developers',
+                }],
             ]),
             channelMemberCountsByGroup: {
                 developers: {
                     channel_member_count: 10,
                     channel_member_timezones_count: 0,
-                }
-            }
+                },
+            },
         });
         wrapper.setState({
             message: '@developers',
@@ -411,7 +406,7 @@ describe('components/create_post', () => {
                     channel_member_count: 5,
                     channel_member_timezones_count: 0,
                 },
-            }
+            },
         });
         wrapper.setState({
             message: '@developers @boss @love @you @software-developers',
@@ -466,7 +461,7 @@ describe('components/create_post', () => {
                     channel_member_count: 40,
                     channel_member_timezones_count: 5,
                 },
-            }
+            },
         });
         wrapper.setState({
             message: '@developers @boss @love @you',
@@ -551,7 +546,7 @@ describe('components/create_post', () => {
                 },
                 isTimezoneEnabled: true,
                 currentChannelMembersCount: 9,
-            })
+            }),
         );
 
         wrapper.setState({
@@ -582,7 +577,7 @@ describe('components/create_post', () => {
             createPost({
                 getChannelTimezones: jest.fn(() => Promise.resolve([])),
                 isTimezoneEnabled: false,
-            })
+            }),
         );
 
         wrapper.setState({
@@ -613,7 +608,7 @@ describe('components/create_post', () => {
                     ...actionsProp,
                     openModal,
                 },
-            })
+            }),
         );
 
         wrapper.setState({
@@ -636,7 +631,7 @@ describe('components/create_post', () => {
                     ...actionsProp,
                     openModal,
                 },
-            })
+            }),
         );
 
         wrapper.setState({
@@ -686,7 +681,7 @@ describe('components/create_post', () => {
                     ...actionsProp,
                     addReaction,
                 },
-            })
+            }),
         );
 
         wrapper.setState({
@@ -706,7 +701,7 @@ describe('components/create_post', () => {
                     ...actionsProp,
                     removeReaction,
                 },
-            })
+            }),
         );
 
         wrapper.setState({
@@ -754,7 +749,7 @@ describe('components/create_post', () => {
                     ...actionsProp,
                     setDraft,
                 },
-            })
+            }),
         );
 
         const instance = wrapper.instance();
@@ -780,7 +775,7 @@ describe('components/create_post', () => {
                     ...actionsProp,
                     setDraft,
                 },
-            })
+            }),
         );
 
         const instance = wrapper.instance();
@@ -820,7 +815,7 @@ describe('components/create_post', () => {
                     ...actionsProp,
                     setDraft,
                 },
-            })
+            }),
         );
 
         const instance = wrapper.instance();
@@ -872,7 +867,7 @@ describe('components/create_post', () => {
                     ...draftProp,
                     ...uploadsInProgressDraft,
                 },
-            })
+            }),
         );
 
         const instance = wrapper.instance();
@@ -902,7 +897,7 @@ describe('components/create_post', () => {
         }));
 
         const instance = wrapper.instance();
-        instance.refs = {textbox: {getWrappedInstance: () => ({blur: jest.fn()})}};
+        instance.textboxRef.current = {blur: jest.fn()};
 
         instance.handleKeyDown({ctrlKey: true, key: Constants.KeyCodes.ENTER[0], keyCode: Constants.KeyCodes.ENTER[1], preventDefault: jest.fn(), persist: jest.fn()});
         setTimeout(() => {
@@ -949,7 +944,7 @@ describe('components/create_post', () => {
                 return new Promise((resolve) => {
                     process.nextTick(() => resolve());
                 });
-            }
+            },
         );
         const wrapper = shallowWithIntl(createPost({
             actions: {
@@ -969,7 +964,7 @@ describe('components/create_post', () => {
                 return new Promise((resolve) => {
                     process.nextTick(() => resolve());
                 });
-            }
+            },
         );
         const wrapper = shallowWithIntl(createPost({
             actions: {
@@ -1067,7 +1062,7 @@ describe('components/create_post', () => {
                     executeCommand,
                     onSubmitPost,
                 },
-            })
+            }),
         );
 
         wrapper.setState({
@@ -1106,7 +1101,7 @@ describe('components/create_post', () => {
                     executeCommand,
                     onSubmitPost,
                 },
-            })
+            }),
         );
 
         wrapper.setState({
@@ -1142,7 +1137,7 @@ describe('components/create_post', () => {
                 focus: jest.fn(),
             };
         };
-        wrapper.instance().refs = {textbox: {getWrappedInstance: () => ({getInputBox: jest.fn(mockImpl), focus: jest.fn(), blur: jest.fn()})}};
+        wrapper.instance().textboxRef.current = {getInputBox: jest.fn(mockImpl), focus: jest.fn(), blur: jest.fn()};
 
         const event = {
             target: {
@@ -1202,7 +1197,7 @@ describe('components/create_post', () => {
             };
         };
 
-        wrapper.instance().refs = {textbox: {getWrappedInstance: () => ({getInputBox: jest.fn(mockImpl), focus: jest.fn(), blur: jest.fn()})}};
+        wrapper.instance().textboxRef.current = {getInputBox: jest.fn(mockImpl), focus: jest.fn(), blur: jest.fn()};
 
         wrapper.instance().pasteHandler(event);
         expect(wrapper.state('message')).toBe(expectedMessage);
@@ -1216,7 +1211,7 @@ describe('components/create_post', () => {
                 focus: jest.fn(),
             };
         };
-        wrapper.instance().refs = {textbox: {getWrappedInstance: () => ({getInputBox: jest.fn(mockImpl), focus: jest.fn(), blur: jest.fn()})}};
+        wrapper.instance().textboxRef.current = {getInputBox: jest.fn(mockImpl), focus: jest.fn(), blur: jest.fn()};
 
         const event = {
             target: {
@@ -1249,7 +1244,7 @@ describe('components/create_post', () => {
                 focus: jest.fn(),
             };
         };
-        wrapper.instance().refs = {textbox: {getWrappedInstance: () => ({getInputBox: jest.fn(mockImpl), focus: jest.fn(), blur: jest.fn()})}};
+        wrapper.instance().textboxRef.current = {getInputBox: jest.fn(mockImpl), focus: jest.fn(), blur: jest.fn()};
         wrapper.setState({
             message: 'test',
             caretPosition: 'test'.length, // cursor is at the end
@@ -1301,6 +1296,46 @@ describe('components/create_post', () => {
 
     testComponentForLineBreak(
         (value) => createPost({draft: {...draftProp, message: value}}),
-        (instance) => instance.state().message
+        (instance) => instance.state().message,
     );
+
+    testComponentForMarkdownHotkeys(
+        (value) => createPost({draft: {...draftProp, message: value}}),
+        (wrapper, setSelectionRangeFn) => {
+            wrapper.instance().textboxRef = {
+                current: {
+                    getInputBox: jest.fn(() => {
+                        return {
+                            focus: jest.fn(),
+                            setSelectionRange: setSelectionRangeFn,
+                        };
+                    }),
+                },
+            };
+        },
+        (instance) => instance.find(Textbox),
+        (instance) => instance.state().message,
+    );
+
+    it('should adjust selection to correct text', () => {
+        const value = 'Jalebi _Fafda_ and Sambharo';
+        const wrapper = shallowWithIntl(createPost({draft: {...draftProp, message: value}}));
+
+        const setSelectionRangeFn = jest.fn();
+        wrapper.instance().textboxRef = {
+            current: {
+                getInputBox: jest.fn(() => {
+                    return {
+                        focus: jest.fn(),
+                        setSelectionRange: setSelectionRangeFn,
+                    };
+                }),
+            },
+        };
+
+        const textbox = wrapper.find(Textbox);
+        const e = makeSelectionEvent(value, 7, 14);
+        textbox.props().onSelect(e);
+        expect(setSelectionRangeFn).toHaveBeenCalledWith(8, 13);
+    });
 });

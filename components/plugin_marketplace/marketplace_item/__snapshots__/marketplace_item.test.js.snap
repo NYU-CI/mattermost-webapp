@@ -18,7 +18,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render 1`] = `
       className="more-modal__details"
     >
       <a
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none more-modal__row--link"
         href="http://example.com"
         rel="noopener noreferrer"
@@ -30,6 +30,14 @@ exports[`components/MarketplaceItem MarketplaceItem should render 1`] = `
         >
           (1.0.0)
         </span>
+      </a>
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <p
           className="more-modal__description"
         >
@@ -58,7 +66,6 @@ exports[`components/MarketplaceItem MarketplaceItem should render 1`] = `
           <FormattedMessage
             defaultMessage="Install"
             id="marketplace_modal.list.Install"
-            values={Object {}}
           />
         </LoadingWrapper>
       </button>
@@ -93,7 +100,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render installed plug
       className="more-modal__details"
     >
       <a
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none more-modal__row--link"
         href="http://example.com"
         rel="noopener noreferrer"
@@ -105,6 +112,14 @@ exports[`components/MarketplaceItem MarketplaceItem should render installed plug
         >
           (1.0.0)
         </span>
+      </a>
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <p
           className="more-modal__description"
         >
@@ -131,7 +146,6 @@ exports[`components/MarketplaceItem MarketplaceItem should render installed plug
           <FormattedMessage
             defaultMessage="Configure"
             id="marketplace_modal.list.configure"
-            values={Object {}}
           />
         </button>
       </Link>
@@ -166,7 +180,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render when not from 
       className="more-modal__details"
     >
       <a
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none more-modal__row--link"
         href="http://example.com"
         rel="noopener noreferrer"
@@ -178,6 +192,14 @@ exports[`components/MarketplaceItem MarketplaceItem should render when not from 
         >
           (1.0.0)
         </span>
+      </a>
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <p
           className="more-modal__description"
         >
@@ -206,7 +228,6 @@ exports[`components/MarketplaceItem MarketplaceItem should render when not from 
           <FormattedMessage
             defaultMessage="Install"
             id="marketplace_modal.list.Install"
-            values={Object {}}
           />
         </LoadingWrapper>
       </button>
@@ -241,7 +262,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render with empty lis
       className="more-modal__details"
     >
       <a
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none more-modal__row--link"
         href="http://example.com"
         rel="noopener noreferrer"
@@ -253,6 +274,14 @@ exports[`components/MarketplaceItem MarketplaceItem should render with empty lis
         >
           (1.0.0)
         </span>
+      </a>
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <p
           className="more-modal__description"
         >
@@ -281,7 +310,86 @@ exports[`components/MarketplaceItem MarketplaceItem should render with empty lis
           <FormattedMessage
             defaultMessage="Install"
             id="marketplace_modal.list.Install"
-            values={Object {}}
+          />
+        </LoadingWrapper>
+      </button>
+    </div>
+    <UpdateConfirmationModal
+      installedVersion=""
+      name="name"
+      onCancel={[Function]}
+      onUpdate={[Function]}
+      show={false}
+      version="1.0.0"
+    />
+  </div>
+</Fragment>
+`;
+
+exports[`components/MarketplaceItem MarketplaceItem should render with no plugin description 1`] = `
+<Fragment>
+  <div
+    className="more-modal__row more-modal__row--link"
+    id="marketplace-plugin-id"
+    key="id"
+  >
+    <div
+      className="icon__plugin icon__plugin--background"
+    >
+      <img
+        src="icon"
+      />
+    </div>
+    <div
+      className="more-modal__details"
+    >
+      <a
+        aria-label="name"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        name
+        <span
+          className="light subtitle"
+        >
+          (1.0.0)
+        </span>
+      </a>
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <p
+          className="more-modal__description"
+        />
+      </a>
+      <UpdateDetails
+        installedVersion=""
+        isInstalling={false}
+        onUpdate={[Function]}
+        version="1.0.0"
+      />
+    </div>
+    <div
+      className="more-modal__actions"
+    >
+      <button
+        className="btn btn-primary"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <LoadingWrapper
+          loading={false}
+          text="Installing..."
+        >
+          <FormattedMessage
+            defaultMessage="Install"
+            id="marketplace_modal.list.Install"
           />
         </LoadingWrapper>
       </button>
@@ -312,7 +420,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render with no plugin
       className="more-modal__details"
     >
       <a
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none more-modal__row--link"
         href="http://example.com"
         rel="noopener noreferrer"
@@ -324,6 +432,14 @@ exports[`components/MarketplaceItem MarketplaceItem should render with no plugin
         >
           (1.0.0)
         </span>
+      </a>
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <p
           className="more-modal__description"
         >
@@ -352,7 +468,6 @@ exports[`components/MarketplaceItem MarketplaceItem should render with no plugin
           <FormattedMessage
             defaultMessage="Install"
             id="marketplace_modal.list.Install"
-            values={Object {}}
           />
         </LoadingWrapper>
       </button>
@@ -387,7 +502,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render with one label
       className="more-modal__details"
     >
       <a
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none more-modal__row--link"
         href="http://example.com"
         rel="noopener noreferrer"
@@ -399,12 +514,20 @@ exports[`components/MarketplaceItem MarketplaceItem should render with one label
         >
           (1.0.0)
         </span>
-        <Label
-          description="some description"
-          key="someName"
-          name="someName"
-          url="http://example.com/info"
-        />
+      </a>
+      <Label
+        description="some description"
+        key="someName"
+        name="someName"
+        url="http://example.com/info"
+      />
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <p
           className="more-modal__description"
         >
@@ -433,7 +556,6 @@ exports[`components/MarketplaceItem MarketplaceItem should render with one label
           <FormattedMessage
             defaultMessage="Install"
             id="marketplace_modal.list.Install"
-            values={Object {}}
           />
         </LoadingWrapper>
       </button>
@@ -468,7 +590,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render with server er
       className="more-modal__details"
     >
       <a
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none more-modal__row--link"
         href="http://example.com"
         rel="noopener noreferrer"
@@ -480,6 +602,14 @@ exports[`components/MarketplaceItem MarketplaceItem should render with server er
         >
           (1.0.0)
         </span>
+      </a>
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <p
           className="more-modal__description error_text"
         >
@@ -508,7 +638,6 @@ exports[`components/MarketplaceItem MarketplaceItem should render with server er
           <FormattedMessage
             defaultMessage="Try Again"
             id="marketplace_modal.list.try_again"
-            values={Object {}}
           />
         </LoadingWrapper>
       </button>
@@ -543,7 +672,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render with two label
       className="more-modal__details"
     >
       <a
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none more-modal__row--link"
         href="http://example.com"
         rel="noopener noreferrer"
@@ -555,18 +684,26 @@ exports[`components/MarketplaceItem MarketplaceItem should render with two label
         >
           (1.0.0)
         </span>
-        <Label
-          description="some description"
-          key="someName"
-          name="someName"
-          url="http://example.com/info"
-        />
-        <Label
-          description="some description2"
-          key="someName2"
-          name="someName2"
-          url="http://example.com/info2"
-        />
+      </a>
+      <Label
+        description="some description"
+        key="someName"
+        name="someName"
+        url="http://example.com/info"
+      />
+      <Label
+        description="some description2"
+        key="someName2"
+        name="someName2"
+        url="http://example.com/info2"
+      />
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <p
           className="more-modal__description"
         >
@@ -595,7 +732,6 @@ exports[`components/MarketplaceItem MarketplaceItem should render with two label
           <FormattedMessage
             defaultMessage="Install"
             id="marketplace_modal.list.Install"
-            values={Object {}}
           />
         </LoadingWrapper>
       </button>
@@ -630,7 +766,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render with update an
       className="more-modal__details"
     >
       <a
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none more-modal__row--link"
         href="http://example.com"
         rel="noopener noreferrer"
@@ -642,6 +778,14 @@ exports[`components/MarketplaceItem MarketplaceItem should render with update an
         >
           (0.9.9)
         </span>
+      </a>
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <p
           className="more-modal__description"
         >
@@ -669,7 +813,6 @@ exports[`components/MarketplaceItem MarketplaceItem should render with update an
           <FormattedMessage
             defaultMessage="Configure"
             id="marketplace_modal.list.configure"
-            values={Object {}}
           />
         </button>
       </Link>
@@ -705,7 +848,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render with update av
       className="more-modal__details"
     >
       <a
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none more-modal__row--link"
         href="http://example.com"
         rel="noopener noreferrer"
@@ -717,6 +860,14 @@ exports[`components/MarketplaceItem MarketplaceItem should render with update av
         >
           (0.9.9)
         </span>
+      </a>
+      <a
+        aria-label="Plugin's website"
+        className="style--none more-modal__row--link"
+        href="http://example.com"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <p
           className="more-modal__description"
         >
@@ -743,7 +894,6 @@ exports[`components/MarketplaceItem MarketplaceItem should render with update av
           <FormattedMessage
             defaultMessage="Configure"
             id="marketplace_modal.list.configure"
-            values={Object {}}
           />
         </button>
       </Link>
@@ -778,7 +928,7 @@ exports[`components/MarketplaceItem MarketplaceItem should render wtih no homepa
       className="more-modal__details"
     >
       <span
-        aria-label="name, test plugin"
+        aria-label="name"
         className="style--none"
       >
         name
@@ -787,6 +937,11 @@ exports[`components/MarketplaceItem MarketplaceItem should render wtih no homepa
         >
           (1.0.0)
         </span>
+      </span>
+      <span
+        aria-label="Plugin\\\\'s website"
+        className="style--none"
+      >
         <p
           className="more-modal__description"
         >
@@ -815,7 +970,6 @@ exports[`components/MarketplaceItem MarketplaceItem should render wtih no homepa
           <FormattedMessage
             defaultMessage="Install"
             id="marketplace_modal.list.Install"
-            values={Object {}}
           />
         </LoadingWrapper>
       </button>
@@ -839,7 +993,6 @@ exports[`components/MarketplaceItem UpdateConfirmationModal should add extra war
     <FormattedMessage
       defaultMessage="Update"
       id="marketplace_modal.list.update_confirmation.confirm_button"
-      values={Object {}}
     />
   }
   message={
@@ -857,10 +1010,9 @@ exports[`components/MarketplaceItem UpdateConfirmationModal should add extra war
         />
       </p>,
       <p>
-        <FormattedHTMLMessage
-          defaultMessage="You currently have 0.0.1 installed. View the <a href=\\"http://example.com/release\\" target='_blank' rel='noopener noreferrer'>release notes</a> to learn about the changes included in this update."
+        <injectIntl(FormattedMarkdownMessage)
+          defaultMessage="You currently have {installedVersion} installed. View the [release notes](!{releaseNotesUrl}) to learn about the changes included in this update."
           id="marketplace_modal.list.update_confirmation.message.current_with_release_notes"
-          tagName="span"
           values={
             Object {
               "installedVersion": "0.0.1",
@@ -872,10 +1024,9 @@ exports[`components/MarketplaceItem UpdateConfirmationModal should add extra war
       <p
         className="alert alert-warning"
       >
-        <FormattedHTMLMessage
-          defaultMessage="This update may contain breaking changes. Consult the <a href=\\"http://example.com/release\\" target='_blank' rel='noopener noreferrer'>release notes</a> before upgrading."
+        <injectIntl(FormattedMarkdownMessage)
+          defaultMessage="This update may contain breaking changes. Consult the [release notes](!{releaseNotesUrl}) before upgrading."
           id="marketplace_modal.list.update_confirmation.message.warning_major_version_with_release_notes"
-          tagName="span"
           values={
             Object {
               "releaseNotesUrl": "http://example.com/release",
@@ -893,7 +1044,6 @@ exports[`components/MarketplaceItem UpdateConfirmationModal should add extra war
     <FormattedMessage
       defaultMessage="Confirm Plugin Update"
       id="marketplace_modal.list.update_confirmation.title"
-      values={Object {}}
     />
   }
 />
@@ -906,7 +1056,6 @@ exports[`components/MarketplaceItem UpdateConfirmationModal should add extra war
     <FormattedMessage
       defaultMessage="Update"
       id="marketplace_modal.list.update_confirmation.confirm_button"
-      values={Object {}}
     />
   }
   message={
@@ -940,7 +1089,6 @@ exports[`components/MarketplaceItem UpdateConfirmationModal should add extra war
         <FormattedMessage
           defaultMessage="This update may contain breaking changes."
           id="marketplace_modal.list.update_confirmation.message.warning_major_version"
-          values={Object {}}
         />
       </p>,
     ]
@@ -953,7 +1101,6 @@ exports[`components/MarketplaceItem UpdateConfirmationModal should add extra war
     <FormattedMessage
       defaultMessage="Confirm Plugin Update"
       id="marketplace_modal.list.update_confirmation.title"
-      values={Object {}}
     />
   }
 />
@@ -968,7 +1115,6 @@ exports[`components/MarketplaceItem UpdateConfirmationModal should render withou
     <FormattedMessage
       defaultMessage="Update"
       id="marketplace_modal.list.update_confirmation.confirm_button"
-      values={Object {}}
     />
   }
   message={
@@ -1006,7 +1152,6 @@ exports[`components/MarketplaceItem UpdateConfirmationModal should render withou
     <FormattedMessage
       defaultMessage="Confirm Plugin Update"
       id="marketplace_modal.list.update_confirmation.title"
-      values={Object {}}
     />
   }
 />
@@ -1027,7 +1172,6 @@ exports[`components/MarketplaceItem UpdateDetails should render with release not
     <FormattedMessage
       defaultMessage="Update available:"
       id="marketplace_modal.list.update_available"
-      values={Object {}}
     >
       <span>
         Update available:
@@ -1054,7 +1198,6 @@ exports[`components/MarketplaceItem UpdateDetails should render with release not
         <FormattedMessage
           defaultMessage="Update"
           id="marketplace_modal.list.update"
-          values={Object {}}
         >
           <span>
             Update
@@ -1081,7 +1224,6 @@ exports[`components/MarketplaceItem UpdateDetails should render without release 
     <FormattedMessage
       defaultMessage="Update available:"
       id="marketplace_modal.list.update_available"
-      values={Object {}}
     >
       <span>
         Update available:
@@ -1102,7 +1244,6 @@ exports[`components/MarketplaceItem UpdateDetails should render without release 
         <FormattedMessage
           defaultMessage="Update"
           id="marketplace_modal.list.update"
-          values={Object {}}
         >
           <span>
             Update

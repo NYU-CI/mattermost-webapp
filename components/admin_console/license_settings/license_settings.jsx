@@ -12,8 +12,6 @@ import {format} from 'utils/markdown';
 import * as AdminActions from 'actions/admin_actions.jsx';
 import {trackEvent} from 'actions/telemetry_actions';
 
-import * as AdminActions from 'actions/admin_actions.jsx';
-
 import FormattedMarkdownMessage from 'components/formatted_markdown_message.jsx';
 import FormattedAdminHeader from 'components/widgets/admin_console/formatted_admin_header';
 import LoadingWrapper from 'components/widgets/loading/loading_wrapper';

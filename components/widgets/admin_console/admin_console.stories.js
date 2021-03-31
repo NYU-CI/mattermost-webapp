@@ -14,7 +14,7 @@ import AdminPanelWithLink from './admin_panel_with_link';
 import AdminHeader from './admin_header';
 import FormattedAdminHeader from './formatted_admin_header';
 
-storiesOf('Admin Console', module).
+storiesOf('Widgets/Admin Console', module).
     addDecorator(withKnobs).
     add(
         'admin panel',
@@ -37,7 +37,7 @@ storiesOf('Admin Console', module).
                     {content}
                 </AdminPanel>
             );
-        }
+        },
     ).
     add(
         'admin panel with button',
@@ -64,7 +64,7 @@ storiesOf('Admin Console', module).
                     {content}
                 </AdminPanelWithButton>
             );
-        }
+        },
     ).
     add(
         'admin panel with link',
@@ -91,7 +91,7 @@ storiesOf('Admin Console', module).
                     {content}
                 </AdminPanelWithLink>
             );
-        }
+        },
     ).
     add(
         'togglable admin panel',
@@ -115,7 +115,7 @@ storiesOf('Admin Console', module).
                 );
             };
             return <Wrapper/>;
-        }
+        },
     ).
     add(
         'admin header',
@@ -124,7 +124,7 @@ storiesOf('Admin Console', module).
             return (
                 <AdminHeader>{title}</AdminHeader>
             );
-        }
+        },
     ).
     add(
         'formatted admin header',
@@ -136,5 +136,5 @@ storiesOf('Admin Console', module).
                     defaultMessage={markdown}
                 />
             );
-        }
+        },
     );

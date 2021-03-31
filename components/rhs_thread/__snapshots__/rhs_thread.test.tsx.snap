@@ -40,7 +40,7 @@ exports[`components/RhsThread should match snapshot 1`] = `
   />
   <Scrollbars
     autoHeight={false}
-    autoHeightMax={200}
+    autoHeightMax={0}
     autoHeightMin={0}
     autoHide={true}
     autoHideDuration={500}
@@ -68,7 +68,7 @@ exports[`components/RhsThread should match snapshot 1`] = `
         id="rhsContent"
         role="application"
       >
-        <Connect(DateSeparator)
+        <Memo(DateSeparator)
           date={2017-08-14T12:56:05.009Z}
         />
         <Connect(injectIntl(RhsRootPost))
@@ -119,6 +119,7 @@ exports[`components/RhsThread should match snapshot 1`] = `
         <Connect(injectIntl(CreateComment))
           channelId="channel_id"
           latestPostId="id"
+          onHeightChange={[Function]}
           rootDeleted={false}
           rootId="id"
         />

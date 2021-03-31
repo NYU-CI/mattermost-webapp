@@ -26,7 +26,7 @@ describe('components/AddGroupsToChannelModal', () => {
 
     test('should match snapshot', () => {
         const wrapper = shallow(
-            <AddGroupsToChannelModal {...baseProps}/>
+            <AddGroupsToChannelModal {...baseProps}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -35,7 +35,7 @@ describe('components/AddGroupsToChannelModal', () => {
         const onHide = jest.fn();
         const props = {...baseProps, onHide};
         const wrapper = shallow(
-            <AddGroupsToChannelModal {...props}/>
+            <AddGroupsToChannelModal {...props}/>,
         );
 
         wrapper.instance().handleExit();
@@ -44,7 +44,7 @@ describe('components/AddGroupsToChannelModal', () => {
 
     test('should match state when handleResponse is called', () => {
         const wrapper = shallow(
-            <AddGroupsToChannelModal {...baseProps}/>
+            <AddGroupsToChannelModal {...baseProps}/>,
         );
 
         wrapper.setState({saving: true, addError: ''});
@@ -92,7 +92,7 @@ describe('components/AddGroupsToChannelModal', () => {
 
     test('should match state when addValue is called', () => {
         const wrapper = shallow(
-            <AddGroupsToChannelModal {...baseProps}/>
+            <AddGroupsToChannelModal {...baseProps}/>,
         );
         const value1 = {id: 'id_1', label: 'label_1', value: 'value_1'};
         const value2 = {id: 'id_2', label: 'label_2', value: 'value_2'};
@@ -108,7 +108,7 @@ describe('components/AddGroupsToChannelModal', () => {
 
     test('should match state when handlePageChange is called', () => {
         const wrapper = shallow(
-            <AddGroupsToChannelModal {...baseProps}/>
+            <AddGroupsToChannelModal {...baseProps}/>,
         );
 
         wrapper.setState({users: [{id: 'id_1'}]});
@@ -124,7 +124,7 @@ describe('components/AddGroupsToChannelModal', () => {
 
     test('should match state when search is called', () => {
         const wrapper = shallow(
-            <AddGroupsToChannelModal {...baseProps}/>
+            <AddGroupsToChannelModal {...baseProps}/>,
         );
 
         wrapper.instance().search('');
@@ -140,7 +140,7 @@ describe('components/AddGroupsToChannelModal', () => {
 
     test('should match state when handleDelete is called', () => {
         const wrapper = shallow(
-            <AddGroupsToChannelModal {...baseProps}/>
+            <AddGroupsToChannelModal {...baseProps}/>,
         );
 
         const value1 = {id: 'id_1', label: 'label_1', value: 'value_1'};
@@ -155,7 +155,7 @@ describe('components/AddGroupsToChannelModal', () => {
 
     test('should match when renderOption is called', () => {
         const wrapper = shallow(
-            <AddGroupsToChannelModal {...baseProps}/>
+            <AddGroupsToChannelModal {...baseProps}/>,
         );
 
         const option = {id: 'id', last_picture_update: '12345', email: 'test@test.com'};
@@ -173,7 +173,7 @@ describe('components/AddGroupsToChannelModal', () => {
 
     test('should match when renderValue is called', () => {
         const wrapper = shallow(
-            <AddGroupsToChannelModal {...baseProps}/>
+            <AddGroupsToChannelModal {...baseProps}/>,
         );
 
         expect(wrapper.instance().renderValue({data: {display_name: 'foo'}})).toEqual('foo');

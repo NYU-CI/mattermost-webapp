@@ -32,6 +32,7 @@ describe('components/admin_console/group_settings/group_details/GroupDetails', (
         actions: {
             getGroup: jest.fn().mockReturnValue(Promise.resolve()),
             getMembers: jest.fn().mockReturnValue(Promise.resolve()),
+            getGroupStats: jest.fn().mockReturnValue(Promise.resolve()),
             getGroupSyncables: jest.fn().mockReturnValue(Promise.resolve()),
             link: jest.fn(),
             unlink: jest.fn(),
@@ -71,6 +72,7 @@ describe('components/admin_console/group_settings/group_details/GroupDetails', (
     test('should load data on mount', () => {
         const actions = {
             getGroupSyncables: jest.fn().mockReturnValue(Promise.resolve()),
+            getGroupStats: jest.fn().mockReturnValue(Promise.resolve()),
             getGroup: jest.fn().mockReturnValue(Promise.resolve()),
             getMembers: jest.fn(),
             link: jest.fn(),
@@ -83,7 +85,7 @@ describe('components/admin_console/group_settings/group_details/GroupDetails', (
             <GroupDetails
                 {...defaultProps}
                 actions={actions}
-            />
+            />,
         );
         expect(actions.getGroupSyncables).toBeCalledWith('xxxxxxxxxxxxxxxxxxxxxxxxxx', 'team');
         expect(actions.getGroupSyncables).toBeCalledWith('xxxxxxxxxxxxxxxxxxxxxxxxxx', 'channel');
@@ -94,6 +96,7 @@ describe('components/admin_console/group_settings/group_details/GroupDetails', (
     test('should set state for each channel when addChannels is called', async () => {
         const actions = {
             getGroupSyncables: jest.fn().mockReturnValue(Promise.resolve()),
+            getGroupStats: jest.fn().mockReturnValue(Promise.resolve()),
             getGroup: jest.fn().mockReturnValue(Promise.resolve()),
             getMembers: jest.fn(),
             link: jest.fn().mockReturnValue(Promise.resolve()),
@@ -106,7 +109,7 @@ describe('components/admin_console/group_settings/group_details/GroupDetails', (
             <GroupDetails
                 {...defaultProps}
                 actions={actions}
-            />
+            />,
         );
         const instance = wrapper.instance();
         await instance.addChannels([{id: '11111111111111111111111111'}, {id: '22222222222222222222222222'}]);
@@ -122,6 +125,7 @@ describe('components/admin_console/group_settings/group_details/GroupDetails', (
     test('should set state for each team when addTeams is called', async () => {
         const actions = {
             getGroupSyncables: jest.fn().mockReturnValue(Promise.resolve()),
+            getGroupStats: jest.fn().mockReturnValue(Promise.resolve()),
             getGroup: jest.fn().mockReturnValue(Promise.resolve()),
             getMembers: jest.fn(),
             link: jest.fn().mockReturnValue(Promise.resolve()),
@@ -134,7 +138,7 @@ describe('components/admin_console/group_settings/group_details/GroupDetails', (
             <GroupDetails
                 {...defaultProps}
                 actions={actions}
-            />
+            />,
         );
         const instance = wrapper.instance();
         expect(instance.state.groupTeams.length === 0);

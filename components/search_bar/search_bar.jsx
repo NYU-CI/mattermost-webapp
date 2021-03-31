@@ -6,7 +6,7 @@ import React from 'react';
 import classNames from 'classnames';
 import {FormattedMessage} from 'react-intl';
 
-import Constants, {searchHintOptions} from 'utils/constants';
+import Constants, {searchHintOptions, RHSStates} from 'utils/constants';
 import * as Utils from 'utils/utils.jsx';
 import SearchChannelProvider from 'components/suggestion/search_channel_provider.jsx';
 import SearchSuggestionList from 'components/suggestion/search_suggestion_list.jsx';
@@ -18,13 +18,13 @@ import HeaderIconWrapper from 'components/channel_header/components/header_icon_
 import SearchHint from 'components/search_hint/search_hint';
 import FlagIcon from 'components/widgets/icons/flag_icon';
 import MentionsIcon from 'components/widgets/icons/mentions_icon';
-import SearchIcon from 'components/widgets/icons/search_icon';
 import LoadingSpinner from 'components/widgets/loading/loading_spinner';
 import Popover from 'components/widgets/popover';
+import UserGuideDropdown from 'components/channel_header/components/user_guide_dropdown';
 
 const {KeyCodes} = Constants;
 
-export default class SearchBar extends React.Component {
+export default class SearchBar extends React.PureComponent {
     static propTypes = {
         isSearchingTerm: PropTypes.bool,
         searchTerms: PropTypes.string,
@@ -43,6 +43,7 @@ export default class SearchBar extends React.Component {
             closeRightHandSide: PropTypes.func,
             autocompleteChannelsForSearch: PropTypes.func.isRequired,
             autocompleteUsersInTeam: PropTypes.func.isRequired,
+            updateRhsState: PropTypes.func,
         }),
     };
 
@@ -59,7 +60,8 @@ export default class SearchBar extends React.Component {
             focused: false,
             keepInputFocused: false,
             highlightedSearchHintIndex: -1,
-            visibleSearchHintOptions: this.determineVisibleSearchHintOptions(props.searchTerms),
+            visibleSearchHintOptions: SearchBar.determineVisibleSearchHintOptions(props.searchTerms),
+            lastSearchTerms: '',
         };
 
         this.suggestionProviders = [
@@ -80,15 +82,19 @@ export default class SearchBar extends React.Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        const {searchTerms} = nextProps;
+    static getDerivedStateFromProps(props, state) {
+        const {searchTerms} = props;
 
-        this.setState({
-            visibleSearchHintOptions: this.determineVisibleSearchHintOptions(searchTerms),
-        });
+        if (searchTerms !== state.lastSearchTerms) {
+            return {
+                visibleSearchHintOptions: SearchBar.determineVisibleSearchHintOptions(searchTerms),
+                lastSearchTerms: searchTerms,
+            };
+        }
+        return null;
     }
 
-    determineVisibleSearchHintOptions = (searchTerms) => {
+    static determineVisibleSearchHintOptions = (searchTerms) => {
         let visibleSearchHintOptions = [];
 
         if (searchTerms.trim() === '') {
@@ -143,6 +149,10 @@ export default class SearchBar extends React.Component {
                 this.setState({keepInputFocused: true});
             }
         }
+
+        if (Utils.isKeyPressed(e, KeyCodes.ENTER) && this.props.isMentionSearch) {
+            this.props.actions.updateRhsState(RHSStates.SEARCH);
+        }
     }
 
     handleChange = (e) => {
@@ -165,9 +175,9 @@ export default class SearchBar extends React.Component {
     }
 
     onClear = () => {
-        this.props.actions.updateSearchTerms('');
         if (this.props.isMentionSearch) {
             this.setState({keepInputFocused: false});
+            this.props.actions.updateRhsState(RHSStates.SEARCH);
         }
         this.props.actions.updateSearchTerms('');
     }
@@ -178,7 +188,7 @@ export default class SearchBar extends React.Component {
 
     handleSearch = async (terms) => {
         if (terms.length) {
-            const {error} = await this.props.actions.showSearchResults();
+            const {error} = await this.props.actions.showSearchResults(this.props.isMentionSearch);
 
             if (!error) {
                 this.handleSearchOnSuccess();
@@ -307,6 +317,7 @@ export default class SearchBar extends React.Component {
     render() {
         let mentionBtn;
         let flagBtn;
+        let userGuideBtn;
         if (this.props.showMentionFlagBtns) {
             mentionBtn = (
                 <HeaderIconWrapper
@@ -342,6 +353,8 @@ export default class SearchBar extends React.Component {
                     isRhsOpen={this.props.isRhsOpen}
                 />
             );
+
+            userGuideBtn = (<UserGuideDropdown/>);
         }
 
         let searchFormClass = 'search__form';
@@ -382,10 +395,9 @@ export default class SearchBar extends React.Component {
                         autoComplete='off'
                         aria-labelledby='searchBox'
                     >
-                        <SearchIcon
-                            className='search__icon'
-                            aria-hidden='true'
-                        />
+                        <div className='search__font-icon'>
+                            <i className='icon icon-magnify icon-16'/>
+                        </div>
                         <SuggestionBox
                             ref={this.getSearch}
                             id={this.props.isSideBarRight ? 'sbrSearchBox' : 'searchBox'}
@@ -417,6 +429,7 @@ export default class SearchBar extends React.Component {
                 </div>
                 {mentionBtn}
                 {flagBtn}
+                {userGuideBtn}
             </div>
         );
     }

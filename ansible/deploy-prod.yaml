@@ -16,4 +16,4 @@
         sudo cp -R client/ /opt/gitlab/embedded/service/mattermost
         sudo chown -R root:root /opt/gitlab/embedded/service/mattermost/client
         sudo chmod -R 755 /opt/gitlab/embedded/service/mattermost/client/
-        rm -rf client/
+        rm -rf client

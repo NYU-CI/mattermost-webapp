@@ -14,10 +14,10 @@ import Avatar from 'components/widgets/users/avatar';
 import AdminNavbarDropdown from 'components/admin_console/admin_navbar_dropdown';
 
 type Props = {
-    currentUser: UserProfile& {last_picture_update?: number};
+    currentUser: UserProfile;
 }
 
-export default class SidebarHeader extends React.Component<Props> {
+export default class SidebarHeader extends React.PureComponent<Props> {
     public render() {
         const me = this.props.currentUser;
         let profilePicture = null;
@@ -49,7 +49,10 @@ export default class SidebarHeader extends React.Component<Props> {
                         </div>
                         <div className='user__name overflow--ellipsis whitespace--nowrap'>{'@' + me.username}</div>
                     </div>
-                    <button className='style--none'>
+                    <button
+                        type='button'
+                        className='style--none'
+                    >
                         <MenuIcon className='menu-icon'/>
                     </button>
                 </div>

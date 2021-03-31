@@ -21,6 +21,7 @@ describe('admin_console/team_channel_settings/channel/ChannelMembers', () => {
     const channel: Channel = Object.assign(TestHelper.getChannelMock({id: 'channel-1'}));
 
     const baseProps = {
+        filters: {},
         usersToRemove: {},
         usersToAdd: {},
         onAddCallback: jest.fn(),
@@ -37,17 +38,20 @@ describe('admin_console/team_channel_settings/channel/ChannelMembers', () => {
         },
         totalCount: 3,
         searchTerm: '',
+        enableGuestAccounts: true,
         actions: {
             getChannelStats: jest.fn(),
             loadProfilesAndReloadChannelMembers: jest.fn(),
             searchProfilesAndChannelMembers: jest.fn(),
-            setModalSearchTerm: jest.fn(),
-        }
+            getFilteredUsersStats: jest.fn(),
+            setUserGridSearch: jest.fn(),
+            setUserGridFilters: jest.fn(),
+        },
     };
 
     test('should match snapshot', () => {
         const wrapper = shallow(
-            <ChannelMembers {...baseProps}/>
+            <ChannelMembers {...baseProps}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -60,7 +64,7 @@ describe('admin_console/team_channel_settings/channel/ChannelMembers', () => {
                 channelMembers={{}}
                 totalCount={0}
                 loading={true}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });

@@ -12,7 +12,7 @@ describe('components/SpinnerButton', () => {
             <SpinnerButton
                 spinning={false}
                 spinningText='Test'
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -22,7 +22,7 @@ describe('components/SpinnerButton', () => {
             <SpinnerButton
                 spinning={true}
                 spinningText='Test'
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -35,7 +35,7 @@ describe('components/SpinnerButton', () => {
             >
                 <span id='child1'/>
                 <span id='child2'/>
-            </SpinnerButton>
+            </SpinnerButton>,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -48,10 +48,28 @@ describe('components/SpinnerButton', () => {
                 spinning={false}
                 onClick={onClick}
                 spinningText='Test'
-            />
+            />,
         );
 
-        wrapper.find('.btn-primary').simulate('click');
+        wrapper.find('button').simulate('click');
         expect(onClick).toHaveBeenCalledTimes(1);
+    });
+
+    test('should add properties to underlying button', () => {
+        const wrapper = mount(
+            <SpinnerButton
+                id='my-button-id'
+                className='btn btn-success'
+                spinningText='Test'
+            />,
+        );
+
+        const button = wrapper.find('button');
+
+        expect(button).not.toBeUndefined();
+        expect(button.type()).toEqual('button');
+        expect(button.props().id).toEqual('my-button-id');
+        expect(button.hasClass('btn')).toBeTruthy();
+        expect(button.hasClass('btn-success')).toBeTruthy();
     });
 });

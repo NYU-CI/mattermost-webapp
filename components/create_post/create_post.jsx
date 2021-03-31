@@ -31,6 +31,7 @@ import EditChannelPurposeModal from 'components/edit_channel_purpose_modal';
 import EmojiPickerOverlay from 'components/emoji_picker/emoji_picker_overlay.jsx';
 import FilePreview from 'components/file_preview';
 import FileUpload from 'components/file_upload';
+import CallButton from 'components/call_button';
 import LocalizedIcon from 'components/localized_icon';
 import MsgTyping from 'components/msg_typing';
 import PostDeletedModal from 'components/post_deleted_modal';
@@ -315,6 +316,7 @@ class CreatePost extends React.PureComponent {
             channelTimezoneCount: 0,
             uploadsProgressPercent: {},
             renderScrollbar: false,
+            scrollbarWidth: 0,
             currentChannel: props.currentChannel,
             mentions: [],
             memberNotifyCount: 0,
@@ -324,6 +326,11 @@ class CreatePost extends React.PureComponent {
         this.lastChannelSwitchAt = 0;
         this.draftsForChannel = {};
         this.lastOrientation = null;
+
+        this.topDiv = React.createRef();
+        this.textboxRef = React.createRef();
+        this.fileUploadRef = React.createRef();
+        this.createPostControlsRef = React.createRef();
     }
 
     componentDidMount() {
@@ -413,7 +420,7 @@ class CreatePost extends React.PureComponent {
         }
 
         if (this.lastOrientation && orientation !== this.lastOrientation && (document.activeElement || {}).id === 'post_textbox') {
-            this.refs.textbox.getWrappedInstance().blur();
+            this.textboxRef.current.blur();
         }
 
         this.lastOrientation = orientation;
@@ -571,7 +578,7 @@ class CreatePost extends React.PureComponent {
             groupsWithAllowReference,
             channelMemberCountsByGroup,
             currentChannelMembersCount,
-            useGroupMentions
+            useGroupMentions,
         } = this.props;
 
         const notificationsToChannel = this.props.enableConfirmNotificationsToChannel && this.props.useChannelMentions;
@@ -675,7 +682,7 @@ class CreatePost extends React.PureComponent {
             draft,
             useGroupMentions,
             useChannelMentions,
-            groupsWithAllowReference
+            groupsWithAllowReference,
         } = this.props;
 
         let post = originalPost;
@@ -738,12 +745,12 @@ class CreatePost extends React.PureComponent {
 
     focusTextbox = (keepFocus = false) => {
         const postTextboxDisabled = this.props.readOnlyChannel || !this.props.canPost;
-        if (this.refs.textbox && postTextboxDisabled) {
-            this.refs.textbox.getWrappedInstance().blur(); // Fixes Firefox bug which causes keyboard shortcuts to be ignored (MM-22482)
+        if (this.textboxRef.current && postTextboxDisabled) {
+            this.textboxRef.current.blur(); // Fixes Firefox bug which causes keyboard shortcuts to be ignored (MM-22482)
             return;
         }
-        if (this.refs.textbox && (keepFocus || !UserAgent.isMobile())) {
-            this.refs.textbox.getWrappedInstance().focus();
+        if (this.textboxRef.current && (keepFocus || !UserAgent.isMobile())) {
+            this.textboxRef.current.focus();
         }
     }
 
@@ -759,9 +766,11 @@ class CreatePost extends React.PureComponent {
         }
 
         if (allowSending) {
-            e.persist();
-            if (this.refs.textbox) {
-                this.refs.textbox.getWrappedInstance().blur();
+            if (e.persist) {
+                e.persist();
+            }
+            if (this.textboxRef.current) {
+                this.textboxRef.current.blur();
             }
 
             if (withClosedCodeBlock && message) {
@@ -929,8 +938,8 @@ class CreatePost extends React.PureComponent {
                     uploadsInProgress,
                 };
 
-                if (this.refs.fileUpload && this.refs.fileUpload.getWrappedInstance()) {
-                    this.refs.fileUpload.getWrappedInstance().cancelUpload(id);
+                if (this.fileUploadRef.current && this.fileUploadRef.current) {
+                    this.fileUploadRef.current.cancelUpload(id);
                 }
             }
         } else {
@@ -990,15 +999,15 @@ class CreatePost extends React.PureComponent {
     }
 
     getFileUploadTarget = () => {
-        if (this.refs.textbox) {
-            return this.refs.textbox.getWrappedInstance();
+        if (this.textboxRef.current) {
+            return this.textboxRef.current;
         }
 
         return null;
     }
 
     getCreatePostControls = () => {
-        return this.refs.createPostControls;
+        return this.createPostControlsRef.current;
     }
 
     fillMessageFromHistory() {
@@ -1017,6 +1026,10 @@ class CreatePost extends React.PureComponent {
         });
     }
 
+    handleSelect = (e) => {
+        Utils.adjustSelection(this.textboxRef.current.getInputBox(), e);
+    }
+
     handleKeyDown = (e) => {
         const ctrlOrMetaKeyPressed = e.ctrlKey || e.metaKey;
         const messageIsEmpty = this.state.message.length === 0;
@@ -1025,6 +1038,7 @@ class CreatePost extends React.PureComponent {
         const upKeyOnly = !ctrlOrMetaKeyPressed && !e.altKey && !e.shiftKey && Utils.isKeyPressed(e, KeyCodes.UP);
         const shiftUpKeyCombo = !ctrlOrMetaKeyPressed && !e.altKey && e.shiftKey && Utils.isKeyPressed(e, KeyCodes.UP);
         const ctrlKeyCombo = ctrlOrMetaKeyPressed && !e.altKey && !e.shiftKey;
+        const markdownHotkey = Utils.isKeyPressed(e, KeyCodes.B) || Utils.isKeyPressed(e, KeyCodes.I);
 
         // listen for line break key combo and insert new line character
         if (Utils.isUnhandledLineBreakKeyCombo(e)) {
@@ -1039,6 +1053,8 @@ class CreatePost extends React.PureComponent {
             this.loadPrevMessage(e);
         } else if (ctrlKeyCombo && draftMessageIsEmpty && Utils.isKeyPressed(e, KeyCodes.DOWN)) {
             this.loadNextMessage(e);
+        } else if (ctrlKeyCombo && markdownHotkey) {
+            this.applyHotkeyMarkdown(e);
         }
     }
 
@@ -1056,8 +1072,8 @@ class CreatePost extends React.PureComponent {
         } else {
             type = Utils.localizeMessage('create_post.post', Posts.MESSAGE_TYPES.POST);
         }
-        if (this.refs.textbox) {
-            this.refs.textbox.getWrappedInstance().blur();
+        if (this.textboxRef.current) {
+            this.textboxRef.current.blur();
         }
         this.props.actions.setEditingPost(lastPost.id, this.props.commentCountForPost, 'post_textbox', type);
     }
@@ -1082,6 +1098,17 @@ class CreatePost extends React.PureComponent {
     loadNextMessage = (e) => {
         e.preventDefault();
         this.props.actions.moveHistoryIndexForward(Posts.MESSAGE_TYPES.POST).then(() => this.fillMessageFromHistory());
+    }
+
+    applyHotkeyMarkdown = (e) => {
+        const res = Utils.applyHotkeyMarkdown(e);
+
+        this.setState({
+            message: res.message,
+        }, () => {
+            const textbox = this.textboxRef.current.getInputBox();
+            Utils.setSelectionRange(textbox, res.selectionStart, res.selectionEnd);
+        });
     }
 
     reactToLastMessage = (e) => {
@@ -1121,7 +1148,7 @@ class CreatePost extends React.PureComponent {
     }
 
     setMessageAndCaretPostion = (newMessage, newCaretPosition) => {
-        const textbox = this.refs.textbox.getWrappedInstance().getInputBox();
+        const textbox = this.textboxRef.current.getInputBox();
 
         this.setState({
             message: newMessage,
@@ -1197,7 +1224,7 @@ class CreatePost extends React.PureComponent {
                 placement='top'
                 screens={screens}
                 overlayClass='tip-overlay--chat'
-                diagnosticsTag='tutorial_tip_1_sending_messages'
+                telemetryTag='tutorial_tip_1_sending_messages'
             />
         );
     }
@@ -1207,7 +1234,15 @@ class CreatePost extends React.PureComponent {
     }
 
     handleHeightChange = (height, maxHeight) => {
-        this.setState({renderScrollbar: height > maxHeight});
+        this.setState({
+            renderScrollbar: height > maxHeight,
+        });
+
+        window.requestAnimationFrame(() => {
+            if (this.textboxRef.current) {
+                this.setState({scrollbarWidth: Utils.scrollbarWidth(this.textboxRef.current.getInputBox())});
+            }
+        });
     }
 
     render() {
@@ -1376,11 +1411,18 @@ class CreatePost extends React.PureComponent {
             attachmentsDisabled = ' post-create--attachment-disabled';
         }
 
+        let callButton;
+        if (!readOnlyChannel && !this.props.shouldShowPreview) {
+            callButton = (
+                <CallButton/>
+            );
+        }
+
         let fileUpload;
         if (!readOnlyChannel && !this.props.shouldShowPreview) {
             fileUpload = (
                 <FileUpload
-                    ref='fileUpload'
+                    ref={this.fileUploadRef}
                     fileCount={this.getFileCount()}
                     getTarget={this.getFileUploadTarget}
                     onFileUploadChange={this.handleFileUploadChange}
@@ -1444,11 +1486,14 @@ class CreatePost extends React.PureComponent {
         return (
             <form
                 id='create_post'
-                ref='topDiv'
+                ref={this.topDiv}
                 className={centerClass}
                 onSubmit={this.handleSubmit}
             >
-                <div className={'post-create' + attachmentsDisabled + scrollbarClass}>
+                <div
+                    className={'post-create' + attachmentsDisabled + scrollbarClass}
+                    style={this.state.renderScrollbar && this.state.scrollbarWidth ? {'--detected-scrollbar-width': `${this.state.scrollbarWidth}px`} : undefined}
+                >
                     <div className='post-create-body'>
                         <div
                             role='application'
@@ -1462,6 +1507,7 @@ class CreatePost extends React.PureComponent {
                                 onChange={this.handleChange}
                                 onKeyPress={this.postMsgKeyPress}
                                 onKeyDown={this.handleKeyDown}
+                                onSelect={this.handleSelect}
                                 onMouseUp={this.handleMouseUpKeyUp}
                                 onKeyUp={this.handleMouseUpKeyUp}
                                 onComposition={this.emitTypingEvent}
@@ -1473,7 +1519,7 @@ class CreatePost extends React.PureComponent {
                                 createMessage={createMessage}
                                 channelId={currentChannel.id}
                                 id='post_textbox'
-                                ref='textbox'
+                                ref={this.textboxRef}
                                 disabled={readOnlyChannel}
                                 characterLimit={this.props.maxPostSize}
                                 preview={this.props.shouldShowPreview}
@@ -1482,9 +1528,10 @@ class CreatePost extends React.PureComponent {
                                 useChannelMentions={this.props.useChannelMentions}
                             />
                             <span
-                                ref='createPostControls'
+                                ref={this.createPostControlsRef}
                                 className='post-body__actions'
                             >
+                                {callButton}
                                 {fileUpload}
                                 {emojiPicker}
                                 <a
@@ -1551,3 +1598,4 @@ class CreatePost extends React.PureComponent {
 }
 
 export default injectIntl(CreatePost);
+/* eslint-enable react/no-string-refs */

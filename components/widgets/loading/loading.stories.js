@@ -9,13 +9,13 @@ import {withKnobs, text} from '@storybook/addon-knobs';
 import LoadingSpinner from './loading_spinner';
 import LoadingWrapper from './loading_wrapper';
 
-storiesOf('Loading', module).
+storiesOf('Widgets/Loading', module).
     addDecorator(withKnobs).
     add('LoadingSpinner without text',
         () => (<LoadingSpinner/>),
     ).
     add('LoadingSpinner with text',
-        () => <LoadingSpinner text={text('Text', 'Loading')}/>
+        () => <LoadingSpinner text={text('Text', 'Loading')}/>,
     ).
     add('loadingWrapper', () => {
         const LoadingExample = () => {

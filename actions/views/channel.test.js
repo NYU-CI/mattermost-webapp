@@ -4,8 +4,9 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
-import {General, Posts} from 'mattermost-redux/constants';
+import {General, Posts, RequestStatus} from 'mattermost-redux/constants';
 import {leaveChannel, markChannelAsRead} from 'mattermost-redux/actions/channels';
+import * as UserActions from 'mattermost-redux/actions/users';
 import * as PostActions from 'mattermost-redux/actions/posts';
 
 import {browserHistory} from 'utils/browser_history';
@@ -34,6 +35,8 @@ jest.mock('actions/channel_actions.jsx', () => ({
     openDirectChannelToUserId: jest.fn(() => ({type: ''})),
 }));
 
+jest.mock('mattermost-redux/actions/users');
+
 jest.mock('mattermost-redux/actions/channels', () => ({
     ...jest.requireActual('mattermost-redux/actions/channels'),
     markChannelAsRead: jest.fn(() => ({type: ''})),
@@ -44,6 +47,10 @@ jest.mock('mattermost-redux/actions/posts');
 
 jest.mock('selectors/local_storage', () => ({
     getLastViewedChannelName: () => 'channel1',
+}));
+
+jest.mock('mattermost-redux/selectors/entities/utils', () => ({
+    makeAddLastViewAtToProfiles: () => jest.fn().mockReturnValue([]),
 }));
 
 describe('channel view actions', () => {
@@ -88,6 +95,9 @@ describe('channel view actions', () => {
             },
             preferences: {
                 myPreferences: {},
+            },
+            posts: {
+                postsInChannel: {},
             },
         },
         views: {
@@ -207,7 +217,7 @@ describe('channel view actions', () => {
 
             PostActions.getPostsUnread.mockReturnValue(() => ({data: posts}));
 
-            const result = await store.dispatch(Actions.loadUnreads('channel', 'post'));
+            const result = await store.dispatch(Actions.loadUnreads('channel'));
 
             expect(result).toEqual({atLatestMessage: true, atOldestmessage: true});
             expect(PostActions.getPostsUnread).toHaveBeenCalledWith('channel');
@@ -227,7 +237,7 @@ describe('channel view actions', () => {
 
             PostActions.getPostsUnread.mockReturnValue(() => ({data: posts}));
 
-            const result = await store.dispatch(Actions.loadUnreads('channel', 'post'));
+            const result = await store.dispatch(Actions.loadUnreads('channel'));
             expect(result).toEqual({atLatestMessage: false, atOldestmessage: false});
             expect(PostActions.getPostsUnread).toHaveBeenCalledWith('channel');
         });
@@ -238,14 +248,69 @@ describe('channel view actions', () => {
 
             PostActions.getPostsUnread.mockReturnValue(() => ({data: posts}));
 
-            await store.dispatch(Actions.loadUnreads('channel', 'post'));
+            await store.dispatch(Actions.loadUnreads('channel'));
 
             expect(store.getActions()).toEqual([
-                {amount: 0, data: 'channel', type: 'INCREASE_POST_VISIBILITY'},
                 {
-                    channelId: 'channel',
-                    time: 12344,
-                    type: 'RECEIVED_POSTS_FOR_CHANNEL_AT_TIME'},
+                    meta: {batch: true},
+                    payload: [
+                        {amount: 0, data: 'channel', type: 'INCREASE_POST_VISIBILITY'},
+                        {
+                            channelId: 'channel',
+                            time: 12344,
+                            type: 'RECEIVED_POSTS_FOR_CHANNEL_AT_TIME',
+                        }],
+                    type: 'BATCHING_REDUCER.BATCH',
+                },
+            ]);
+        });
+
+        test('should disptach PREFETCH_POSTS_FOR_CHANNEL status when called with prefetch argument and loadUnreads sucess', async () => {
+            const posts = {posts: {}, order: [], next_post_id: '', prev_post_id: ''};
+
+            PostActions.getPostsUnread.mockReturnValue(() => ({data: posts}));
+
+            await store.dispatch(Actions.loadUnreads('channel', true));
+
+            expect(store.getActions()).toEqual([{
+                channelId: 'channel',
+                status: RequestStatus.STARTED,
+                type: 'PREFETCH_POSTS_FOR_CHANNEL',
+            },
+            {
+                meta: {batch: true},
+                payload: [
+                    {amount: 0, data: 'channel', type: 'INCREASE_POST_VISIBILITY'},
+                    {
+                        channelId: 'channel',
+                        status: RequestStatus.SUCCESS,
+                        type: 'PREFETCH_POSTS_FOR_CHANNEL',
+                    },
+                    {
+                        channelId: 'channel',
+                        time: 12344,
+                        type: 'RECEIVED_POSTS_FOR_CHANNEL_AT_TIME',
+                    }],
+                type: 'BATCHING_REDUCER.BATCH',
+            },
+            ]);
+        });
+
+        test('should disptach PREFETCH_POSTS_FOR_CHANNEL status when called with prefetch argument and loadUnreads error', async () => {
+            PostActions.getPostsUnread.mockReturnValue(() => ({error: {}}));
+
+            await store.dispatch(Actions.loadUnreads('channel', true));
+
+            expect(store.getActions()).toEqual([{
+                channelId: 'channel',
+                status: RequestStatus.STARTED,
+                type: 'PREFETCH_POSTS_FOR_CHANNEL',
+            },
+            {
+                channelId: 'channel',
+                status: RequestStatus.FAILURE,
+                type: 'PREFETCH_POSTS_FOR_CHANNEL',
+            },
             ]);
         });
     });
@@ -523,6 +588,88 @@ describe('channel view actions', () => {
 
             expect(markChannelAsRead).not.toHaveBeenCalled();
         });
+
+        test('should match actions for PREFETCH_POSTS_FOR_CHANNEL when prefetch argument and getPostsSince sucess', async () => {
+            const channelId = 'channel1';
+            PostActions.getPostsSince.mockReturnValue(() => ({data: []}));
+
+            store = mockStore({
+                ...initialState,
+                views: {
+                    ...initialState.views,
+                    channel: {
+                        ...initialState.views.channel,
+                        lastGetPosts: {
+                            [channelId]: 12345,
+                        },
+                    },
+                },
+                websocket: {
+                    lastDisconnectAt: 12344,
+                },
+            });
+
+            await store.dispatch(Actions.syncPostsInChannel(channelId, 12350, true));
+
+            expect(store.getActions()).toEqual([{
+                channelId: 'channel1',
+                status: RequestStatus.STARTED,
+                type: 'PREFETCH_POSTS_FOR_CHANNEL',
+            },
+            {
+                meta: {batch: true},
+                payload: [{
+                    channelId: 'channel1',
+                    time: 12344,
+                    type: 'RECEIVED_POSTS_FOR_CHANNEL_AT_TIME',
+                }, {
+                    channelId: 'channel1',
+                    status: RequestStatus.SUCCESS,
+                    type: 'PREFETCH_POSTS_FOR_CHANNEL',
+                }],
+                type: 'BATCHING_REDUCER.BATCH',
+            },
+            ]);
+        });
+
+        test('should match actions for PREFETCH_POSTS_FOR_CHANNEL when prefetch argument and getPostsSince failure', async () => {
+            const channelId = 'channel1';
+            PostActions.getPostsSince.mockReturnValue(() => ({error: {}}));
+
+            store = mockStore({
+                ...initialState,
+                views: {
+                    ...initialState.views,
+                    channel: {
+                        ...initialState.views.channel,
+                        lastGetPosts: {
+                            [channelId]: 12345,
+                        },
+                    },
+                },
+                websocket: {
+                    lastDisconnectAt: 12344,
+                },
+            });
+
+            await store.dispatch(Actions.syncPostsInChannel(channelId, 12350, true));
+
+            expect(store.getActions()).toEqual([{
+                channelId: 'channel1',
+                status: RequestStatus.STARTED,
+                type: 'PREFETCH_POSTS_FOR_CHANNEL',
+            },
+            {
+                meta: {batch: true},
+                payload: [{
+                    channelId: 'channel1',
+                    status: RequestStatus.FAILURE,
+                    type: 'PREFETCH_POSTS_FOR_CHANNEL',
+                }],
+                type: 'BATCHING_REDUCER.BATCH',
+            },
+            ]);
+        });
     });
 
     describe('updateToastStatus', () => {
@@ -531,8 +678,101 @@ describe('channel view actions', () => {
 
             expect(store.getActions()).toEqual([{
                 data: true,
-                type: 'UPDATE_TOAST_STATUS'
+                type: 'UPDATE_TOAST_STATUS',
             }]);
+        });
+    });
+
+    describe('prefetchChannelPosts', () => {
+        test('should call for loadUnreads if there are no posts in channel', async () => {
+            await store.dispatch(Actions.prefetchChannelPosts('channelid1'));
+            expect(PostActions.getPostsUnread).toHaveBeenCalledWith('channelid1');
+        });
+
+        test('should call for syncPostsInChannel if there are posts in channel', async () => {
+            store = mockStore({
+                ...initialState,
+                entities: {
+                    ...initialState.entities,
+                    posts: {
+                        ...initialState.entities.posts,
+                        postsInChannel: {
+                            channelid1: [{order: ['postId'], recent: true}],
+                        },
+                        posts: {
+                            postId: {create_at: 1234},
+                        },
+                    },
+                },
+                views: {
+                    ...initialState.views,
+                    channel: {
+                        ...initialState.views.channel,
+                        lastGetPosts: {
+                            channelid1: 12345,
+                        },
+                    },
+                },
+                websocket: {
+                    lastDisconnectAt: 12344,
+                },
+            });
+
+            await store.dispatch(Actions.prefetchChannelPosts('channelid1'));
+            expect(PostActions.getPostsSince).toHaveBeenCalledWith('channelid1', 1234);
+        });
+
+        test('should not call for getPostsUnread and not syncPostsInChannel if there are posts but not recent chunk', async () => {
+            store = mockStore({
+                ...initialState,
+                entities: {
+                    ...initialState.entities,
+                    posts: {
+                        ...initialState.entities.posts,
+                        postsInChannel: {
+                            channelid1: [{order: ['postId'], recent: false}],
+                        },
+                        posts: {
+                            postId: {create_at: 1234},
+                        },
+                    },
+                },
+                views: {
+                    ...initialState.views,
+                    channel: {
+                        ...initialState.views.channel,
+                        lastGetPosts: {
+                            channelid1: 12345,
+                        },
+                    },
+                },
+                websocket: {
+                    lastDisconnectAt: 12344,
+                },
+            });
+
+            await store.dispatch(Actions.prefetchChannelPosts('channelid1'));
+            expect(PostActions.getPostsUnread).toHaveBeenCalledWith('channelid1');
+            expect(PostActions.getPostsSince).not.toHaveBeenCalled();
+        });
+
+        test('should call for loadUnreads after a delay', async () => {
+            jest.useFakeTimers();
+            const posts = {posts: {}, order: [], next_post_id: '', prev_post_id: ''};
+            PostActions.getPostsUnread.mockReturnValue(() => ({data: posts}));
+            store.dispatch(Actions.prefetchChannelPosts('channelid1', 500));
+            expect(PostActions.getPostsUnread).not.toHaveBeenCalled();
+            jest.runOnlyPendingTimers();
+            await Promise.resolve();
+            expect(PostActions.getPostsUnread).toHaveBeenCalledWith('channelid1');
+        });
+    });
+
+    describe('autocompleteUsersInChannel', () => {
+        test('should return empty arrays if the key is missing in reponse', async () => {
+            UserActions.autocompleteUsers.mockReturnValue(() => ({data: {}}));
+            const response = await store.dispatch(Actions.autocompleteUsersInChannel('test', 'channelid1'));
+            expect(response).toStrictEqual({data: {out_of_channel: [], users: []}});
         });
     });
 });

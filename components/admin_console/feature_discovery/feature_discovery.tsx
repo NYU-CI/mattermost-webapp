@@ -5,6 +5,7 @@ import React from 'react';
 import {FormattedMessage} from 'react-intl';
 
 import {Dictionary} from 'mattermost-redux/types/utilities';
+import {AnalyticsRow} from 'mattermost-redux/types/admin';
 
 import * as Utils from 'utils/utils.jsx';
 
@@ -26,7 +27,7 @@ type Props = {
 
     imgPath: string;
 
-    stats?: Dictionary<number | any[]>;
+    stats?: Dictionary<number | AnalyticsRow[]>;
     actions: {
         requestTrialLicense: (users: number, termsAccepted: boolean, receiveEmailsAccepted: boolean, featureName: string) => Promise<{error?: string; data?: null}>;
         getLicenseConfig: () => void;
@@ -74,7 +75,7 @@ export default class FeatureDiscovery extends React.PureComponent<Props, State> 
             copyID,
             copyDefault,
             learnMoreURL,
-            imgPath
+            imgPath,
         } = this.props;
 
         let gettingTrialError: React.ReactNode = '';
@@ -108,6 +109,7 @@ export default class FeatureDiscovery extends React.PureComponent<Props, State> 
                         />
                     </div>
                     <button
+                        type='button'
                         className='btn btn-primary'
                         data-testid='featureDiscovery_primaryCallToAction'
                         onClick={this.requestLicense}

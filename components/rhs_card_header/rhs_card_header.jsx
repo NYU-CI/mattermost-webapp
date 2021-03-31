@@ -10,7 +10,7 @@ import OverlayTrigger from 'components/overlay_trigger';
 
 import Constants, {RHSStates} from 'utils/constants';
 
-export default class RhsCardHeader extends React.Component {
+export default class RhsCardHeader extends React.PureComponent {
     static propTypes = {
         previousRhsState: PropTypes.oneOf(Object.values(RHSStates)),
         isExpanded: PropTypes.bool.isRequired,
@@ -66,7 +66,7 @@ export default class RhsCardHeader extends React.Component {
                 <Tooltip id='backToResultsTooltip'>
                     <FormattedMessage
                         id='rhs_header.backToFlaggedTooltip'
-                        defaultMessage='Back to flagged posts'
+                        defaultMessage='Back to saved posts'
                     />
                 </Tooltip>
             );
@@ -112,15 +112,15 @@ export default class RhsCardHeader extends React.Component {
 
         if (backToResultsTooltip) {
             back = (
-                <a
-                    href='#'
-                    onClick={this.handleBack}
-                    className='sidebar--right__back'
+                <OverlayTrigger
+                    delayShow={Constants.OVERLAY_TIME_DELAY}
+                    placement='top'
+                    overlay={backToResultsTooltip}
                 >
-                    <OverlayTrigger
-                        delayShow={Constants.OVERLAY_TIME_DELAY}
-                        placement='top'
-                        overlay={backToResultsTooltip}
+                    <a
+                        href='#'
+                        onClick={this.handleBack}
+                        className='sidebar--right__back'
                     >
                         <FormattedMessage
                             id='generic_icons.back'
@@ -133,8 +133,8 @@ export default class RhsCardHeader extends React.Component {
                                 />
                             )}
                         </FormattedMessage>
-                    </OverlayTrigger>
-                </a>
+                    </a>
+                </OverlayTrigger>
             );
         }
 

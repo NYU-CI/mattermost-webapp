@@ -1,5 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -43,6 +44,7 @@ import * as Utils from 'utils/utils';
 import ChannelHeaderPlug from 'plugins/channel_header_plug';
 
 import HeaderIconWrapper from './components/header_icon_wrapper';
+import UserGuideDropdown from './components/user_guide_dropdown';
 
 const headerMarkdownOptions = {singleline: true, mentionHighlight: false, atMentions: true};
 const popoverMarkdownOptions = {singleline: false, mentionHighlight: false, atMentions: true};
@@ -94,6 +96,7 @@ class ChannelHeader extends React.PureComponent {
         this.toggleFavoriteRef = React.createRef();
         this.headerDescriptionRef = React.createRef();
         this.headerPopoverTextMeasurerRef = React.createRef();
+        this.headerOverlayRef = React.createRef();
 
         this.state = {showSearchBar: ChannelHeader.getShowSearchBar(props), popoverOverlayWidth: 0, showChannelHeaderPopover: false, leftOffset: 0, topOffset: 0};
 
@@ -221,12 +224,12 @@ class ChannelHeader extends React.PureComponent {
     };
 
     handleQuickSwitchKeyPress = (e) => {
-        // if (Utils.cmdOrCtrlPressed(e) && !e.shiftKey && Utils.isKeyPressed(e, Constants.KeyCodes.K)) {
-        //     if (!e.altKey) {
-        //         e.preventDefault();
-        //         this.toggleQuickSwitchModal();
-        //     }
-        // }
+    //    if (Utils.cmdOrCtrlPressed(e) && !e.shiftKey && Utils.isKeyPressed(e, Constants.KeyCodes.K)) {
+    //        if (!e.altKey) {
+    //            e.preventDefault();
+    //            this.toggleQuickSwitchModal();
+    //        }
+    //    }
     }
 
     toggleQuickSwitchModal = () => {
@@ -247,8 +250,8 @@ class ChannelHeader extends React.PureComponent {
     }
 
     showEditChannelHeaderModal = () => {
-        if (this.refs.headerOverlay) {
-            this.refs.headerOverlay.hide();
+        if (this.headerOverlayRef.current) {
+            this.headerOverlayRef.current.hide();
         }
 
         const {actions, channel} = this.props;
@@ -485,7 +488,7 @@ class ChannelHeader extends React.PureComponent {
                             placement='bottom'
                             rootClose={true}
                             target={this.headerDescriptionRef.current}
-                            ref='headerOverlay'
+                            ref={this.headerOverlayRef}
                             onEnter={this.setPopoverOverlayWidth}
                             onHide={() => this.setState({showChannelHeaderPopover: false})}
                         >{popoverContent}</Overlay>
@@ -566,10 +569,10 @@ class ChannelHeader extends React.PureComponent {
         if (!channelIsArchived) {
             const formattedMessage = isFavorite ? {
                 id: 'channelHeader.removeFromFavorites',
-                defaultMessage: 'Remove from Favorites'
+                defaultMessage: 'Remove from Favorites',
             } : {
                 id: 'channelHeader.addToFavorites',
-                defaultMessage: 'Add to Favorites'
+                defaultMessage: 'Add to Favorites',
             };
 
             ariaLabel = formatMessage(formattedMessage).toLowerCase();
@@ -810,6 +813,7 @@ class ChannelHeader extends React.PureComponent {
                         onClick={this.getFlagged}
                         tooltipKey={'flaggedPosts'}
                     />
+                    <UserGuideDropdown/>
                 </div>
             </div>
         );
@@ -817,3 +821,4 @@ class ChannelHeader extends React.PureComponent {
 }
 
 export default injectIntl(ChannelHeader);
+/* eslint-enable react/no-string-refs */

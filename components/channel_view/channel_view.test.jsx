@@ -16,10 +16,17 @@ describe('components/channel_view', () => {
             params: {},
         },
         showTutorial: false,
+        showNextSteps: false,
+        showNextStepsTips: false,
+        isOnboardingHidden: true,
+        showNextStepsEphemeral: false,
         channelIsArchived: false,
         viewArchivedChannels: false,
+        isCloud: false,
         actions: {
             goToLastViewedChannel: jest.fn(),
+            setShowNextStepsView: jest.fn(),
+            getProfiles: jest.fn(),
         },
     };
 
@@ -33,7 +40,7 @@ describe('components/channel_view', () => {
             <ChannelView
                 {...baseProps}
                 channelRolesLoading={true}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -44,7 +51,7 @@ describe('components/channel_view', () => {
                 {...baseProps}
                 channelRolesLoading={true}
                 channelIsArchived={true}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });

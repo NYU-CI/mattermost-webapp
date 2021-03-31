@@ -25,7 +25,7 @@ function verifyImageInPostFooter(verifyExistence = true) {
 function postAttachments() {
     // Add 4 attachments to a post
     [...Array(4)].forEach(() => {
-        cy.fileUpload('#fileUploadInput', 'small-image.png');
+        cy.get('#fileUploadInput').attachFile('small-image.png');
     });
 
     // # verify the attachment at the footer
@@ -39,28 +39,18 @@ function postAttachments() {
     });
 }
 
-describe('M14322 Long post with multiple attachments', () => {
+describe('MM-T105 Long post with mutiple attachments', () => {
     let testTeam;
 
     beforeEach(() => {
-        testTeam = null;
-
         // # Login as sysadmin
-        cy.apiLogin('sysadmin');
+        cy.apiAdminLogin();
 
         // # Create new team and new user and visit Town Square channel
-        cy.apiCreateTeam('test-team', 'Test Team').then((response) => {
-            testTeam = response.body;
-            cy.apiCreateAndLoginAsNewUser({}, [testTeam.id]);
+        cy.apiInitSetup({loginAfter: true}).then(({team}) => {
+            testTeam = team;
             cy.visit(`/${testTeam.name}/channels/town-square`);
         });
-    });
-
-    afterEach(() => {
-        cy.apiLogin('sysadmin');
-        if (testTeam && testTeam.id) {
-            cy.apiDeleteTeam(testTeam.id);
-        }
     });
 
     it('Attachment previews/thumbnails display as expected, when viewing full or partial post', () => {
@@ -107,8 +97,11 @@ describe('M14322 Long post with multiple attachments', () => {
                 cy.findByTestId('fileCountFooter').contains(`File ${index} of 4`).should('exist');
             }
 
-            // # click on close the preview
-            cy.get('.modal-close').should('be.visible').click();
+            // * Verify that the preview modal opens
+            cy.get('div.modal-image__content').should('be.visible').trigger('mouseover');
+
+            // # Close the modal
+            cy.get('div.modal-close').should('exist').click({force: true});
         });
     });
 });

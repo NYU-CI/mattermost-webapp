@@ -6,11 +6,12 @@ import {Tooltip} from 'react-bootstrap';
 import {FormattedMessage} from 'react-intl';
 import classNames from 'classnames';
 
-import {trackEvent} from 'actions/diagnostics_actions';
+import {trackEvent} from 'actions/telemetry_actions';
 import OverlayTrigger from 'components/overlay_trigger';
 import {localizeMessage} from 'utils/utils';
 
 type Props = {
+    hasMultipleTeams: boolean;
     unreadFilterEnabled: boolean;
     actions: {
         setUnreadFilterEnabled: (enabled: boolean) => void;
@@ -35,7 +36,7 @@ export default class ChannelFilter extends React.PureComponent<Props, State> {
     }
 
     render() {
-        const {unreadFilterEnabled} = this.props;
+        const {unreadFilterEnabled, hasMultipleTeams} = this.props;
 
         let filterTitle = (
             <FormattedMessage
@@ -82,22 +83,22 @@ export default class ChannelFilter extends React.PureComponent<Props, State> {
 
         return (
             <div className='SidebarFilters'>
-                <a
-                    href='#'
-                    className={classNames('SidebarFilters_filterButton', {
-                        active: unreadFilterEnabled,
-                    })}
-                    onClick={this.toggleUnreadFilter}
-                    aria-label={tooltipMessage}
+                <OverlayTrigger
+                    delayShow={500}
+                    placement={hasMultipleTeams ? 'top' : 'right'}
+                    overlay={tooltip}
                 >
-                    <OverlayTrigger
-                        delayShow={500}
-                        placement='top'
-                        overlay={tooltip}
+                    <a
+                        href='#'
+                        className={classNames('SidebarFilters_filterButton', {
+                            active: unreadFilterEnabled,
+                        })}
+                        onClick={this.toggleUnreadFilter}
+                        aria-label={tooltipMessage}
                     >
                         <i className='icon icon-filter-variant'/>
-                    </OverlayTrigger>
-                </a>
+                    </a>
+                </OverlayTrigger>
                 <div>
                     <div className='SidebarFilters_filterTitle'>
                         {filterTitle}

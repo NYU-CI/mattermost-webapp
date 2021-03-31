@@ -16,6 +16,7 @@ import {
     PreferenceTypes,
 } from 'mattermost-redux/action_types';
 import {WebsocketEvents, General, Permissions} from 'mattermost-redux/constants';
+import {addChannelToInitialCategory, fetchMyCategories, receivedCategoryOrder} from 'mattermost-redux/actions/channel_categories';
 import {
     getChannelAndMyMember,
     getMyChannelMember,
@@ -25,6 +26,7 @@ import {
     markChannelAsRead,
     getChannelMemberCountsByGroup,
 } from 'mattermost-redux/actions/channels';
+import {getCloudSubscription} from 'mattermost-redux/actions/cloud';
 import {loadRolesIfNeeded} from 'mattermost-redux/actions/roles';
 import {setServerVersion} from 'mattermost-redux/actions/general';
 import {
@@ -48,12 +50,13 @@ import {
 } from 'mattermost-redux/actions/users';
 import {removeNotVisibleUsers} from 'mattermost-redux/actions/websocket';
 import {Client4} from 'mattermost-redux/client';
-import {getCurrentUser, getCurrentUserId, getStatusForUserId, getUser, getIsManualStatusForUserId} from 'mattermost-redux/selectors/entities/users';
+import {getCurrentUser, getCurrentUserId, getStatusForUserId, getUser, getIsManualStatusForUserId, isCurrentUserSystemAdmin} from 'mattermost-redux/selectors/entities/users';
 import {getMyTeams, getCurrentRelativeTeamUrl, getCurrentTeamId, getCurrentTeamUrl, getTeam} from 'mattermost-redux/selectors/entities/teams';
 import {getConfig, getLicense} from 'mattermost-redux/selectors/entities/general';
 import {getChannelsInTeam, getChannel, getCurrentChannel, getCurrentChannelId, getRedirectChannelNameForTeam, getMembersInCurrentChannel, getChannelMembersInChannels} from 'mattermost-redux/selectors/entities/channels';
 import {getPost, getMostRecentPostIdInChannel} from 'mattermost-redux/selectors/entities/posts';
 import {haveISystemPermission, haveITeamPermission} from 'mattermost-redux/selectors/entities/roles';
+import {getStandardAnalytics} from 'mattermost-redux/actions/admin';
 
 import {getSelectedChannelId} from 'selectors/rhs';
 
@@ -71,8 +74,7 @@ import {loadProfilesForSidebar} from 'actions/user_actions.jsx';
 import store from 'stores/redux_store.jsx';
 import WebSocketClient from 'client/web_websocket_client.jsx';
 import {loadPlugin, loadPluginsIfNecessary, removePlugin} from 'plugins';
-import {ActionTypes, Constants, AnnouncementBarMessages, SocketEvents, UserStatuses, ModalIdentifiers} from 'utils/constants';
-import {fromAutoResponder} from 'utils/post_utils';
+import {ActionTypes, Constants, AnnouncementBarMessages, SocketEvents, UserStatuses, ModalIdentifiers, WarnMetricTypes} from 'utils/constants';
 import {getSiteURL} from 'utils/url';
 import {isGuest} from 'utils/utils';
 import RemovedFromChannelModal from 'components/removed_from_channel_modal';
@@ -207,7 +209,7 @@ export function startPeriodicSync() {
                 reconnect(false);
             }
         },
-        SYNC_INTERVAL_MILLISECONDS
+        SYNC_INTERVAL_MILLISECONDS,
     );
 }
 
@@ -298,7 +300,7 @@ export function handleEvent(msg) {
         break;
 
     case SocketEvents.USER_ADDED:
-        handleUserAddedEvent(msg);
+        dispatch(handleUserAddedEvent(msg));
         break;
 
     case SocketEvents.USER_REMOVED:
@@ -330,7 +332,7 @@ export function handleEvent(msg) {
         break;
 
     case SocketEvents.CHANNEL_CREATED:
-        handleChannelCreatedEvent(msg);
+        dispatch(handleChannelCreatedEvent(msg));
         break;
 
     case SocketEvents.CHANNEL_DELETED:
@@ -354,7 +356,11 @@ export function handleEvent(msg) {
         break;
 
     case SocketEvents.DIRECT_ADDED:
-        handleDirectAddedEvent(msg);
+        dispatch(handleDirectAddedEvent(msg));
+        break;
+
+    case SocketEvents.GROUP_ADDED:
+        dispatch(handleGroupAddedEvent(msg));
         break;
 
     case SocketEvents.PREFERENCE_CHANGED:
@@ -445,6 +451,35 @@ export function handleEvent(msg) {
         handleGroupNotAssociatedToChannelEvent(msg);
         break;
 
+    case SocketEvents.WARN_METRIC_STATUS_RECEIVED:
+        handleWarnMetricStatusReceivedEvent(msg);
+        break;
+
+    case SocketEvents.WARN_METRIC_STATUS_REMOVED:
+        handleWarnMetricStatusRemovedEvent(msg);
+        break;
+
+    case SocketEvents.SIDEBAR_CATEGORY_CREATED:
+        dispatch(handleSidebarCategoryCreated(msg));
+        break;
+
+    case SocketEvents.SIDEBAR_CATEGORY_UPDATED:
+        dispatch(handleSidebarCategoryUpdated(msg));
+        break;
+
+    case SocketEvents.SIDEBAR_CATEGORY_DELETED:
+        dispatch(handleSidebarCategoryDeleted(msg));
+        break;
+    case SocketEvents.SIDEBAR_CATEGORY_ORDER_UPDATED:
+        dispatch(handleSidebarCategoryOrderUpdated(msg));
+        break;
+    case SocketEvents.USER_ACTIVATION_STATUS_CHANGED:
+        dispatch(handleUserActivationStatusChange());
+        break;
+    case SocketEvents.CLOUD_PAYMENT_STATUS_UPDATED:
+        dispatch(handleCloudPaymentStatusUpdated(msg));
+        break;
+
     default:
     }
 
@@ -511,7 +546,7 @@ function debouncePostEvent(wait) {
     };
 
     return function fx(msg) {
-        if (timeout && count > 2) {
+        if (timeout && count > 4) {
             // If the timeout is going this is the second or further event so queue them up.
             if (queue.push(msg) > 200) {
                 // Don't run us out of memory, give up if the queue gets insane
@@ -539,7 +574,16 @@ export function handleNewPostEvent(msg) {
 
         getProfilesAndStatusesForPosts([post], myDispatch, myGetState);
 
-        if (post.user_id !== getCurrentUserId(myGetState()) && !fromAutoResponder(post) && !getIsManualStatusForUserId(myGetState(), post.user_id)) {
+        // Since status updates aren't real time, assume another user is online if they have posted and:
+        // 1. The user hasn't set their status manually to something that isn't online
+        // 2. The server hasn't told the client not to set the user to online. This happens when:
+        //     a. The post is from the auto responder
+        //     b. The post is a response to a push notification
+        if (
+            post.user_id !== getCurrentUserId(myGetState()) &&
+            !getIsManualStatusForUserId(myGetState(), post.user_id) &&
+            msg.data.set_online
+        ) {
             myDispatch({
                 type: UserTypes.RECEIVED_STATUSES,
                 data: [{user_id: post.user_id, status: UserStatuses.ONLINE}],
@@ -550,6 +594,7 @@ export function handleNewPostEvent(msg) {
 
 export function handleNewPostEvents(queue) {
     return (myDispatch, myGetState) => {
+        // Note that this method doesn't properly update the sidebar state for these posts
         const posts = queue.map((msg) => JSON.parse(msg.data.post));
 
         // Receive the posts as one continuous block since they were received within a short period
@@ -599,7 +644,7 @@ export function handlePostUnreadEvent(msg) {
                 msgCount: msg.data.msg_count,
                 mentionCount: msg.data.mention_count,
             },
-        }
+        },
     );
 }
 
@@ -744,31 +789,53 @@ function handleUpdateMemberRoleEvent(msg) {
 }
 
 function handleDirectAddedEvent(msg) {
-    dispatch(getChannelAndMyMember(msg.broadcast.channel_id));
+    return fetchChannelAndAddToSidebar(msg.broadcast.channel_id);
+}
+
+function handleGroupAddedEvent(msg) {
+    return fetchChannelAndAddToSidebar(msg.broadcast.channel_id);
 }
 
 function handleUserAddedEvent(msg) {
-    const state = getState();
-    const config = getConfig(state);
-    const license = getLicense(state);
-    const isTimezoneEnabled = config.ExperimentalTimezone === 'true';
-    const currentChannelId = getCurrentChannelId(state);
-    if (currentChannelId === msg.broadcast.channel_id) {
-        dispatch(getChannelStats(currentChannelId));
-        dispatch({
-            type: UserTypes.RECEIVED_PROFILE_IN_CHANNEL,
-            data: {id: msg.broadcast.channel_id, user_id: msg.data.user_id},
-        });
-        if (license?.IsLicensed === 'true' && license?.LDAPGroups === 'true') {
-            dispatch(getChannelMemberCountsByGroup(currentChannelId, isTimezoneEnabled));
+    return async (doDispatch, doGetState) => {
+        const state = doGetState();
+        const config = getConfig(state);
+        const license = getLicense(state);
+        const isTimezoneEnabled = config.ExperimentalTimezone === 'true';
+        const currentChannelId = getCurrentChannelId(state);
+        if (currentChannelId === msg.broadcast.channel_id) {
+            doDispatch(getChannelStats(currentChannelId));
+            doDispatch({
+                type: UserTypes.RECEIVED_PROFILE_IN_CHANNEL,
+                data: {id: msg.broadcast.channel_id, user_id: msg.data.user_id},
+            });
+            if (license?.IsLicensed === 'true' && license?.LDAPGroups === 'true') {
+                doDispatch(getChannelMemberCountsByGroup(currentChannelId, isTimezoneEnabled));
+            }
         }
-    }
 
-    const currentTeamId = getCurrentTeamId(getState());
-    const currentUserId = getCurrentUserId(getState());
-    if (currentTeamId === msg.data.team_id && currentUserId === msg.data.user_id) {
-        dispatch(getChannelAndMyMember(msg.broadcast.channel_id));
-    }
+        // Load the channel so that it appears in the sidebar
+        const currentTeamId = getCurrentTeamId(doGetState());
+        const currentUserId = getCurrentUserId(doGetState());
+        if (currentTeamId === msg.data.team_id && currentUserId === msg.data.user_id) {
+            doDispatch(fetchChannelAndAddToSidebar(msg.broadcast.channel_id));
+        }
+
+        // This event is fired when a user first joins the server, so refresh analytics to see if we're now over the user limit
+        if (license.Cloud === 'true' && isCurrentUserSystemAdmin(doGetState())) {
+            doDispatch(getStandardAnalytics());
+        }
+    };
+}
+
+function fetchChannelAndAddToSidebar(channelId) {
+    return async (doDispatch) => {
+        const {data, error} = await doDispatch(getChannelAndMyMember(channelId));
+
+        if (!error) {
+            doDispatch(addChannelToInitialCategory(data.channel));
+        }
+    };
 }
 
 export async function handleUserRemovedEvent(msg) {
@@ -947,13 +1014,23 @@ function handleRoleUpdatedEvent(msg) {
 }
 
 function handleChannelCreatedEvent(msg) {
-    const channelId = msg.data.channel_id;
-    const teamId = msg.data.team_id;
-    const state = getState();
+    return async (myDispatch, myGetState) => {
+        const channelId = msg.data.channel_id;
+        const teamId = msg.data.team_id;
+        const state = myGetState();
 
-    if (getCurrentTeamId(state) === teamId && !getChannel(state, channelId)) {
-        dispatch(getChannelAndMyMember(channelId));
-    }
+        if (getCurrentTeamId(state) === teamId) {
+            let channel = getChannel(state, channelId);
+
+            if (!channel) {
+                await myDispatch(getChannelAndMyMember(channelId));
+
+                channel = getChannel(myGetState(), channelId);
+            }
+
+            myDispatch(addChannelToInitialCategory(channel, false));
+        }
+    };
 }
 
 function handleChannelDeletedEvent(msg) {
@@ -1166,27 +1243,115 @@ function handleGroupUpdatedEvent(msg) {
 function handleGroupAssociatedToTeamEvent(msg) {
     store.dispatch({
         type: GroupTypes.RECEIVED_GROUP_ASSOCIATED_TO_TEAM,
-        data: {teamID: msg.broadcast.team_id, groups: [{id: msg.data.group_id}]}
+        data: {teamID: msg.broadcast.team_id, groups: [{id: msg.data.group_id}]},
     });
 }
 
 function handleGroupNotAssociatedToTeamEvent(msg) {
     store.dispatch({
         type: GroupTypes.RECEIVED_GROUP_NOT_ASSOCIATED_TO_TEAM,
-        data: {teamID: msg.broadcast.team_id, groups: [{id: msg.data.group_id}]}
+        data: {teamID: msg.broadcast.team_id, groups: [{id: msg.data.group_id}]},
     });
 }
 
 function handleGroupAssociatedToChannelEvent(msg) {
     store.dispatch({
         type: GroupTypes.RECEIVED_GROUP_ASSOCIATED_TO_CHANNEL,
-        data: {channelID: msg.broadcast.channel_id, groups: [{id: msg.data.group_id}]}
+        data: {channelID: msg.broadcast.channel_id, groups: [{id: msg.data.group_id}]},
     });
 }
 
 function handleGroupNotAssociatedToChannelEvent(msg) {
     store.dispatch({
         type: GroupTypes.RECEIVED_GROUP_NOT_ASSOCIATED_TO_CHANNEL,
-        data: {channelID: msg.broadcast.channel_id, groups: [{id: msg.data.group_id}]}
+        data: {channelID: msg.broadcast.channel_id, groups: [{id: msg.data.group_id}]},
     });
+}
+
+function handleWarnMetricStatusReceivedEvent(msg) {
+    var receivedData = JSON.parse(msg.data.warnMetricStatus);
+    let bannerData;
+    if (receivedData.id === WarnMetricTypes.SYSTEM_WARN_METRIC_NUMBER_OF_ACTIVE_USERS_500) {
+        bannerData = AnnouncementBarMessages.WARN_METRIC_STATUS_NUMBER_OF_USERS;
+    } else if (receivedData.id === WarnMetricTypes.SYSTEM_WARN_METRIC_NUMBER_OF_POSTS_2M) {
+        bannerData = AnnouncementBarMessages.WARN_METRIC_STATUS_NUMBER_OF_POSTS;
+    }
+    store.dispatch(batchActions([
+        {
+            type: GeneralTypes.WARN_METRIC_STATUS_RECEIVED,
+            data: receivedData,
+        },
+        {
+            type: ActionTypes.SHOW_NOTICE,
+            data: [bannerData],
+        },
+    ]));
+}
+
+function handleWarnMetricStatusRemovedEvent(msg) {
+    store.dispatch({type: GeneralTypes.WARN_METRIC_STATUS_REMOVED, data: {id: msg.data.warnMetricId}});
+}
+
+function handleSidebarCategoryCreated(msg) {
+    return (doDispatch, doGetState) => {
+        const state = doGetState();
+
+        if (msg.broadcast.team_id !== getCurrentTeamId(state)) {
+            // The new category will be loaded when we switch teams.
+            return;
+        }
+
+        // Fetch all categories, including ones that weren't explicitly updated, in case any other categories had channels
+        // moved out of them.
+        doDispatch(fetchMyCategories(msg.broadcast.team_id));
+    };
+}
+
+function handleSidebarCategoryUpdated(msg) {
+    return (doDispatch, doGetState) => {
+        const state = doGetState();
+
+        if (msg.broadcast.team_id !== getCurrentTeamId(state)) {
+            // The updated categories will be loaded when we switch teams.
+            return;
+        }
+
+        // Fetch all categories in case any other categories had channels moved out of them.
+        doDispatch(fetchMyCategories(msg.broadcast.team_id));
+    };
+}
+
+function handleSidebarCategoryDeleted(msg) {
+    return (doDispatch, doGetState) => {
+        const state = doGetState();
+
+        if (msg.broadcast.team_id !== getCurrentTeamId(state)) {
+            // The category will be removed when we switch teams.
+            return;
+        }
+
+        // Fetch all categories since any channels that were in the deleted category were moved to other categories.
+        doDispatch(fetchMyCategories(msg.broadcast.team_id));
+    };
+}
+
+function handleSidebarCategoryOrderUpdated(msg) {
+    return receivedCategoryOrder(msg.broadcast.team_id, msg.data.order);
+}
+
+function handleUserActivationStatusChange() {
+    return (doDispatch, doGetState) => {
+        const state = doGetState();
+        const license = getLicense(state);
+
+        // This event is fired when a user first joins the server, so refresh analytics to see if we're now over the user limit
+        if (license.Cloud === 'true' && isCurrentUserSystemAdmin(state)
+        ) {
+            doDispatch(getStandardAnalytics());
+        }
+    };
+}
+
+function handleCloudPaymentStatusUpdated() {
+    return (doDispatch) => doDispatch(getCloudSubscription());
 }

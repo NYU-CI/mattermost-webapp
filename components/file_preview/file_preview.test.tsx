@@ -30,6 +30,7 @@ describe('FilePreview', () => {
     ];
     const uploadsInProgress = ['clientID_1'];
     const uploadsProgressPercent = {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         clientID_1: {
             width: 100,
             height: 100,
@@ -58,14 +59,14 @@ describe('FilePreview', () => {
 
     test('should match snapshot', () => {
         const wrapper = shallow(
-            <FilePreview {...baseProps}/>
+            <FilePreview {...baseProps}/>,
         );
         expect(wrapper).toMatchSnapshot();
     });
 
     test('should match snapshot when props are changed', () => {
         const wrapper = shallow(
-            <FilePreview {...baseProps}/>
+            <FilePreview {...baseProps}/>,
         );
         expect(wrapper).toMatchSnapshot();
         const fileInfo2 = {
@@ -87,7 +88,7 @@ describe('FilePreview', () => {
         const newOnRemove = jest.fn();
         const props = {...baseProps, onRemove: newOnRemove};
         const wrapper = shallow<FilePreview>(
-            <FilePreview {...props}/>
+            <FilePreview {...props}/>,
         );
 
         wrapper.instance().handleRemove('');
@@ -103,12 +104,12 @@ describe('FilePreview', () => {
                     ...baseProps.fileInfos[0],
                     type: 'image/svg',
                     extension: 'svg',
-                }
+                },
             ],
         };
 
         const wrapper = shallow(
-            <FilePreview {...props}/>
+            <FilePreview {...props}/>,
         );
 
         expect(wrapper.find('img').find({src: getFileUrl(fileId)}).exists()).toBe(false);
@@ -125,12 +126,12 @@ describe('FilePreview', () => {
                     ...baseProps.fileInfos[0],
                     type: 'image/svg',
                     extension: 'svg',
-                }
+                },
             ],
         };
 
         const wrapper = shallow(
-            <FilePreview {...props}/>
+            <FilePreview {...props}/>,
         );
 
         expect(wrapper.find('img').find({src: getFileUrl(fileId)}).exists()).toBe(true);

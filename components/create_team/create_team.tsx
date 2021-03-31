@@ -45,12 +45,12 @@ type Props = {
 };
 
 type State = {
-    team: object;
+    team: {[key: string]: any};
     wizard: string;
 };
 
-export default class CreateTeam extends React.PureComponent<Props & RouteComponentProps<{}>, State> {
-    public constructor(props: Props & RouteComponentProps<{}>) {
+export default class CreateTeam extends React.PureComponent<Props & RouteComponentProps, State> {
+    public constructor(props: Props & RouteComponentProps) {
         super(props);
 
         this.state = {
@@ -70,7 +70,7 @@ export default class CreateTeam extends React.PureComponent<Props & RouteCompone
             currentTeam,
             customDescriptionText,
             match,
-            siteName
+            siteName,
         } = this.props;
 
         let url = '/select_team';

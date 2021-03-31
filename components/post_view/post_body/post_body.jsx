@@ -92,7 +92,7 @@ export default class PostBody extends React.PureComponent {
                 if (post && post.id === post.pending_post_id) {
                     this.setState({sending: true});
                 }
-            }
+            },
         );
 
         this.state = {sending: false};
@@ -128,6 +128,7 @@ export default class PostBody extends React.PureComponent {
     render() {
         const post = this.props.post;
         const parentPost = this.props.parentPost;
+        const parentPostUser = this.props.parentPostUser;
 
         let comment;
         let postClass = '';
@@ -138,6 +139,7 @@ export default class PostBody extends React.PureComponent {
             comment = (
                 <CommentedOn
                     post={parentPost}
+                    parentPostUser={parentPostUser}
                     onCommentClick={this.props.handleCommentClick}
                 />
             );

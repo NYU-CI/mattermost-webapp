@@ -10,14 +10,14 @@ type InputTypes = 'input' | 'textarea' | 'number' | 'email' | 'tel' | 'url' | 'p
 export type WidgetTextSettingProps = {
     id: string;
     label: React.ReactNode;
-    labelClassName: string;
+    labelClassName?: string;
     placeholder?: string;
     helpText?: React.ReactNode;
     footer?: React.ReactNode;
     value: string | number;
-    inputClassName: string;
-    maxLength: number;
-    resizable: boolean;
+    inputClassName?: string;
+    maxLength?: number;
+    resizable?: boolean;
     onChange(name: string, value: any): void;
     disabled?: boolean;
     type: InputTypes;
@@ -27,7 +27,7 @@ export type WidgetTextSettingProps = {
 // Since handle change is read from input and textarea element
 type HandleChangeTypes = React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
 
-export default class TextSetting extends React.Component<WidgetTextSettingProps> {
+export default class TextSetting extends React.PureComponent<WidgetTextSettingProps> {
     public static validTypes: string[] = ['input', 'textarea', 'number', 'email', 'tel', 'url', 'password'];
 
     public static defaultProps: Partial<WidgetTextSettingProps> = {

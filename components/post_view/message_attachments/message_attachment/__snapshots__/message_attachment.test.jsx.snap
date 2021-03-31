@@ -3,6 +3,7 @@
 exports[`components/post_view/MessageAttachment should call actions.doPostActionWithCookie on handleAction 1`] = `
 <div
   className="attachment attachment--pretext"
+  onClick={[Function]}
 >
   <div
     className="attachment__thumb-pretext"
@@ -55,7 +56,6 @@ exports[`components/post_view/MessageAttachment should call actions.doPostAction
       <div>
         <div
           className="attachment__body"
-          onClick={[Function]}
         >
           <Connect(ShowMore)
             checkOverflow={0}
@@ -109,6 +109,8 @@ exports[`components/post_view/MessageAttachment should call actions.doPostAction
                   "name": "action_name_1",
                 }
               }
+              actionExecuting={false}
+              actionExecutingMessage={null}
               handleAction={[Function]}
               key="action_id_1"
             />
@@ -145,6 +147,7 @@ exports[`components/post_view/MessageAttachment should call actions.doPostAction
 exports[`components/post_view/MessageAttachment should match snapshot 1`] = `
 <div
   className="attachment attachment--pretext"
+  onClick={[Function]}
 >
   <div
     className="attachment__thumb-pretext"
@@ -197,7 +200,6 @@ exports[`components/post_view/MessageAttachment should match snapshot 1`] = `
       <div>
         <div
           className="attachment__body"
-          onClick={[Function]}
         >
           <Connect(ShowMore)
             checkOverflow={0}
@@ -272,6 +274,7 @@ exports[`components/post_view/MessageAttachment should match snapshot 1`] = `
 exports[`components/post_view/MessageAttachment should match snapshot when no footer is provided (even if footer_icon is provided) 1`] = `
 <div
   className="attachment attachment--pretext"
+  onClick={[Function]}
 >
   <div
     className="attachment__thumb-pretext"
@@ -324,7 +327,6 @@ exports[`components/post_view/MessageAttachment should match snapshot when no fo
       <div>
         <div
           className="attachment__body"
-          onClick={[Function]}
         >
           <Connect(ShowMore)
             checkOverflow={0}
@@ -387,6 +389,7 @@ exports[`components/post_view/MessageAttachment should match snapshot when no fo
 exports[`components/post_view/MessageAttachment should match snapshot when the attachment has a link in the title 1`] = `
 <div
   className="attachment "
+  onClick={[Function]}
 >
   <div
     className="attachment__content"
@@ -413,7 +416,6 @@ exports[`components/post_view/MessageAttachment should match snapshot when the a
       <div>
         <div
           className="attachment__body attachment__body--no_thumb"
-          onClick={[Function]}
         />
         <div
           style={
@@ -431,6 +433,7 @@ exports[`components/post_view/MessageAttachment should match snapshot when the a
 exports[`components/post_view/MessageAttachment should match snapshot when the attachment has an emoji in the title 1`] = `
 <div
   className="attachment "
+  onClick={[Function]}
 >
   <div
     className="attachment__content"
@@ -457,7 +460,6 @@ exports[`components/post_view/MessageAttachment should match snapshot when the a
       <div>
         <div
           className="attachment__body attachment__body--no_thumb"
-          onClick={[Function]}
         />
         <div
           style={
@@ -475,6 +477,7 @@ exports[`components/post_view/MessageAttachment should match snapshot when the a
 exports[`components/post_view/MessageAttachment should match snapshot when the attachment hasn't any emojis in the title 1`] = `
 <div
   className="attachment "
+  onClick={[Function]}
 >
   <div
     className="attachment__content"
@@ -501,7 +504,6 @@ exports[`components/post_view/MessageAttachment should match snapshot when the a
       <div>
         <div
           className="attachment__body attachment__body--no_thumb"
-          onClick={[Function]}
         />
         <div
           style={
@@ -519,6 +521,7 @@ exports[`components/post_view/MessageAttachment should match snapshot when the a
 exports[`components/post_view/MessageAttachment should match snapshot when the footer is truncated 1`] = `
 <div
   className="attachment "
+  onClick={[Function]}
 >
   <div
     className="attachment__content"
@@ -545,7 +548,6 @@ exports[`components/post_view/MessageAttachment should match snapshot when the f
       <div>
         <div
           className="attachment__body attachment__body--no_thumb"
-          onClick={[Function]}
         >
           <div
             className="attachment__footer-container"
@@ -591,7 +593,7 @@ exports[`components/post_view/MessageAttachment should match value on getFieldsT
           className="attachment-field__caption"
           width="50%"
         >
-          <Connect(Markdown)
+          <Memo(Connect(Markdown))
             message="title_1"
             options={
               Object {
@@ -608,7 +610,7 @@ exports[`components/post_view/MessageAttachment should match value on getFieldsT
         <td
           className="attachment-field"
         >
-          <Connect(Markdown)
+          <Memo(Connect(Markdown))
             message="value_1"
           />
         </td>
@@ -624,7 +626,7 @@ exports[`components/post_view/MessageAttachment should match value on getFieldsT
           className="attachment-field__caption"
           width="50%"
         >
-          <Connect(Markdown)
+          <Memo(Connect(Markdown))
             message="title_2"
             options={
               Object {
@@ -641,7 +643,7 @@ exports[`components/post_view/MessageAttachment should match value on getFieldsT
         <td
           className="attachment-field"
         >
-          <Connect(Markdown)
+          <Memo(Connect(Markdown))
             message="value_2"
           />
         </td>
@@ -657,25 +659,29 @@ exports[`components/post_view/MessageAttachment should match value on renderPost
 <div
   className="attachment-actions"
 >
-  <Connect(ActionButton)
+  <Memo(Connect(ActionButton))
     action={
       Object {
         "id": "action_id_1",
         "name": "action_name_1",
       }
     }
+    actionExecuting={false}
+    actionExecutingMessage={null}
     handleAction={[Function]}
   />
-  <Connect(ActionButton)
+  <Memo(Connect(ActionButton))
     action={
       Object {
         "id": "action_id_2",
         "name": "action_name_2",
       }
     }
+    actionExecuting={false}
+    actionExecutingMessage={null}
     handleAction={[Function]}
   />
-  <Connect(ActionMenu)
+  <Memo(Connect(ActionMenu))
     action={
       Object {
         "data_source": "users",

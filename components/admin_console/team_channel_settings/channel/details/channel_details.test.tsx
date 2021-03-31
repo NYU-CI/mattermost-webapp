@@ -86,10 +86,13 @@ describe('admin_console/team_channel_settings/channel/ChannelDetails', () => {
             addChannelMember: jest.fn(),
             removeChannelMember: jest.fn(),
             updateChannelMemberSchemeRoles: jest.fn(),
+            deleteChannel: jest.fn(),
+            unarchiveChannel: jest.fn(),
         };
 
         const additionalProps = {
             guestAccountsEnabled: true,
+            isDisabled: false,
         };
 
         if (!testChannel.id) {
@@ -107,7 +110,7 @@ describe('admin_console/team_channel_settings/channel/ChannelDetails', () => {
                 channelID={testChannel.id}
                 allGroups={allGroups}
                 {...additionalProps}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
 
@@ -122,7 +125,7 @@ describe('admin_console/team_channel_settings/channel/ChannelDetails', () => {
                 channelID={testChannel.id}
                 allGroups={allGroups}
                 {...additionalProps}
-            />
+            />,
         );
         expect(wrapper).toMatchSnapshot();
     });

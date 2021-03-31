@@ -1,5 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -8,10 +9,10 @@ import {Link} from 'react-router-dom';
 
 import {isEmail} from 'mattermost-redux/utils/helpers';
 
-import {trackEvent} from 'actions/diagnostics_actions.jsx';
+import {trackEvent} from 'actions/telemetry_actions.jsx';
 import * as GlobalActions from 'actions/global_actions.jsx';
 import {browserHistory} from 'utils/browser_history';
-import Constants from 'utils/constants';
+import Constants, {ValidationErrors} from 'utils/constants';
 import * as Utils from 'utils/utils.jsx';
 
 import logoImage from 'images/logo.png';
@@ -22,7 +23,7 @@ import SiteNameAndDescription from 'components/common/site_name_and_description'
 
 import FormattedMarkdownMessage from 'components/formatted_markdown_message.jsx';
 
-export default class SignupEmail extends React.Component {
+export default class SignupEmail extends React.PureComponent {
     static propTypes = {
         location: PropTypes.object,
         enableSignUpWithEmail: PropTypes.bool.isRequired,
@@ -56,6 +57,10 @@ export default class SignupEmail extends React.Component {
                 inviteId,
             };
         }
+
+        this.emailRef = React.createRef();
+        this.nameRef = React.createRef();
+        this.passwordRef = React.createRef();
     }
 
     componentDidMount() {
@@ -104,7 +109,8 @@ export default class SignupEmail extends React.Component {
                 teamName: data.name,
             });
         } else if (error) {
-            this.setState({loading: false,
+            this.setState({
+                loading: false,
                 noOpenServerError: true,
                 serverError: (
                     <FormattedMessage
@@ -118,6 +124,7 @@ export default class SignupEmail extends React.Component {
 
     handleSignupSuccess = (user, data) => {
         trackEvent('signup', 'signup_user_02_complete');
+        const redirectTo = (new URLSearchParams(this.props.location.search)).get('redirect_to');
 
         this.props.actions.loginById(data.id, user.password, '').then(({error}) => {
             if (error) {
@@ -125,6 +132,9 @@ export default class SignupEmail extends React.Component {
                     let verifyUrl = '/should_verify_email?email=' + encodeURIComponent(user.email);
                     if (this.state.teamName) {
                         verifyUrl += '&teamname=' + encodeURIComponent(this.state.teamName);
+                    }
+                    if (redirectTo) {
+                        verifyUrl += '&redirect_to=' + redirectTo;
                     }
                     browserHistory.push(verifyUrl);
                 } else {
@@ -141,7 +151,6 @@ export default class SignupEmail extends React.Component {
                 this.props.actions.setGlobalItem(this.state.token, JSON.stringify({usedBefore: true}));
             }
 
-            const redirectTo = (new URLSearchParams(this.props.location.search)).get('redirect_to');
             if (redirectTo) {
                 browserHistory.push(redirectTo);
             } else {
@@ -151,7 +160,7 @@ export default class SignupEmail extends React.Component {
     }
 
     isUserValid = () => {
-        const providedEmail = this.refs.email.value.trim();
+        const providedEmail = this.emailRef.current.value.trim();
         if (!providedEmail) {
             this.setState({
                 nameError: '',
@@ -172,7 +181,7 @@ export default class SignupEmail extends React.Component {
             return false;
         }
 
-        const providedUsername = this.refs.name.value.trim().toLowerCase();
+        const providedUsername = this.nameRef.current.value.trim().toLowerCase();
         if (!providedUsername) {
             this.setState({
                 nameError: (<FormattedMessage id='signup_user_completed.required'/>),
@@ -184,33 +193,36 @@ export default class SignupEmail extends React.Component {
         }
 
         const usernameError = Utils.isValidUsername(providedUsername);
-        if (usernameError === 'Cannot use a reserved word as a username.') {
-            this.setState({
-                nameError: (<FormattedMessage id='signup_user_completed.reserved'/>),
-                emailError: '',
-                passwordError: '',
-                serverError: '',
-            });
-            return false;
-        } else if (usernameError) {
-            this.setState({
-                nameError: (
-                    <FormattedMessage
-                        id='signup_user_completed.usernameLength'
-                        values={{
-                            min: Constants.MIN_USERNAME_LENGTH,
-                            max: Constants.MAX_USERNAME_LENGTH,
-                        }}
-                    />
-                ),
-                emailError: '',
-                passwordError: '',
-                serverError: '',
-            });
+        if (usernameError) {
+            let errObj;
+            if (usernameError.id === ValidationErrors.RESERVED_NAME) {
+                errObj = {
+                    nameError: (<FormattedMessage id='signup_user_completed.reserved'/>),
+                    emailError: '',
+                    passwordError: '',
+                    serverError: '',
+                };
+            } else {
+                errObj = {
+                    nameError: (
+                        <FormattedMessage
+                            id='signup_user_completed.usernameLength'
+                            values={{
+                                min: Constants.MIN_USERNAME_LENGTH,
+                                max: Constants.MAX_USERNAME_LENGTH,
+                            }}
+                        />
+                    ),
+                    emailError: '',
+                    passwordError: '',
+                    serverError: '',
+                };
+            }
+            this.setState(errObj);
             return false;
         }
 
-        const providedPassword = this.refs.password.value;
+        const providedPassword = this.passwordRef.current.value;
         const {valid, error} = Utils.isValidPassword(providedPassword, this.props.passwordConfig);
         if (!valid && error) {
             this.setState({
@@ -244,13 +256,15 @@ export default class SignupEmail extends React.Component {
             });
 
             const user = {
-                email: this.refs.email.value.trim(),
-                username: this.refs.name.value.trim().toLowerCase(),
-                password: this.refs.password.value,
+                email: this.emailRef.current.value.trim(),
+                username: this.nameRef.current.value.trim().toLowerCase(),
+                password: this.passwordRef.current.value,
                 allow_marketing: true,
             };
 
-            this.props.actions.createUser(user, this.state.token, this.state.inviteId).then((result) => {
+            const redirectTo = (new URLSearchParams(this.props.location.search)).get('redirect_to');
+
+            this.props.actions.createUser(user, this.state.token, this.state.inviteId, redirectTo).then((result) => {
                 if (result.error) {
                     this.setState({
                         serverError: result.error.message,
@@ -345,7 +359,7 @@ export default class SignupEmail extends React.Component {
                             <input
                                 id='email'
                                 type='email'
-                                ref='email'
+                                ref={this.emailRef}
                                 className='form-control'
                                 defaultValue={this.state.email}
                                 placeholder=''
@@ -372,7 +386,7 @@ export default class SignupEmail extends React.Component {
                             <input
                                 id='name'
                                 type='text'
-                                ref='name'
+                                ref={this.nameRef}
                                 className='form-control'
                                 placeholder=''
                                 maxLength={Constants.MAX_USERNAME_LENGTH}
@@ -396,7 +410,7 @@ export default class SignupEmail extends React.Component {
                             <input
                                 id='password'
                                 type='password'
-                                ref='password'
+                                ref={this.passwordRef}
                                 className='form-control'
                                 placeholder=''
                                 maxLength='128'
@@ -534,3 +548,4 @@ export default class SignupEmail extends React.Component {
         );
     }
 }
+/* eslint-enable react/no-string-refs */

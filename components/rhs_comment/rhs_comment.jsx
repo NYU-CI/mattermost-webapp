@@ -1,5 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -9,7 +10,7 @@ import {Posts} from 'mattermost-redux/constants/index';
 import {
     isPostEphemeral,
     isPostPendingOrFailed,
-    isMeMessage as checkIsMeMessage
+    isMeMessage as checkIsMeMessage,
 } from 'mattermost-redux/utils/post_utils';
 
 import Constants, {Locations, A11yCustomEventTypes} from 'utils/constants';
@@ -29,7 +30,7 @@ import MessageWithAdditionalContent from 'components/message_with_additional_con
 import BotBadge from 'components/widgets/badges/bot_badge';
 import Badge from 'components/widgets/badges/badge';
 import InfoSmallIcon from 'components/widgets/icons/info_small_icon';
-
+import PostPreHeader from 'components/post_view/post_pre_header';
 import UserProfile from 'components/user_profile';
 
 class RhsComment extends React.PureComponent {
@@ -40,7 +41,7 @@ class RhsComment extends React.PureComponent {
         compactDisplay: PropTypes.bool,
         author: PropTypes.string,
         reactions: PropTypes.object,
-        isFlagged: PropTypes.bool,
+        isFlagged: PropTypes.bool.isRequired,
         isBusy: PropTypes.bool,
         removePost: PropTypes.func.isRequired,
         previewCollapsed: PropTypes.string.isRequired,
@@ -54,6 +55,11 @@ class RhsComment extends React.PureComponent {
         isConsecutivePost: PropTypes.bool,
         handleCardClick: PropTypes.func,
         a11yIndex: PropTypes.number,
+
+        /**
+         * If the user that made the post is a bot.
+         */
+        isBot: PropTypes.bool.isRequired,
 
         /**
          * To Check if the current post is last in the list of RHS
@@ -71,7 +77,7 @@ class RhsComment extends React.PureComponent {
             /**
              * Function to set or unset emoji picker for last message
              */
-            emitShortcutReactToLastPostFrom: PropTypes.func
+            emitShortcutReactToLastPostFrom: PropTypes.func,
         }),
         emojiMap: PropTypes.object.isRequired,
     };
@@ -80,6 +86,7 @@ class RhsComment extends React.PureComponent {
         super(props);
 
         this.postRef = React.createRef();
+        this.dotMenuRef = React.createRef();
 
         this.state = {
             showEmojiPicker: false,
@@ -211,10 +218,6 @@ class RhsComment extends React.PureComponent {
             className += ' post--compact';
         }
 
-        if (post.is_pinned) {
-            className += ' post--pinned';
-        }
-
         if (this.state.dropdownOpened || this.state.showEmojiPicker) {
             className += ' post--hovered';
         }
@@ -243,7 +246,7 @@ class RhsComment extends React.PureComponent {
     };
 
     getDotMenuRef = () => {
-        return this.refs.dotMenu;
+        return this.dotMenuRef.current;
     };
 
     setHover = () => {
@@ -363,6 +366,22 @@ class RhsComment extends React.PureComponent {
                         />
                     </Badge>
                 );
+            } else if (isSystemMessage && this.props.isBot) {
+                userProfile = (
+                    <UserProfile
+                        userId={post.user_id}
+                        hideStatus={true}
+                    />
+                );
+
+                visibleMessage = (
+                    <span className='post__visibility'>
+                        <FormattedMessage
+                            id='post_info.message.visible'
+                            defaultMessage='(Only visible to you)'
+                        />
+                    </span>
+                );
             } else if (isSystemMessage) {
                 userProfile = (
                     <UserProfile
@@ -376,7 +395,6 @@ class RhsComment extends React.PureComponent {
                         disablePopover={true}
                     />
                 );
-
                 visibleMessage = (
                     <span className='post__visibility'>
                         <FormattedMessage
@@ -425,6 +443,17 @@ class RhsComment extends React.PureComponent {
             );
         }
 
+        let flagIcon = null;
+        if (!isMobile() && (!isEphemeral && !post.failed && !isSystemMessage)) {
+            flagIcon = (
+                <PostFlagIcon
+                    location={Locations.RHS_COMMENT}
+                    postId={post.id}
+                    isFlagged={this.props.isFlagged}
+                />
+            );
+        }
+
         let options;
         if (isEphemeral) {
             options = (
@@ -450,38 +479,16 @@ class RhsComment extends React.PureComponent {
 
             options = (
                 <div
-                    ref='dotMenu'
+                    ref={this.dotMenuRef}
                     className='col post-menu'
                 >
                     {dotMenu}
                     {postReaction}
+                    {flagIcon}
                 </div>
             );
         }
 
-        let pinnedBadge;
-        if (post.is_pinned) {
-            pinnedBadge = (
-                <span className='post__pinned-badge'>
-                    <FormattedMessage
-                        id='post_info.pinned'
-                        defaultMessage='Pinned'
-                    />
-                </span>
-            );
-        }
-
-        let flagIcon = null;
-        if (this.state.hover || this.state.a11yActive || this.state.dropdownOpened || this.state.showEmojiPicker || this.props.isFlagged) {
-            flagIcon = (
-                <PostFlagIcon
-                    location={Locations.RHS_COMMENT}
-                    postId={post.id}
-                    isFlagged={this.props.isFlagged}
-                    isEphemeral={isEphemeral}
-                />
-            );
-        }
         const postTime = this.renderPostTime();
 
         let postInfoIcon;
@@ -529,6 +536,11 @@ class RhsComment extends React.PureComponent {
                 onFocus={this.handlePostFocus}
                 data-a11y-sort-order={this.props.a11yIndex}
             >
+                <PostPreHeader
+                    isFlagged={this.props.isFlagged}
+                    isPinned={post.is_pinned}
+                    channelId={post.channel_id}
+                />
                 <div
                     role='application'
                     className='post__content'
@@ -547,9 +559,7 @@ class RhsComment extends React.PureComponent {
                             </div>
                             <div className='col'>
                                 {postTime}
-                                {pinnedBadge}
                                 {postInfoIcon}
-                                {flagIcon}
                                 {visibleMessage}
                             </div>
                             {options}
@@ -579,3 +589,4 @@ class RhsComment extends React.PureComponent {
 }
 
 export default injectIntl(RhsComment);
+/* eslint-enable react/no-string-refs */

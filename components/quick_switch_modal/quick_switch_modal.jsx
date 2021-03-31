@@ -1,5 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+/* eslint-disable react/no-string-refs */
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -18,7 +19,7 @@ import SwitchChannelProvider from 'components/suggestion/switch_channel_provider
 import SwitchTeamProvider from 'components/suggestion/switch_team_provider.jsx';
 import NoResultsIndicator from 'components/no_results_indicator/no_results_indicator.tsx';
 
-import {NoResultsVariant} from '../no_results_indicator/types';
+import {NoResultsVariant} from 'components/no_results_indicator/types';
 
 const CHANNEL_MODE = 'channel';
 const TEAM_MODE = 'team';
@@ -54,6 +55,7 @@ export default class QuickSwitchModal extends React.PureComponent {
             text: '',
             mode: CHANNEL_MODE,
             hasSuggestions: true,
+            shouldShowLoadingSpinner: true,
             pretext: '',
         };
     }
@@ -101,7 +103,7 @@ export default class QuickSwitchModal extends React.PureComponent {
     };
 
     onChange = (e) => {
-        this.setState({text: e.target.value});
+        this.setState({text: e.target.value, shouldShowLoadingSpinner: true});
     };
 
     handleKeyDown = (e) => {
@@ -163,13 +165,14 @@ export default class QuickSwitchModal extends React.PureComponent {
     }
 
     handleSuggestionsReceived = (suggestions) => {
-        const noLoadingProp = suggestions.items.some((item) => !item.loading);
-        this.setState({hasSuggestions: !suggestions.matchedPretext || (suggestions.items.length > 0 && noLoadingProp), pretext: suggestions.matchedPretext});
+        const loadingPropPresent = suggestions.items.some((item) => item.loading);
+        this.setState({shouldShowLoadingSpinner: loadingPropPresent,
+            pretext: suggestions.matchedPretext,
+            hasSuggestions: suggestions.items.length > 0});
     }
 
     render() {
         let providers = this.channelProviders;
-        let renderDividers = true;
 
         let header = (
             <h1>
@@ -199,7 +202,6 @@ export default class QuickSwitchModal extends React.PureComponent {
             let teamsActiveClass = '';
             if (this.state.mode === TEAM_MODE) {
                 providers = this.teamProviders;
-                renderDividers = false;
                 teamsActiveClass = 'active';
             } else {
                 channelsActiveClass = 'active';
@@ -266,7 +268,7 @@ export default class QuickSwitchModal extends React.PureComponent {
             help = (
                 <FormattedMarkdownMessage
                     id='quick_switch_modal.help_no_team'
-                    defaultMessage='Type to find a channel. Use **▲/▼** to browse, **ENTER** to select, **ESC** to dismiss.'
+                    defaultMessage='Type to find a channel. Use **UP/DOWN** to browse, **ENTER** to select, **ESC** to dismiss.'
                 />
             );
         }
@@ -281,6 +283,7 @@ export default class QuickSwitchModal extends React.PureComponent {
                 restoreFocus={false}
                 role='dialog'
                 aria-labelledby='quickSwitchModalLabel'
+                aria-describedby='quickSwitchHint'
                 animation={false}
             >
                 <Modal.Header
@@ -298,7 +301,7 @@ export default class QuickSwitchModal extends React.PureComponent {
                         </div>
                     </div>
                     <div className='channel-switcher__suggestion-box'>
-                        <i className='icon icon-magnify'/>
+                        <i className='icon icon-magnify icon-16'/>
                         <SuggestionBox
                             id='quickSwitchInput'
                             ref={this.setSwitchBoxRef}
@@ -313,16 +316,15 @@ export default class QuickSwitchModal extends React.PureComponent {
                             listStyle='bottom'
                             completeOnTab={false}
                             spellCheck='false'
-                            renderDividers={renderDividers}
                             delayInputUpdate={true}
                             openWhenEmpty={true}
                             onSuggestionsReceived={this.handleSuggestionsReceived}
-                            suppressLoadingSpinner={!this.state.hasSuggestions}
+                            forceSuggestionsWhenBlur={true}
                         />
-                        {!this.state.hasSuggestions &&
+                        {!this.state.shouldShowLoadingSpinner && !this.state.hasSuggestions && this.state.text &&
                         <NoResultsIndicator
                             variant={NoResultsVariant.ChannelSearch}
-                            formattedMessageValues={{channelName: `"${this.state.pretext}"`}}
+                            titleValues={{channelName: `"${this.state.pretext}"`}}
                         />
                         }
                     </div>
@@ -331,3 +333,4 @@ export default class QuickSwitchModal extends React.PureComponent {
         );
     }
 }
+/* eslint-enable react/no-string-refs */

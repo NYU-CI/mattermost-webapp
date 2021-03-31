@@ -24,7 +24,7 @@ import {formatPostsPerDayData, formatUsersWithPostsPerDayData} from '../format';
 
 const LAST_ANALYTICS_TEAM = 'last_analytics_team';
 
-export default class TeamAnalytics extends React.Component {
+export default class TeamAnalytics extends React.PureComponent {
     static propTypes = {
 
         /*
@@ -183,6 +183,7 @@ export default class TeamAnalytics extends React.Component {
                                 defaultMessage='Total Posts'
                             />
                         }
+                        id='totalPosts'
                         data={postCountsDay}
                         width={740}
                         height={225}
@@ -200,6 +201,7 @@ export default class TeamAnalytics extends React.Component {
                                 defaultMessage='Active Users With Posts'
                             />
                         }
+                        id='activeUsersWithPosts'
                         data={userCountsWithPostsDay}
                         width={740}
                         height={225}
@@ -246,6 +248,7 @@ export default class TeamAnalytics extends React.Component {
                     </div>
                     <div className='team-statistics__team-filter'>
                         <select
+                            data-testid='teamFilter'
                             className='form-control team-statistics__team-filter__dropdown'
                             onChange={this.handleTeamChange}
                             value={this.state.team.id}

@@ -7,26 +7,29 @@
 // - Use element ID when selecting an element. Create one if none.
 // ***************************************************************
 
-import {testWithConfig} from '../../support/hooks';
+// Stage: @prod
+// Group: @channel_sidebar
 
-import {getRandomInt} from '../../utils';
+import * as TIMEOUTS from '../../fixtures/timeouts';
+import {getRandomId} from '../../utils';
 
 describe('Channel sidebar', () => {
-    testWithConfig({
-        ServiceSettings: {
-            ExperimentalChannelSidebarOrganization: 'default_on',
-        },
-    });
-
     before(() => {
-        cy.apiLogin('user-1');
+        cy.apiUpdateConfig({
+            ServiceSettings: {
+                ExperimentalChannelSidebarOrganization: 'default_on',
+            },
+        });
 
-        cy.visit('/');
+        // # Login as test user and visit town-square
+        cy.apiInitSetup({loginAfter: true}).then(({team}) => {
+            cy.visit(`/${team.name}/channels/town-square`);
+        });
     });
 
     it('should create a new channel when using the new channel dropdown', () => {
         // # Start with a new team
-        const teamName = `team-${getRandomInt(999999)}`;
+        const teamName = `team-${getRandomId()}`;
         cy.createNewTeam(teamName, teamName);
 
         // * Verify that we've switched to the new team
@@ -54,7 +57,7 @@ describe('Channel sidebar', () => {
 
     it('should join a new public channel when using the new channel dropdown', () => {
         // # Start with a new team
-        const teamName = `team-${getRandomInt(999999)}`;
+        const teamName = `team-${getRandomId()}`;
         cy.createNewTeam(teamName, teamName);
 
         // * Verify that we've switched to the new team
@@ -64,7 +67,7 @@ describe('Channel sidebar', () => {
         cy.visit(`/${teamName}/channels/off-topic`);
 
         // # Wait for the channel to change
-        cy.get('#channelHeaderTitle').should('contain', 'Off-Topic');
+        cy.get('#channelHeaderTitle', {timeout: TIMEOUTS.HALF_MIN}).should('contain', 'Off-Topic');
 
         // # Click on the channel menu and select Leave Channel
         cy.get('#channelHeaderTitle').click();

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
 
-import {trackEvent} from 'actions/diagnostics_actions.jsx';
+import {trackEvent} from 'actions/telemetry_actions.jsx';
 import {Constants, Preferences, ModalIdentifiers} from 'utils/constants.jsx';
 import {useSafeUrl} from 'utils/url';
 import AppIcons from 'images/appIcons.png';
@@ -14,7 +14,7 @@ import InvitationModal from 'components/invitation_modal';
 
 const NUM_SCREENS = 3;
 
-export default class TutorialIntroScreens extends React.Component {
+export default class TutorialIntroScreens extends React.PureComponent {
     static propTypes = {
         currentUserId: PropTypes.string.isRequired,
         step: PropTypes.number,
@@ -304,7 +304,7 @@ export default class TutorialIntroScreens extends React.Component {
                     className={className}
                     data-screen={i}
                     onClick={(e) => this.handleCircleClick(e, i)}
-                />
+                />,
             );
         }
 

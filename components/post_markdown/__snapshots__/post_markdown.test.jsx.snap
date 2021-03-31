@@ -22,6 +22,7 @@ exports[`components/PostMarkdown plugin hooks can build upon other hook message 
   options={
     Object {
       "disableGroupHighlight": false,
+      "mentionHighlight": true,
     }
   }
   proxyImages={true}
@@ -50,6 +51,7 @@ exports[`components/PostMarkdown plugin hooks can overwrite other hooks messages
   options={
     Object {
       "disableGroupHighlight": false,
+      "mentionHighlight": true,
     }
   }
   proxyImages={true}
@@ -81,11 +83,12 @@ exports[`components/PostMarkdown should correctly pass postId down 1`] = `
 exports[`components/PostMarkdown should render header change properly 1`] = `
 <div>
   <FormattedMessage
-    defaultMessage="{username} updated the channel header from: {old} to: {new}"
+    defaultMessage="{username} updated the channel header <br></br><strong>From:</strong> {old} <br></br><strong>To:</strong> {new}"
     id="api.channel.post_update_channel_header_message_and_forget.updated_from"
     values={
       Object {
-        "new": <Connect(Markdown)
+        "br": [Function],
+        "new": <Memo(Connect(Markdown))
           message="now ~test"
           options={
             Object {
@@ -101,7 +104,7 @@ exports[`components/PostMarkdown should render header change properly 1`] = `
           postId="post_id"
           postType="system_header_change"
         />,
-        "old": <Connect(Markdown)
+        "old": <Memo(Connect(Markdown))
           message="see ~test"
           options={
             Object {
@@ -117,7 +120,8 @@ exports[`components/PostMarkdown should render header change properly 1`] = `
           postId="post_id"
           postType="system_header_change"
         />,
-        "username": <Connect(Markdown)
+        "strong": [Function],
+        "username": <Memo(Connect(Markdown))
           message="@user"
           options={
             Object {
@@ -153,6 +157,7 @@ exports[`components/PostMarkdown should render properly with a post 1`] = `
   options={
     Object {
       "disableGroupHighlight": false,
+      "mentionHighlight": true,
     }
   }
   proxyImages={true}
@@ -195,6 +200,7 @@ exports[`components/PostMarkdown should render properly without group highlight 
   options={
     Object {
       "disableGroupHighlight": true,
+      "mentionHighlight": true,
     }
   }
   proxyImages={true}
